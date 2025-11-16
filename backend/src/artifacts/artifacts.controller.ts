@@ -10,18 +10,19 @@ import {
   UploadedFile,
   Body,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiSecurity, ApiParam, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ArtifactsService } from './artifacts.service';
 import { StorageService } from './storage.service';
 import { CreateArtifactDto } from '../common/dto/artifact.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { JwtOrApiKeyGuard } from '../common/guards/jwt-or-api-key.guard';
 import { FileUtil } from '../common/utils/file.util';
 
 @ApiTags('Artifacts')
 @ApiBearerAuth('JWT-auth')
+@ApiSecurity('API-Key')
 @Controller('artifacts')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtOrApiKeyGuard)
 export class ArtifactsController {
   constructor(
     private artifactsService: ArtifactsService,

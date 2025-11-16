@@ -137,8 +137,13 @@ export class DashwrightReporter implements Reporter {
       console.log('✅ Dashwright: Test run completed successfully');
       console.log(`   Total: ${this.testResults.size} | Passed: ${passed} | Failed: ${failed} | Skipped: ${skipped}`);
       console.log(`   View results: ${this.config.apiUrl.replace('/api', '')}/runs/${this.testRunId}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Dashwright: Failed to update test run:', error);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+        console.error('Request payload:', JSON.stringify(error.config.data, null, 2));
+      }
     }
   }
 

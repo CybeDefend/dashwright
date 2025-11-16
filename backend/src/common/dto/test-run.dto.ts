@@ -99,7 +99,7 @@ export class UpdateTestRunDto {
 
   @IsDateString()
   @IsOptional()
-  finishedAt?: Date;
+  finishedAt?: string;
 
   @IsObject()
   @IsOptional()

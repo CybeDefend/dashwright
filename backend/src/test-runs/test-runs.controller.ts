@@ -1,16 +1,17 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiParam, ApiQuery } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiSecurity, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { TestRunsService } from './test-runs.service';
 import { TestRunsGateway } from './test-runs.gateway';
 import { CreateTestRunDto, UpdateTestRunDto } from '../common/dto/test-run.dto';
-import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { JwtOrApiKeyGuard } from '../common/guards/jwt-or-api-key.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { User } from '../entities';
 
 @ApiTags('Test Runs')
 @ApiBearerAuth('JWT-auth')
+@ApiSecurity('API-Key')
 @Controller('test-runs')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtOrApiKeyGuard)
 export class TestRunsController {
   constructor(
     private testRunsService: TestRunsService,

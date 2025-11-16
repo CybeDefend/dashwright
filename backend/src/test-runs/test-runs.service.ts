@@ -40,7 +40,12 @@ export class TestRunsService {
   }
 
   async update(id: string, updateTestRunDto: UpdateTestRunDto): Promise<TestRun | null> {
-    await this.testRunRepository.update(id, updateTestRunDto);
+    const updateData = {
+      ...updateTestRunDto,
+      finishedAt: updateTestRunDto.finishedAt ? new Date(updateTestRunDto.finishedAt) : undefined,
+    };
+    
+    await this.testRunRepository.update(id, updateData);
     return this.findOne(id);
   }
 
