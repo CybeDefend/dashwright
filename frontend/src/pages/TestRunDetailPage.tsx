@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient } from "../services/apiClient";
 import NativeTraceViewer from "../components/NativeTraceViewer";
 import ConfirmModal from "../components/ConfirmModal";
+import { wsService } from "../services/websocket";
 
 interface TestRun {
   id: string;
@@ -54,6 +55,7 @@ const TestRunDetailPage: React.FC = () => {
   } | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const wsConnected = useRef(false);
 
   useEffect(() => {
     if (!id) return;
@@ -95,6 +97,33 @@ const TestRunDetailPage: React.FC = () => {
     };
 
     fetchTestRun();
+
+    // Connect WebSocket for real-time updates
+    if (!wsConnected.current) {
+      wsConnected.current = true;
+      wsService.connect();
+
+      wsService.on("test-run:updated", (updatedRun: TestRun) => {
+        // Only update if this is the test run we're viewing
+        if (updatedRun.id === id) {
+          setTestRun((prev) => {
+            if (!prev) return updatedRun;
+            // Preserve artifacts if not included in the update
+            return {
+              ...updatedRun,
+              artifacts: updatedRun.artifacts || prev.artifacts,
+            };
+          });
+        }
+      });
+    }
+
+    return () => {
+      if (wsConnected.current) {
+        wsService.disconnect();
+        wsConnected.current = false;
+      }
+    };
   }, [id]);
 
   useEffect(() => {
