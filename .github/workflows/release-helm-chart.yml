@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - "helm-chart/**"
   workflow_dispatch:
 
 permissions:
@@ -104,7 +102,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: "."
 
       - name: Deploy to GitHub Pages
         id: deployment
