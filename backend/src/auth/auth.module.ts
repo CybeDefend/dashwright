@@ -8,10 +8,12 @@ import { AuthController } from "./auth.controller";
 import { JwtStrategy } from "./strategies/jwt.strategy";
 import { LocalStrategy } from "./strategies/local.strategy";
 import { User, Organization, UserRole } from "../entities";
+import { SystemSetting } from "../entities/system-setting.entity";
+import { SystemSettingsService } from "../services/system-settings.service";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Organization, UserRole]),
+    TypeOrmModule.forFeature([User, Organization, UserRole, SystemSetting]),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -24,7 +26,7 @@ import { User, Organization, UserRole } from "../entities";
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy, LocalStrategy],
+  providers: [AuthService, JwtStrategy, LocalStrategy, SystemSettingsService],
   controllers: [AuthController],
   exports: [AuthService],
 })

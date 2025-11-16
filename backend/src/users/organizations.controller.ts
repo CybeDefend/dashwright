@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -23,14 +24,49 @@ import {
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { RolesGuard } from "../common/guards/roles.guard";
 import { Roles } from "../common/decorators/roles.decorator";
-import { RoleType } from "../entities";
+import { RoleType, Organization } from "../entities";
+import { Request } from "express";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 
 @ApiTags("Organizations")
 @ApiBearerAuth("JWT-auth")
 @Controller("organizations")
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class OrganizationsController {
-  constructor(private organizationsService: OrganizationsService) {}
+  constructor(
+    private organizationsService: OrganizationsService,
+    @InjectRepository(Organization)
+    private organizationRepository: Repository<Organization>
+  ) {}
+
+  @Get("me")
+  @ApiOperation({ summary: "Get current user's organization" })
+  @ApiResponse({
+    status: 200,
+    description: "Organization retrieved successfully",
+  })
+  @ApiResponse({ status: 404, description: "Organization not found" })
+  async getMyOrganization(@Req() req: Request) {
+    const user = req.user as any;
+    if (!user?.organizationId) {
+      return null;
+    }
+
+    const organization = await this.organizationRepository.findOne({
+      where: { id: user.organizationId },
+      select: ["id", "name"],
+    });
+
+    if (!organization) {
+      return null;
+    }
+
+    return {
+      id: organization.id,
+      name: organization.name,
+    };
+  }
 
   @Post()
   @Roles(RoleType.ADMIN)

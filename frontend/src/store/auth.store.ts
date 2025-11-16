@@ -5,6 +5,7 @@ interface User {
   username: string;
   fullName: string;
   organizationId: string;
+  isSuperAdmin?: boolean;
 }
 
 interface AuthState {

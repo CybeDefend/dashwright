@@ -10,6 +10,7 @@ import { ArtifactsModule } from "./artifacts/artifacts.module";
 import { IntegrationsModule } from "./integrations/integrations.module";
 import { ApiKeysModule } from "./api-keys/api-keys.module";
 import { InvitationsModule } from "./invitations/invitations.module";
+import { AdminModule } from "./admin/admin.module";
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { InvitationsModule } from "./invitations/invitations.module";
     IntegrationsModule,
     ApiKeysModule,
     InvitationsModule,
+    AdminModule,
   ],
 })
 export class AppModule {}

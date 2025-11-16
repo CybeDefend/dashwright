@@ -320,7 +320,9 @@ export default function DashboardPage() {
               </label>
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as "newest" | "oldest")}
+                onChange={(e) =>
+                  setSortBy(e.target.value as "newest" | "oldest")
+                }
                 className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               >
                 <option value="newest">Newest First</option>
@@ -566,7 +568,12 @@ export default function DashboardPage() {
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         onClose={() =>
-          setConfirmModal({ isOpen: false, type: null, runId: null, runName: "" })
+          setConfirmModal({
+            isOpen: false,
+            type: null,
+            runId: null,
+            runName: "",
+          })
         }
         onConfirm={handleConfirmAction}
         title={
@@ -579,7 +586,9 @@ export default function DashboardPage() {
             ? `Are you sure you want to permanently delete "${confirmModal.runName}"? This action cannot be undone.`
             : `Are you sure you want to mark "${confirmModal.runName}" as failed?`
         }
-        confirmText={confirmModal.type === "delete" ? "Delete" : "Mark as Failed"}
+        confirmText={
+          confirmModal.type === "delete" ? "Delete" : "Mark as Failed"
+        }
         type={confirmModal.type === "delete" ? "danger" : "warning"}
       />
     </div>

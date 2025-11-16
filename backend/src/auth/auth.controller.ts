@@ -1,4 +1,11 @@
-import { Controller, Post, UseGuards, Body, Request } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Get,
+  UseGuards,
+  Body,
+  Request,
+} from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "../common/guards/local-auth.guard";
@@ -13,6 +20,28 @@ import {
 @Controller("auth")
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get("setup-status")
+  @ApiOperation({ summary: "Check if platform setup is needed" })
+  @ApiResponse({
+    status: 200,
+    description: "Setup status",
+  })
+  async getSetupStatus() {
+    const needsSetup = await this.authService.needsSetup();
+    return { needsSetup };
+  }
+
+  @Get("registration-status")
+  @ApiOperation({ summary: "Check if registration is enabled" })
+  @ApiResponse({
+    status: 200,
+    description: "Registration status",
+  })
+  async getRegistrationStatus() {
+    const enabled = await this.authService.isRegistrationEnabled();
+    return { enabled };
+  }
 
   @Post("register")
   @ApiOperation({ summary: "Register a new user and organization" })

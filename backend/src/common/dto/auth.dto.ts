@@ -104,6 +104,7 @@ export class AuthResponseDto {
       username: "john.doe",
       fullName: "John Doe",
       organizationId: "123e4567-e89b-12d3-a456-426614174001",
+      isSuperAdmin: false,
     },
   })
   user: {
@@ -111,5 +112,6 @@ export class AuthResponseDto {
     username: string;
     fullName: string;
     organizationId: string;
+    isSuperAdmin?: boolean;
   };
 }

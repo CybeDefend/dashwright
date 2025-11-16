@@ -32,6 +32,9 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
+  @Column({ name: "is_super_admin", default: false })
+  isSuperAdmin: boolean;
+
   @Column({ type: "timestamp", nullable: true })
   lastLoginAt: Date;
 

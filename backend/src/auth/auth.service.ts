@@ -2,6 +2,7 @@ import {
   Injectable,
   UnauthorizedException,
   ConflictException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
@@ -10,6 +11,7 @@ import { Repository } from "typeorm";
 import { User, Organization, UserRole, RoleType } from "../entities";
 import { PasswordUtil } from "../common/utils/password.util";
 import { AuthResponseDto, RegisterDto } from "../common/dto/auth.dto";
+import { SystemSettingsService } from "../services/system-settings.service";
 
 @Injectable()
 export class AuthService {
@@ -22,6 +24,7 @@ export class AuthService {
     private userRoleRepository: Repository<UserRole>,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private systemSettingsService: SystemSettingsService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<User | null> {
@@ -67,6 +70,7 @@ export class AuthService {
         username: user.username,
         fullName: user.fullName,
         organizationId: user.organizationId,
+        isSuperAdmin: user.isSuperAdmin,
       },
     };
   }
@@ -93,6 +97,19 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponseDto> {
+    // Check if this is the first user (will be super admin)
+    const userCount = await this.userRepository.count();
+    const isFirstUser = userCount === 0;
+
+    // If not the first user, check if registration is enabled
+    if (!isFirstUser) {
+      const registrationEnabled =
+        await this.systemSettingsService.isRegistrationEnabled();
+      if (!registrationEnabled) {
+        throw new ForbiddenException("Registration is currently disabled");
+      }
+    }
+
     // Check if username already exists
     const existingUser = await this.userRepository.findOne({
       where: { username: registerDto.username },
@@ -131,6 +148,7 @@ export class AuthService {
       fullName: registerDto.fullName || registerDto.username,
       organizationId: organization.id,
       isActive: true,
+      isSuperAdmin: isFirstUser, // First user becomes super admin
     });
     await this.userRepository.save(user);
 
@@ -144,5 +162,14 @@ export class AuthService {
 
     // Return auth tokens
     return this.login(user);
+  }
+
+  async isRegistrationEnabled(): Promise<boolean> {
+    return this.systemSettingsService.isRegistrationEnabled();
+  }
+
+  async needsSetup(): Promise<boolean> {
+    const userCount = await this.userRepository.count();
+    return userCount === 0;
   }
 }

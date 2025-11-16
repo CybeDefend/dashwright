@@ -90,7 +90,33 @@ validate_version() {
     fi
 }
 
-# Update version in package.json
+# Update version in all package.json files
+update_all_versions() {
+    local version=$1
+    
+    # Update backend
+    print_info "Updating backend version to $version"
+    cd backend
+    npm version "$version" --no-git-tag-version --allow-same-version
+    cd ..
+    print_success "Backend version updated"
+    
+    # Update frontend
+    print_info "Updating frontend version to $version"
+    cd frontend
+    npm version "$version" --no-git-tag-version --allow-same-version
+    cd ..
+    print_success "Frontend version updated"
+    
+    # Update NPM package
+    print_info "Updating NPM package version to $version"
+    cd integrations/npm-package
+    npm version "$version" --no-git-tag-version --allow-same-version
+    cd ../..
+    print_success "NPM package version updated"
+}
+
+# Update version in package.json (legacy function for NPM only)
 update_npm_version() {
     local version=$1
     local current_version=$(cd integrations/npm-package && node -p "require('./package.json').version")
@@ -174,6 +200,7 @@ release_docker() {
     fi
     
     update_changelog "$version"
+    update_all_versions "$version"
     create_git_tag "$version"
     push_to_remote
     
@@ -249,7 +276,7 @@ release_all() {
     fi
     
     update_changelog "$version"
-    update_npm_version "$version"
+    update_all_versions "$version"
     
     # Update NPM CHANGELOG
     cd integrations/npm-package
