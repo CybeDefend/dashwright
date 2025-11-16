@@ -12,6 +12,7 @@ export interface DashwrightConfig {
   uploadArtifacts?: boolean;
   uploadScreenshots?: boolean;
   uploadVideos?: boolean;
+  uploadTraces?: boolean;
   uploadLogs?: boolean;
   retryAttempts?: number;
   retryDelay?: number;

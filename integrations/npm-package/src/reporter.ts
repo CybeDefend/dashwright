@@ -77,31 +77,52 @@ export class DashwrightReporter implements Reporter {
 
     if (!this.testRunId) return;
 
-    // Upload screenshots
+    // Upload artifacts based on configuration
+    const uploadPromises: Promise<void>[] = [];
+
     for (const attachment of result.attachments) {
       try {
-        if (attachment.name === 'screenshot' && attachment.path) {
-          await this.uploader.uploadScreenshot(
-            attachment.path,
-            this.testRunId,
-            test.title
+        if (attachment.name === 'screenshot' && attachment.path && this.config.uploadScreenshots) {
+          console.log(`📸 Uploading screenshot for test: ${test.title}`);
+          uploadPromises.push(
+            this.uploader.uploadScreenshot(
+              attachment.path,
+              this.testRunId,
+              test.title
+            )
           );
-        } else if (attachment.name === 'video' && attachment.path) {
-          await this.uploader.uploadVideo(
-            attachment.path,
-            this.testRunId,
-            test.title
+        } else if (attachment.name === 'video' && attachment.path && this.config.uploadVideos) {
+          console.log(`🎥 Uploading video for test: ${test.title}`);
+          uploadPromises.push(
+            this.uploader.uploadVideo(
+              attachment.path,
+              this.testRunId,
+              test.title
+            )
           );
-        } else if (attachment.name === 'trace' && attachment.path) {
-          await this.uploader.uploadArtifact(attachment.path, {
-            type: 'trace',
-            mimeType: 'application/zip',
-            testRunId: this.testRunId,
-            testName: test.title,
-          });
+        } else if (attachment.name === 'trace' && attachment.path && this.config.uploadTraces) {
+          console.log(`📊 Uploading trace for test: ${test.title}`);
+          uploadPromises.push(
+            this.uploader.uploadArtifact(attachment.path, {
+              type: 'trace',
+              mimeType: 'application/zip',
+              testRunId: this.testRunId,
+              testName: test.title,
+            })
+          );
         }
       } catch (error) {
-        console.error(`❌ Dashwright: Failed to upload artifact for test "${test.title}":`, error);
+        console.error(`❌ Dashwright: Failed to prepare upload for test "${test.title}":`, error);
+      }
+    }
+
+    // Wait for all uploads to complete
+    if (uploadPromises.length > 0) {
+      try {
+        await Promise.all(uploadPromises);
+        console.log(`✅ Uploaded ${uploadPromises.length} artifact(s) for test: ${test.title}`);
+      } catch (error) {
+        console.error(`❌ Dashwright: Failed to upload artifacts for test "${test.title}":`, error);
       }
     }
   }
