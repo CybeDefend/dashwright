@@ -53,9 +53,13 @@ export default function Sidebar() {
   const links = [
     { to: "/", icon: Home, label: "Dashboard" },
     // Organization (invitations) - Admin only
-    ...(isAdmin(user) ? [{ to: "/organization", icon: Users, label: "Organization" }] : []),
+    ...(isAdmin(user)
+      ? [{ to: "/organization", icon: Users, label: "Organization" }]
+      : []),
     // API Keys - Admin and Maintainer only
-    ...(canManage(user) ? [{ to: "/api-keys", icon: Key, label: "API Keys" }] : []),
+    ...(canManage(user)
+      ? [{ to: "/api-keys", icon: Key, label: "API Keys" }]
+      : []),
     // Admin page - Super admin only
     ...(user?.isSuperAdmin
       ? [{ to: "/admin", icon: Settings, label: "Admin" }]
@@ -86,7 +90,10 @@ export default function Sidebar() {
                 {copiedOrgId ? (
                   <Check className="text-green-600" size={12} />
                 ) : (
-                  <Copy className="text-gray-400 hover:text-gray-600" size={12} />
+                  <Copy
+                    className="text-gray-400 hover:text-gray-600"
+                    size={12}
+                  />
                 )}
               </button>
             </div>

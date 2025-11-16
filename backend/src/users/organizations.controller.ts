@@ -37,7 +37,7 @@ export class OrganizationsController {
   constructor(
     private organizationsService: OrganizationsService,
     @InjectRepository(Organization)
-    private organizationRepository: Repository<Organization>
+    private organizationRepository: Repository<Organization>,
   ) {}
 
   @Get("me")

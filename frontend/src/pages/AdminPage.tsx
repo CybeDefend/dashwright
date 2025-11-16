@@ -82,7 +82,7 @@ const AdminPage: React.FC = () => {
       navigate("/dashboard");
       return;
     }
-    
+
     if (!hasFetched.current) {
       hasFetched.current = true;
       fetchAdminData();

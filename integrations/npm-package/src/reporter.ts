@@ -105,7 +105,10 @@ export class DashwrightReporter implements Reporter {
         }
       );
     } catch (error: any) {
-      console.error("❌ Dashwright: Failed to update test run progress:", error);
+      console.error(
+        "❌ Dashwright: Failed to update test run progress:",
+        error
+      );
     }
 
     // Upload artifacts based on configuration
