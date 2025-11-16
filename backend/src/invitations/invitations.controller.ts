@@ -22,6 +22,9 @@ import {
   InvitationResponseDto,
 } from "../common/dto/invitation.dto";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
+import { RolesGuard } from "../guards/roles.guard";
+import { Roles } from "../decorators/roles.decorator";
+import { RoleType } from "../entities/user-role.entity";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { User } from "../entities";
 
@@ -31,7 +34,8 @@ export class InvitationsController {
   constructor(private invitationsService: InvitationsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleType.ADMIN)
   @ApiBearerAuth("JWT-auth")
   @ApiOperation({ summary: "Create a new invitation to join the organization" })
   @ApiResponse({
@@ -69,7 +73,8 @@ export class InvitationsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleType.ADMIN)
   @ApiBearerAuth("JWT-auth")
   @ApiOperation({ summary: "Get all invitations for the organization" })
   @ApiResponse({
@@ -131,7 +136,8 @@ export class InvitationsController {
   }
 
   @Patch(":id/revoke")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleType.ADMIN)
   @ApiBearerAuth("JWT-auth")
   @ApiOperation({ summary: "Revoke a pending invitation" })
   @ApiParam({ name: "id", description: "Invitation UUID" })
@@ -143,7 +149,8 @@ export class InvitationsController {
   }
 
   @Delete(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(RoleType.ADMIN)
   @ApiBearerAuth("JWT-auth")
   @ApiOperation({ summary: "Delete an invitation" })
   @ApiParam({ name: "id", description: "Invitation UUID" })

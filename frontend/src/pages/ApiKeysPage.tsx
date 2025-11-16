@@ -4,8 +4,10 @@ import { apiKeyService } from '../services/apiKeyService';
 import { ApiKey, ApiKeyWithSecret, CreateApiKeyDto } from '../types';
 import { format } from 'date-fns';
 import ConfirmModal from '../components/ConfirmModal';
+import { useAuthStore, canManage } from '../store/auth.store';
 
 export default function ApiKeysPage() {
+  const { user } = useAuthStore();
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -82,13 +84,15 @@ export default function ApiKeysPage() {
           <h1 className="text-4xl font-bold gradient-text mb-2">API Keys</h1>
           <p className="text-gray-600">Manage API keys for programmatic access to Dashwright</p>
         </div>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <Plus className="w-5 h-5" />
-          Create API Key
-        </button>
+        {canManage(user) && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <Plus className="w-5 h-5" />
+            Create API Key
+          </button>
+        )}
       </div>
 
       {/* API Keys List */}
@@ -145,24 +149,26 @@ export default function ApiKeysPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {key.isActive && (
+                  {canManage(user) && (
+                    <div className="flex items-center gap-2">
+                      {key.isActive && (
+                        <button
+                          onClick={() => handleRevoke(key.id, key.name)}
+                          className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                          title="Revoke API key"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      )}
                       <button
-                        onClick={() => handleRevoke(key.id, key.name)}
-                        className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
-                        title="Revoke API key"
+                        onClick={() => handleDelete(key.id, key.name)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete API key"
                       >
-                        <XCircle className="w-5 h-5" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
-                    )}
-                    <button
-                      onClick={() => handleDelete(key.id, key.name)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete API key"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

@@ -17,6 +17,9 @@ export class DashwrightReporter implements Reporter {
   private testRunId: string | null = null;
   private startTime: Date = new Date();
   private testResults: Map<string, TestResult> = new Map();
+  private passedCount: number = 0;
+  private failedCount: number = 0;
+  private skippedCount: number = 0;
   private client;
 
   constructor(config: DashwrightConfig) {
@@ -84,7 +87,26 @@ export class DashwrightReporter implements Reporter {
   async onTestEnd(test: TestCase, result: TestResult) {
     this.testResults.set(test.id, result);
 
+    // Update counters
+    if (result.status === "passed") this.passedCount++;
+    else if (result.status === "failed") this.failedCount++;
+    else if (result.status === "skipped") this.skippedCount++;
+
     if (!this.testRunId) return;
+
+    // Send progress update to backend
+    try {
+      await this.client.patch(
+        `/integrations/playwright/run/${this.testRunId}/progress`,
+        {
+          passedTests: this.passedCount,
+          failedTests: this.failedCount,
+          skippedTests: this.skippedCount,
+        }
+      );
+    } catch (error: any) {
+      console.error("❌ Dashwright: Failed to update test run progress:", error);
+    }
 
     // Upload artifacts based on configuration
     const uploadPromises: Promise<void>[] = [];

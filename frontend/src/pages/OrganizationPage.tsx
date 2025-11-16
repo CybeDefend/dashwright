@@ -20,8 +20,10 @@ import {
 } from "../types";
 import { format } from "date-fns";
 import ConfirmModal from "../components/ConfirmModal";
+import { useAuthStore, isAdmin } from "../store/auth.store";
 
 export default function OrganizationPage() {
+  const { user } = useAuthStore();
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -129,13 +131,15 @@ export default function OrganizationPage() {
           </h1>
           <p className="text-gray-600">Manage team members and invitations</p>
         </div>
-        <button
-          onClick={() => setShowInviteModal(true)}
-          className="btn-primary flex items-center gap-2"
-        >
-          <UserPlus className="w-5 h-5" />
-          Invite Member
-        </button>
+        {isAdmin(user) && (
+          <button
+            onClick={() => setShowInviteModal(true)}
+            className="btn-primary flex items-center gap-2"
+          >
+            <UserPlus className="w-5 h-5" />
+            Invite Member
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -152,13 +156,19 @@ export default function OrganizationPage() {
         {invitations.length === 0 ? (
           <div className="text-center py-12">
             <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600 mb-4">No invitations yet</p>
-            <button
-              onClick={() => setShowInviteModal(true)}
-              className="text-indigo-600 hover:text-indigo-700 font-medium"
-            >
-              Invite your first team member
-            </button>
+            <p className="text-gray-600 mb-4">
+              {isAdmin(user)
+                ? "No invitations yet"
+                : "No invitations available"}
+            </p>
+            {isAdmin(user) && (
+              <button
+                onClick={() => setShowInviteModal(true)}
+                className="text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Invite your first team member
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -210,28 +220,30 @@ export default function OrganizationPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {invitation.status === InvitationStatus.PENDING && (
+                  {isAdmin(user) && (
+                    <div className="flex items-center gap-2">
+                      {invitation.status === InvitationStatus.PENDING && (
+                        <button
+                          onClick={() =>
+                            handleRevoke(invitation.id, invitation.email)
+                          }
+                          className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
+                          title="Revoke invitation"
+                        >
+                          <XCircle className="w-5 h-5" />
+                        </button>
+                      )}
                       <button
                         onClick={() =>
-                          handleRevoke(invitation.id, invitation.email)
+                          handleDelete(invitation.id, invitation.email)
                         }
-                        className="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors"
-                        title="Revoke invitation"
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete invitation"
                       >
-                        <XCircle className="w-5 h-5" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
-                    )}
-                    <button
-                      onClick={() =>
-                        handleDelete(invitation.id, invitation.email)
-                      }
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                      title="Delete invitation"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

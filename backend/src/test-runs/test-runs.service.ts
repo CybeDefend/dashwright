@@ -64,4 +64,18 @@ export class TestRunsService {
   async remove(id: string): Promise<void> {
     await this.testRunRepository.delete(id);
   }
+
+  async updateProgress(
+    id: string,
+    passedTests: number,
+    failedTests: number,
+    skippedTests: number,
+  ): Promise<TestRun | null> {
+    await this.testRunRepository.update(id, {
+      passedTests,
+      failedTests,
+      skippedTests,
+    });
+    return this.findOne(id);
+  }
 }

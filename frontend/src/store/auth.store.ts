@@ -1,11 +1,17 @@
 import { create } from "zustand";
 
+interface UserRole {
+  id: string;
+  role: "admin" | "maintainer" | "viewer";
+}
+
 interface User {
   id: string;
   username: string;
   fullName: string;
   organizationId: string;
   isSuperAdmin?: boolean;
+  roles?: UserRole[];
 }
 
 interface AuthState {
@@ -63,3 +69,24 @@ export const useAuthStore = create<AuthState>((set) => ({
     });
   },
 }));
+
+// Helper function to check if user has a specific role
+export const hasRole = (
+  user: User | null,
+  roles: ("admin" | "maintainer" | "viewer")[]
+): boolean => {
+  if (!user) return false;
+  if (user.isSuperAdmin) return true; // Super admin bypasses all checks
+  if (!user.roles || user.roles.length === 0) return false;
+  return user.roles.some((userRole) => roles.includes(userRole.role));
+};
+
+// Helper to check if user is admin
+export const isAdmin = (user: User | null): boolean => {
+  return hasRole(user, ["admin"]);
+};
+
+// Helper to check if user can manage (admin or maintainer)
+export const canManage = (user: User | null): boolean => {
+  return hasRole(user, ["admin", "maintainer"]);
+};

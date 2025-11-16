@@ -17,6 +17,7 @@ import { Repository, MoreThan } from "typeorm";
 import { User } from "../entities/user.entity";
 import { Organization } from "../entities/organization.entity";
 import { TestRun, TestRunStatus } from "../entities/test-run.entity";
+import { Invitation } from "../entities/invitation.entity";
 import { SystemSettingsService } from "../services/system-settings.service";
 import { StorageService } from "../artifacts/storage.service";
 import * as packageJson from "../../package.json";
@@ -33,6 +34,8 @@ export class AdminController {
     private organizationRepository: Repository<Organization>,
     @InjectRepository(TestRun)
     private testRunRepository: Repository<TestRun>,
+    @InjectRepository(Invitation)
+    private invitationRepository: Repository<Invitation>,
     private systemSettingsService: SystemSettingsService,
     private storageService: StorageService,
   ) {}
@@ -425,6 +428,15 @@ export class AdminController {
     if (user.isSuperAdmin) {
       throw new Error("Cannot delete super admin");
     }
+
+    // Delete all invitations created by this user
+    await this.invitationRepository.delete({ invitedById: id });
+
+    // Delete all pending invitations sent to this user's email
+    await this.invitationRepository.delete({
+      email: user.email,
+      status: "pending" as any,
+    });
 
     await this.userRepository.remove(user);
     return { success: true };

@@ -4,11 +4,12 @@ import { InvitationsController } from "./invitations.controller";
 import { InvitationsService } from "./invitations.service";
 import { Invitation } from "../entities/invitation.entity";
 import { User } from "../entities/user.entity";
+import { RolesGuard } from "../guards/roles.guard";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Invitation, User])],
   controllers: [InvitationsController],
-  providers: [InvitationsService],
+  providers: [InvitationsService, RolesGuard],
   exports: [InvitationsService],
 })
 export class InvitationsModule {}

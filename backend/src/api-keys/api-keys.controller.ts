@@ -18,17 +18,21 @@ import {
 import { ApiKeysService } from "./api-keys.service";
 import { CreateApiKeyDto, ApiKeyResponseDto } from "../common/dto/api-key.dto";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
+import { RolesGuard } from "../guards/roles.guard";
+import { Roles } from "../decorators/roles.decorator";
+import { RoleType } from "../entities/user-role.entity";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { User } from "../entities";
 
 @ApiTags("API Keys")
 @ApiBearerAuth("JWT-auth")
 @Controller("api-keys")
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ApiKeysController {
   constructor(private apiKeysService: ApiKeysService) {}
 
   @Post()
+  @Roles(RoleType.ADMIN, RoleType.MAINTAINER)
   @ApiOperation({ summary: "Create a new API key" })
   @ApiResponse({
     status: 201,
@@ -82,6 +86,7 @@ export class ApiKeysController {
   }
 
   @Patch(":id/revoke")
+  @Roles(RoleType.ADMIN, RoleType.MAINTAINER)
   @ApiOperation({ summary: "Revoke an API key (mark as inactive)" })
   @ApiParam({ name: "id", description: "API Key UUID" })
   @ApiResponse({ status: 200, description: "API key successfully revoked" })
@@ -92,6 +97,7 @@ export class ApiKeysController {
   }
 
   @Delete(":id")
+  @Roles(RoleType.ADMIN, RoleType.MAINTAINER)
   @ApiOperation({ summary: "Delete an API key permanently" })
   @ApiParam({ name: "id", description: "API Key UUID" })
   @ApiResponse({ status: 200, description: "API key successfully deleted" })

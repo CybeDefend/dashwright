@@ -9,7 +9,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { useAuthStore } from "../store/auth.store";
+import { useAuthStore, isAdmin, canManage } from "../store/auth.store";
 import clsx from "clsx";
 import { useEffect, useState, useRef } from "react";
 import apiClient from "../services/api";
@@ -52,8 +52,11 @@ export default function Sidebar() {
 
   const links = [
     { to: "/", icon: Home, label: "Dashboard" },
-    { to: "/organization", icon: Users, label: "Organization" },
-    { to: "/api-keys", icon: Key, label: "API Keys" },
+    // Organization (invitations) - Admin only
+    ...(isAdmin(user) ? [{ to: "/organization", icon: Users, label: "Organization" }] : []),
+    // API Keys - Admin and Maintainer only
+    ...(canManage(user) ? [{ to: "/api-keys", icon: Key, label: "API Keys" }] : []),
+    // Admin page - Super admin only
     ...(user?.isSuperAdmin
       ? [{ to: "/admin", icon: Settings, label: "Admin" }]
       : []),

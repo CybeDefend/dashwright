@@ -5,6 +5,8 @@ import {
   UseGuards,
   Request,
   ForbiddenException,
+  Param,
+  Patch,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -80,5 +82,47 @@ export class IntegrationsController {
     // but we should validate the testRun belongs to the user's org
     const artifact = await this.artifactsService.create(createArtifactDto);
     return { artifactId: artifact.id };
+  }
+
+  @Patch("playwright/run/:id/progress")
+  @ApiOperation({
+    summary: "Update test run progress incrementally (executed tests count)",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Test run progress updated successfully",
+  })
+  async updateProgress(
+    @Param("id") id: string,
+    @Body()
+    progressDto: {
+      passedTests?: number;
+      failedTests?: number;
+      skippedTests?: number;
+    },
+    @Request() req: any,
+  ) {
+    const userOrgId =
+      req.user?.organization?.id || req.apiKey?.organization?.id;
+
+    if (!userOrgId) {
+      throw new ForbiddenException(
+        "No organization associated with your account",
+      );
+    }
+
+    // Update the test run with new progress
+    const testRun = await this.testRunsService.updateProgress(
+      id,
+      progressDto.passedTests || 0,
+      progressDto.failedTests || 0,
+      progressDto.skippedTests || 0,
+    );
+
+    if (testRun) {
+      this.testRunsGateway.notifyTestRunUpdated(testRun);
+    }
+
+    return testRun;
   }
 }
