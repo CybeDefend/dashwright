@@ -5,13 +5,13 @@ replicaCount:
 
 image:
   backend:
-    repository: dashwright/backend
-    pullPolicy: IfNotPresent
-    tag: "latest"
+    repository: ghcr.io/cybedefend/dashwright/backend
+    pullPolicy: Always
+    tag: "1.0.19"
   frontend:
-    repository: dashwright/frontend
-    pullPolicy: IfNotPresent
-    tag: "latest"
+    repository: ghcr.io/cybedefend/dashwright/frontend
+    pullPolicy: Always
+    tag: "1.0.19"
 
 imagePullSecrets: []
 nameOverride: ""

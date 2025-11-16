@@ -114,6 +114,30 @@ update_all_versions() {
     npm version "$version" --no-git-tag-version --allow-same-version
     cd ../..
     print_success "NPM package version updated"
+    
+    # Update Helm Chart
+    print_info "Updating Helm Chart to $version"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        sed -i '' "s/^version: .*/version: $version/" helm-chart/Chart.yaml
+        sed -i '' "s/^appVersion: .*/appVersion: \"$version\"/" helm-chart/Chart.yaml
+        sed -i '' "s/tag: \".*\"/tag: \"$version\"/g" helm-chart/values.yaml
+    else
+        # Linux
+        sed -i "s/^version: .*/version: $version/" helm-chart/Chart.yaml
+        sed -i "s/^appVersion: .*/appVersion: \"$version\"/" helm-chart/Chart.yaml
+        sed -i "s/tag: \".*\"/tag: \"$version\"/g" helm-chart/values.yaml
+    fi
+    print_success "Helm Chart version updated"
+    
+    # Update README badge
+    print_info "Updating README Helm badge"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/Helm-v[0-9.]*-/Helm-v$version-/" README.md
+    else
+        sed -i "s/Helm-v[0-9.]*-/Helm-v$version-/" README.md
+    fi
+    print_success "README badge updated"
 }
 
 # Update version in package.json (legacy function for NPM only)

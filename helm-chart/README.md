@@ -46,8 +46,8 @@ The following table lists the configurable parameters of the Dashwright chart an
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `replicaCount.backend` | Number of backend replicas | `2` |
-| `replicaCount.frontend` | Number of frontend replicas | `2` |
+| `replicaCount.backend` | Number of backend replicas | `1` |
+| `replicaCount.frontend` | Number of frontend replicas | `1` |
 | `nameOverride` | Override chart name | `""` |
 | `fullnameOverride` | Override full name | `""` |
 
@@ -55,12 +55,12 @@ The following table lists the configurable parameters of the Dashwright chart an
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `image.backend.repository` | Backend image repository | `dashwright/backend` |
-| `image.backend.tag` | Backend image tag | `latest` |
-| `image.backend.pullPolicy` | Backend image pull policy | `IfNotPresent` |
-| `image.frontend.repository` | Frontend image repository | `dashwright/frontend` |
-| `image.frontend.tag` | Frontend image tag | `latest` |
-| `image.frontend.pullPolicy` | Frontend image pull policy | `IfNotPresent` |
+| `image.backend.repository` | Backend image repository | `ghcr.io/cybedefend/dashwright/backend` |
+| `image.backend.tag` | Backend image tag | `1.0.19` |
+| `image.backend.pullPolicy` | Backend image pull policy | `Always` |
+| `image.frontend.repository` | Frontend image repository | `ghcr.io/cybedefend/dashwright/frontend` |
+| `image.frontend.tag` | Frontend image tag | `1.0.19` |
+| `image.frontend.pullPolicy` | Frontend image pull policy | `Always` |
 
 ### Service Parameters
 
