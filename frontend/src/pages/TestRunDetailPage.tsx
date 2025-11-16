@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient } from "../services/apiClient";
 import NativeTraceViewer from "../components/NativeTraceViewer";
-import ConfirmModal from "../components/ConfirmModal";
 import { wsService } from "../services/websocket";
 
 interface TestRun {
@@ -53,8 +52,6 @@ const TestRunDetailPage: React.FC = () => {
     url: string;
     filename: string;
   } | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
   const wsConnected = useRef(false);
   const hasFetched = useRef(false);
 
