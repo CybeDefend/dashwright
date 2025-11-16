@@ -80,14 +80,6 @@ const TestRunDetailPage: React.FC = () => {
           "📊 Log artifacts:",
           response.data.artifacts?.filter((a: Artifact) => a.type === "log")
         );
-
-        // Auto-expand first test if available
-        if (response.data.artifacts && response.data.artifacts.length > 0) {
-          const firstTestName = response.data.artifacts[0].testName;
-          if (firstTestName) {
-            setExpandedTest(firstTestName);
-          }
-        }
       } catch (err: any) {
         console.error("Failed to fetch test run:", err);
         setError(err.response?.data?.message || "Failed to load test run");
