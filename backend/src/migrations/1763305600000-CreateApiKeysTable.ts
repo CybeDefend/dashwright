@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreateApiKeysTable1763305600000 implements MigrationInterface {
-  name = 'CreateApiKeysTable1763305600000';
+  name = "CreateApiKeysTable1763305600000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
@@ -55,10 +55,16 @@ export class CreateApiKeysTable1763305600000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_api_keys_key"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_api_keys_organizationId"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "IDX_api_keys_organizationId"`,
+    );
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_api_keys_userId"`);
-    await queryRunner.query(`ALTER TABLE "api_keys" DROP CONSTRAINT IF EXISTS "FK_api_keys_organization"`);
-    await queryRunner.query(`ALTER TABLE "api_keys" DROP CONSTRAINT IF EXISTS "FK_api_keys_user"`);
+    await queryRunner.query(
+      `ALTER TABLE "api_keys" DROP CONSTRAINT IF EXISTS "FK_api_keys_organization"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "api_keys" DROP CONSTRAINT IF EXISTS "FK_api_keys_user"`,
+    );
     await queryRunner.query(`DROP TABLE IF EXISTS "api_keys"`);
   }
 }

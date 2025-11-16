@@ -1,11 +1,15 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User, Organization, UserRole, RoleType } from '../entities';
-import { PasswordUtil } from '../common/utils/password.util';
-import { AuthResponseDto, RegisterDto } from '../common/dto/auth.dto';
+import {
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User, Organization, UserRole, RoleType } from "../entities";
+import { PasswordUtil } from "../common/utils/password.util";
+import { AuthResponseDto, RegisterDto } from "../common/dto/auth.dto";
 
 @Injectable()
 export class AuthService {
@@ -23,7 +27,7 @@ export class AuthService {
   async validateUser(username: string, password: string): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { username },
-      relations: ['roles', 'organization'],
+      relations: ["roles", "organization"],
     });
 
     if (!user || !user.isActive) {
@@ -31,7 +35,7 @@ export class AuthService {
     }
 
     const isPasswordValid = await PasswordUtil.verify(user.password, password);
-    
+
     if (!isPasswordValid) {
       return null;
     }
@@ -45,14 +49,14 @@ export class AuthService {
 
   async login(user: User): Promise<AuthResponseDto> {
     const payload = { username: user.username, sub: user.id };
-    
+
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get('JWT_EXPIRES_IN', '1h'),
+      expiresIn: this.configService.get("JWT_EXPIRES_IN", "1h"),
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      secret: this.configService.get('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get('JWT_REFRESH_EXPIRES_IN', '7d'),
+      secret: this.configService.get("JWT_REFRESH_SECRET"),
+      expiresIn: this.configService.get("JWT_REFRESH_EXPIRES_IN", "7d"),
     });
 
     return {
@@ -70,21 +74,21 @@ export class AuthService {
   async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get('JWT_REFRESH_SECRET'),
+        secret: this.configService.get("JWT_REFRESH_SECRET"),
       });
 
       const user = await this.userRepository.findOne({
         where: { id: payload.sub },
-        relations: ['roles', 'organization'],
+        relations: ["roles", "organization"],
       });
 
       if (!user || !user.isActive) {
-        throw new UnauthorizedException('Invalid refresh token');
+        throw new UnauthorizedException("Invalid refresh token");
       }
 
       return this.login(user);
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException("Invalid refresh token");
     }
   }
 
@@ -95,7 +99,7 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Username already exists');
+      throw new ConflictException("Username already exists");
     }
 
     // Check if email already exists (if provided)
@@ -105,7 +109,7 @@ export class AuthService {
       });
 
       if (existingEmail) {
-        throw new ConflictException('Email already exists');
+        throw new ConflictException("Email already exists");
       }
     }
 
@@ -134,7 +138,7 @@ export class AuthService {
     const userRole = this.userRoleRepository.create({
       userId: user.id,
       role: RoleType.ADMIN,
-      scope: 'organization',
+      scope: "organization",
     });
     await this.userRoleRepository.save(userRole);
 

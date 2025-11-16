@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User, UserRole, RoleType } from '../entities';
-import { CreateUserDto, UpdateUserDto } from '../common/dto/user.dto';
-import { PasswordUtil } from '../common/utils/password.util';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User, UserRole, RoleType } from "../entities";
+import { CreateUserDto, UpdateUserDto } from "../common/dto/user.dto";
+import { PasswordUtil } from "../common/utils/password.util";
 
 @Injectable()
 export class UsersService {
@@ -16,7 +16,7 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     const hashedPassword = await PasswordUtil.hash(createUserDto.password);
-    
+
     const user = this.userRepository.create({
       ...createUserDto,
       password: hashedPassword,
@@ -27,14 +27,14 @@ export class UsersService {
 
   async findAll(): Promise<User[]> {
     return this.userRepository.find({
-      relations: ['organization', 'roles'],
+      relations: ["organization", "roles"],
     });
   }
 
   async findOne(id: string): Promise<User | null> {
     return this.userRepository.findOne({
       where: { id },
-      relations: ['organization', 'roles'],
+      relations: ["organization", "roles"],
     });
   }
 
@@ -51,7 +51,11 @@ export class UsersService {
     await this.userRepository.delete(id);
   }
 
-  async assignRole(userId: string, role: RoleType, scope?: string): Promise<UserRole> {
+  async assignRole(
+    userId: string,
+    role: RoleType,
+    scope?: string,
+  ): Promise<UserRole> {
     const userRole = this.userRoleRepository.create({
       userId,
       role,

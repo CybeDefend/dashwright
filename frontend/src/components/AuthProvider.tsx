@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
-import { useAuthStore } from '../store/auth.store';
-import { apiClient } from '../services/apiClient';
+import { useEffect, useRef } from "react";
+import { useAuthStore } from "../store/auth.store";
+import { apiClient } from "../services/apiClient";
 
 interface UserProfile {
   id: string;
@@ -9,7 +9,11 @@ interface UserProfile {
   organizationId: string;
 }
 
-export default function AuthProvider({ children }: { children: React.ReactNode }) {
+export default function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { isAuthenticated, user, setUser } = useAuthStore();
   const hasFetchedProfile = useRef(false);
 
@@ -17,13 +21,14 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
     // Only fetch if authenticated, no user data, and haven't fetched yet
     if (isAuthenticated && !user && !hasFetchedProfile.current) {
       hasFetchedProfile.current = true;
-      
-      apiClient.get<UserProfile>('/users/profile')
-        .then(response => {
+
+      apiClient
+        .get<UserProfile>("/users/profile")
+        .then((response) => {
           setUser(response.data);
         })
-        .catch(error => {
-          console.error('Failed to fetch user profile:', error);
+        .catch((error) => {
+          console.error("Failed to fetch user profile:", error);
           // Don't set the flag to false, we tried once
         });
     }

@@ -5,27 +5,27 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { TestRun } from './test-run.entity';
+} from "typeorm";
+import { TestRun } from "./test-run.entity";
 
 export enum ArtifactType {
-  SCREENSHOT = 'screenshot',
-  VIDEO = 'video',
-  LOG = 'log',
-  TRACE = 'trace',
-  OTHER = 'other',
+  SCREENSHOT = "screenshot",
+  VIDEO = "video",
+  LOG = "log",
+  TRACE = "trace",
+  OTHER = "other",
 }
 
-@Entity('artifacts')
+@Entity("artifacts")
 export class Artifact {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ length: 255 })
   filename: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: ArtifactType,
     default: ArtifactType.OTHER,
   })
@@ -34,19 +34,19 @@ export class Artifact {
   @Column({ length: 255 })
   mimeType: string;
 
-  @Column({ type: 'bigint' })
+  @Column({ type: "bigint" })
   size: number;
 
-  @Column({ type: 'text' })
+  @Column({ type: "text" })
   storageKey: string;
 
   @Column({ length: 255, nullable: true })
   testName: string;
 
   @ManyToOne(() => TestRun, (testRun) => testRun.artifacts, {
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'testRunId' })
+  @JoinColumn({ name: "testRunId" })
   testRun: TestRun;
 
   @Column()

@@ -1,7 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class RenameUserIdToCreatedById1763304500000 implements MigrationInterface {
-  name = 'RenameUserIdToCreatedById1763304500000';
+export class RenameUserIdToCreatedById1763304500000
+  implements MigrationInterface
+{
+  name = "RenameUserIdToCreatedById1763304500000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Drop the existing foreign key constraint

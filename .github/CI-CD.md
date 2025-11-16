@@ -7,10 +7,12 @@ This repository uses GitHub Actions for continuous integration and deployment.
 ### 1. CI - Tests & Quality (`ci.yml`)
 
 **Triggers:**
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop` branches
 
 **Jobs:**
+
 - `test-backend`: Lints, builds, and tests the backend with PostgreSQL
 - `test-frontend`: Lints, builds, and tests the frontend
 - `test-npm-package`: Builds and validates the NPM package
@@ -18,17 +20,20 @@ This repository uses GitHub Actions for continuous integration and deployment.
 ### 2. Build and Publish Docker Images (`docker.yml`)
 
 **Triggers:**
+
 - Push to `main` branch
 - Git tags matching `v*.*.*` (e.g., `v1.0.0`)
 - Pull requests (build only, no push)
 - Manual workflow dispatch
 
 **Jobs:**
+
 - `build-backend`: Builds and pushes backend Docker image to GHCR
 - `build-frontend`: Builds and pushes frontend Docker image to GHCR
 - `create-release`: Creates a GitHub release (only on version tags)
 
 **Image Tags:**
+
 - `latest` - Latest version from main branch
 - `main` - Latest version from main branch
 - `v1.0.0` - Specific version (from git tags)
@@ -37,16 +42,19 @@ This repository uses GitHub Actions for continuous integration and deployment.
 - `main-sha1234567` - Branch and commit SHA
 
 **Supported Platforms:**
+
 - `linux/amd64`
 - `linux/arm64`
 
 ### 3. Publish NPM Package (`publish-npm.yml`)
 
 **Triggers:**
+
 - Git tags matching `v*.*.*` (e.g., `v1.0.0`)
 - Manual workflow dispatch with version input
 
 **Jobs:**
+
 - Builds and publishes `@dashwright/playwright-reporter` to GitHub Packages
 - Creates a GitHub release with installation instructions
 
@@ -134,16 +142,19 @@ npm install @dashwright/playwright-reporter
 #### In Playwright Config
 
 ```typescript
-import { defineConfig } from '@playwright/test';
-import DashwrightReporter from '@dashwright/playwright-reporter';
+import { defineConfig } from "@playwright/test";
+import DashwrightReporter from "@dashwright/playwright-reporter";
 
 export default defineConfig({
   reporter: [
-    ['list'],
-    [DashwrightReporter, {
-      apiUrl: 'http://localhost:3006',
-      apiKey: 'your-api-key',
-    }],
+    ["list"],
+    [
+      DashwrightReporter,
+      {
+        apiUrl: "http://localhost:3006",
+        apiKey: "your-api-key",
+      },
+    ],
   ],
 });
 ```
@@ -174,6 +185,7 @@ For publishing to public NPM registry or other registries, add these secrets:
 ## Permissions
 
 The workflows require the following permissions:
+
 - `contents: read` - Read repository contents
 - `packages: write` - Push to GitHub Container Registry and Packages
 
@@ -182,6 +194,7 @@ These are automatically granted by GitHub Actions.
 ## Cache Strategy
 
 The workflows use caching to speed up builds:
+
 - **pnpm store** - Cached for faster dependency installation
 - **Docker layers** - Cached using GitHub Actions cache (gha)
 
@@ -206,11 +219,13 @@ If you encounter authentication errors:
 If you can't pull images:
 
 1. Make sure you're authenticated:
+
 ```bash
 echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
 ```
 
 2. Check image exists:
+
 ```bash
 docker search ghcr.io/cybedefend/dashwright
 ```
@@ -228,6 +243,7 @@ docker search ghcr.io/cybedefend/dashwright
 ## Monitoring
 
 Check workflow status:
+
 - GitHub Actions tab in repository
 - Status badges (add to README.md)
 - Email notifications for failures
@@ -235,5 +251,6 @@ Check workflow status:
 ## Support
 
 For issues or questions:
+
 - GitHub Issues: https://github.com/CybeDefend/dashwright/issues
 - Documentation: See repository README.md

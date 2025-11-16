@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 
 interface PlaywrightTraceViewerProps {
   traceUrl: string;
@@ -8,14 +8,14 @@ interface PlaywrightTraceViewerProps {
 
 /**
  * Integrated Playwright Trace Viewer
- * 
+ *
  * Displays Playwright traces in a native, integrated viewer
  * without relying on external services
  */
-const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({ 
-  traceUrl, 
-  filename, 
-  onClose 
+const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
+  traceUrl,
+  filename,
+  onClose,
 }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +29,13 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
   // Handle keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
   const loadTrace = async () => {
@@ -46,25 +46,25 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
       // Fetch the trace file
       const response = await fetch(traceUrl);
       if (!response.ok) {
-        throw new Error('Failed to fetch trace');
+        throw new Error("Failed to fetch trace");
       }
 
       const blob = await response.blob();
-      
+
       // For now, we'll use Playwright's official viewer in an iframe
       // but load the trace data directly
       const arrayBuffer = await blob.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
-      
+
       setTraceData({
         buffer: uint8Array,
-        filename: filename
+        filename: filename,
       });
-      
+
       setLoading(false);
     } catch (err) {
-      console.error('Error loading trace:', err);
-      setError('Impossible de charger la trace. Veuillez réessayer.');
+      console.error("Error loading trace:", err);
+      setError("Impossible de charger la trace. Veuillez réessayer.");
       setLoading(false);
     }
   };
@@ -81,24 +81,27 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
       setTimeout(() => {
         try {
           // Send the trace data via postMessage
-          iframe.contentWindow?.postMessage({
-            method: 'loadTraceFromData',
-            params: {
-              title: traceData.filename,
-              traceData: Array.from(traceData.buffer),
-            }
-          }, '*');
+          iframe.contentWindow?.postMessage(
+            {
+              method: "loadTraceFromData",
+              params: {
+                title: traceData.filename,
+                traceData: Array.from(traceData.buffer),
+              },
+            },
+            "*"
+          );
         } catch (err) {
-          console.error('Error sending trace to iframe:', err);
+          console.error("Error sending trace to iframe:", err);
         }
       }, 1000);
     };
 
     const iframe = iframeRef.current;
-    iframe?.addEventListener('load', handleIframeLoad);
+    iframe?.addEventListener("load", handleIframeLoad);
 
     return () => {
-      iframe?.removeEventListener('load', handleIframeLoad);
+      iframe?.removeEventListener("load", handleIframeLoad);
     };
   }, [traceData]);
 
@@ -120,8 +123,18 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors text-gray-300 hover:text-white"
           title="Fermer (Échap)"
         >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -132,8 +145,12 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
             <div className="text-center">
               <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-500 border-t-transparent mx-auto mb-4"></div>
-              <p className="text-white text-lg font-medium">Chargement de la trace...</p>
-              <p className="text-gray-400 text-sm mt-2">Analyse des données d'exécution</p>
+              <p className="text-white text-lg font-medium">
+                Chargement de la trace...
+              </p>
+              <p className="text-gray-400 text-sm mt-2">
+                Analyse des données d'exécution
+              </p>
             </div>
           </div>
         )}
@@ -142,7 +159,9 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
           <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
             <div className="text-center max-w-md px-6">
               <div className="text-red-400 text-6xl mb-6">⚠️</div>
-              <h3 className="text-white text-xl font-semibold mb-3">Erreur de chargement</h3>
+              <h3 className="text-white text-xl font-semibold mb-3">
+                Erreur de chargement
+              </h3>
               <p className="text-gray-400 text-sm mb-8">{error}</p>
               <div className="flex gap-3 justify-center">
                 <button
@@ -192,7 +211,11 @@ const PlaywrightTraceViewer: React.FC<PlaywrightTraceViewerProps> = ({
                 Réseau & Logs
               </span>
             </div>
-            <span>Appuyez sur <kbd className="px-2 py-0.5 bg-gray-700 rounded">Échap</kbd> pour fermer</span>
+            <span>
+              Appuyez sur{" "}
+              <kbd className="px-2 py-0.5 bg-gray-700 rounded">Échap</kbd> pour
+              fermer
+            </span>
           </div>
         </div>
       )}

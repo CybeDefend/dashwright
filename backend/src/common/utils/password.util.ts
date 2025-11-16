@@ -1,4 +1,4 @@
-import * as argon2 from 'argon2';
+import * as argon2 from "argon2";
 
 export class PasswordUtil {
   static async hash(password: string): Promise<string> {

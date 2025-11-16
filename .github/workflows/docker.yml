@@ -5,23 +5,23 @@ on:
     branches:
       - main
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
     paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'docker-compose.yaml'
-      - '.github/workflows/docker.yml'
+      - "backend/**"
+      - "frontend/**"
+      - "docker-compose.yaml"
+      - ".github/workflows/docker.yml"
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'docker-compose.yaml'
+      - "backend/**"
+      - "frontend/**"
+      - "docker-compose.yaml"
   workflow_dispatch:
 
 permissions:
-  contents: write  # Changed from 'read' to 'write' for creating releases
+  contents: write # Changed from 'read' to 'write' for creating releases
   packages: write
 
 env:
@@ -133,25 +133,25 @@ jobs:
           name: Dashwright v${{ steps.version.outputs.version }}
           body: |
             ## Dashwright v${{ steps.version.outputs.version }}
-            
+
             ### Docker Images
-            
+
             **Backend:**
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ steps.version.outputs.version }}
             ```
-            
+
             **Frontend:**
             ```bash
             docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ steps.version.outputs.version }}
             ```
-            
+
             ### Docker Compose
             ```bash
             docker compose pull
             docker compose up -d
             ```
-            
+
             ### What's Changed
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md)
           draft: false

@@ -5,11 +5,11 @@ import {
   TestCase,
   TestResult,
   FullResult,
-} from '@playwright/test/reporter';
-import axios from 'axios';
-import { DashwrightConfig, TestRunResult } from './types';
-import { Uploader } from './uploader';
-import * as path from 'path';
+} from "@playwright/test/reporter";
+import axios from "axios";
+import { DashwrightConfig, TestRunResult } from "./types";
+import { Uploader } from "./uploader";
+import * as path from "path";
 
 export class DashwrightReporter implements Reporter {
   private config: DashwrightConfig;
@@ -22,19 +22,22 @@ export class DashwrightReporter implements Reporter {
   constructor(config: DashwrightConfig) {
     this.config = config;
     this.uploader = new Uploader(config);
-    
+
     // Build request headers depending on whether we should use an API key header
     const headers: Record<string, string> = {};
-    const token = config.apiToken || '';
+    const token = config.apiToken || "";
     const apiKeyHeader = config.apiKeyHeader;
 
     if (apiKeyHeader) {
       headers[apiKeyHeader] = token;
-    } else if (typeof token === 'string' && (token.startsWith('dw_') || token.startsWith('ak_'))) {
+    } else if (
+      typeof token === "string" &&
+      (token.startsWith("dw_") || token.startsWith("ak_"))
+    ) {
       // convention: tokens starting with dw_ (dashwright keys) or ak_ are API keys
-      headers['X-API-Key'] = token;
+      headers["X-API-Key"] = token;
     } else if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
     this.client = axios.create({
@@ -44,18 +47,18 @@ export class DashwrightReporter implements Reporter {
   }
 
   async onBegin(config: FullConfig, suite: Suite) {
-    console.log('🚀 Dashwright: Starting test run...');
+    console.log("🚀 Dashwright: Starting test run...");
     this.startTime = new Date();
 
     // Create test run
     try {
-      const response = await this.client.post('/integrations/playwright/run', {
+      const response = await this.client.post("/integrations/playwright/run", {
         name: `Playwright Run - ${new Date().toISOString()}`,
-        status: 'running',
+        status: "running",
         totalTests: suite.allTests().length,
         organizationId: this.config.organizationId,
         startedAt: this.startTime.toISOString(),
-        environment: process.env.NODE_ENV || 'development',
+        environment: process.env.NODE_ENV || "development",
         branch: process.env.GIT_BRANCH || process.env.BRANCH_NAME,
         commit: process.env.GIT_COMMIT || process.env.COMMIT_SHA,
       });
@@ -63,11 +66,17 @@ export class DashwrightReporter implements Reporter {
       this.testRunId = response.data.testRunId;
       console.log(`✅ Dashwright: Test run created with ID: ${this.testRunId}`);
     } catch (error: any) {
-      console.error('❌ Dashwright: Failed to create test run:', error);
+      console.error("❌ Dashwright: Failed to create test run:", error);
       if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
-        console.error('Request payload:', JSON.stringify(error.config.data, null, 2));
+        console.error("Response status:", error.response.status);
+        console.error(
+          "Response data:",
+          JSON.stringify(error.response.data, null, 2)
+        );
+        console.error(
+          "Request payload:",
+          JSON.stringify(error.config.data, null, 2)
+        );
       }
     }
   }
@@ -82,7 +91,11 @@ export class DashwrightReporter implements Reporter {
 
     for (const attachment of result.attachments) {
       try {
-        if (attachment.name === 'screenshot' && attachment.path && this.config.uploadScreenshots) {
+        if (
+          attachment.name === "screenshot" &&
+          attachment.path &&
+          this.config.uploadScreenshots
+        ) {
           console.log(`📸 Uploading screenshot for test: ${test.title}`);
           uploadPromises.push(
             this.uploader.uploadScreenshot(
@@ -91,7 +104,11 @@ export class DashwrightReporter implements Reporter {
               test.title
             )
           );
-        } else if (attachment.name === 'video' && attachment.path && this.config.uploadVideos) {
+        } else if (
+          attachment.name === "video" &&
+          attachment.path &&
+          this.config.uploadVideos
+        ) {
           console.log(`🎥 Uploading video for test: ${test.title}`);
           uploadPromises.push(
             this.uploader.uploadVideo(
@@ -100,37 +117,51 @@ export class DashwrightReporter implements Reporter {
               test.title
             )
           );
-        } else if (attachment.name === 'trace' && attachment.path && this.config.uploadTraces) {
+        } else if (
+          attachment.name === "trace" &&
+          attachment.path &&
+          this.config.uploadTraces
+        ) {
           console.log(`📊 Uploading trace for test: ${test.title}`);
           uploadPromises.push(
             this.uploader.uploadArtifact(attachment.path, {
-              type: 'trace',
-              mimeType: 'application/zip',
+              type: "trace",
+              mimeType: "application/zip",
               testRunId: this.testRunId,
               testName: test.title,
             })
           );
         }
       } catch (error) {
-        console.error(`❌ Dashwright: Failed to prepare upload for test "${test.title}":`, error);
+        console.error(
+          `❌ Dashwright: Failed to prepare upload for test "${test.title}":`,
+          error
+        );
       }
     }
 
     // Wait for all uploads to complete
     if (uploadPromises.length > 0) {
-      console.log(`⏳ Waiting for ${uploadPromises.length} upload(s) to complete...`);
       try {
         await Promise.all(uploadPromises);
-        console.log(`✅ Uploaded ${uploadPromises.length} artifact(s) for test: ${test.title}`);
+        console.log(
+          `✅ Uploaded ${uploadPromises.length} artifact(s) for test: ${test.title}`
+        );
       } catch (error: any) {
-        console.error(`❌ Dashwright: Failed to upload artifacts for test "${test.title}":`, error);
+        console.error(
+          `❌ Dashwright: Failed to upload artifacts for test "${test.title}":`,
+          error
+        );
         if (error.response) {
-          console.error('Response status:', error.response.status);
-          console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+          console.error("Response status:", error.response.status);
+          console.error(
+            "Response data:",
+            JSON.stringify(error.response.data, null, 2)
+          );
         }
         if (error.request) {
-          console.error('Request URL:', error.config?.url);
-          console.error('Request method:', error.config?.method);
+          console.error("Request URL:", error.config?.url);
+          console.error("Request method:", error.config?.method);
         }
       }
     }
@@ -147,12 +178,12 @@ export class DashwrightReporter implements Reporter {
     let skipped = 0;
 
     for (const testResult of this.testResults.values()) {
-      if (testResult.status === 'passed') passed++;
-      else if (testResult.status === 'failed') failed++;
-      else if (testResult.status === 'skipped') skipped++;
+      if (testResult.status === "passed") passed++;
+      else if (testResult.status === "failed") failed++;
+      else if (testResult.status === "skipped") skipped++;
     }
 
-    const status = failed > 0 ? 'failed' : 'passed';
+    const status = failed > 0 ? "failed" : "passed";
 
     try {
       await this.client.put(`/test-runs/${this.testRunId}`, {
@@ -164,15 +195,19 @@ export class DashwrightReporter implements Reporter {
         duration,
       });
 
-      console.log('✅ Dashwright: Test run completed successfully');
-      console.log(`   Total: ${this.testResults.size} | Passed: ${passed} | Failed: ${failed} | Skipped: ${skipped}`);
-      console.log(`   View results: ${this.config.apiUrl.replace('/api', '')}/runs/${this.testRunId}`);
+      console.log("✅ Dashwright: Test run completed successfully");
     } catch (error: any) {
-      console.error('❌ Dashwright: Failed to update test run:', error);
+      console.error("❌ Dashwright: Failed to update test run:", error);
       if (error.response) {
-        console.error('Response status:', error.response.status);
-        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
-        console.error('Request payload:', JSON.stringify(error.config.data, null, 2));
+        console.error("Response status:", error.response.status);
+        console.error(
+          "Response data:",
+          JSON.stringify(error.response.data, null, 2)
+        );
+        console.error(
+          "Request payload:",
+          JSON.stringify(error.config.data, null, 2)
+        );
       }
     }
   }

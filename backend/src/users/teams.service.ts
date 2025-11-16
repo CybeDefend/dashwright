@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, In } from 'typeorm';
-import { Team, User } from '../entities';
-import { CreateTeamDto, UpdateTeamDto } from '../common/dto/team.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, In } from "typeorm";
+import { Team, User } from "../entities";
+import { CreateTeamDto, UpdateTeamDto } from "../common/dto/team.dto";
 
 @Injectable()
 export class TeamsService {
@@ -32,28 +32,30 @@ export class TeamsService {
 
   async findAll(): Promise<Team[]> {
     return this.teamRepository.find({
-      relations: ['organization', 'members'],
+      relations: ["organization", "members"],
     });
   }
 
   async findOne(id: string): Promise<Team | null> {
     return this.teamRepository.findOne({
       where: { id },
-      relations: ['organization', 'members'],
+      relations: ["organization", "members"],
     });
   }
 
   async update(id: string, updateTeamDto: UpdateTeamDto): Promise<Team | null> {
     const team = await this.teamRepository.findOne({
       where: { id },
-      relations: ['members'],
+      relations: ["members"],
     });
 
     if (!team) return null;
 
     if (updateTeamDto.name) team.name = updateTeamDto.name;
-    if (updateTeamDto.description !== undefined) team.description = updateTeamDto.description;
-    if (updateTeamDto.isActive !== undefined) team.isActive = updateTeamDto.isActive;
+    if (updateTeamDto.description !== undefined)
+      team.description = updateTeamDto.description;
+    if (updateTeamDto.isActive !== undefined)
+      team.isActive = updateTeamDto.isActive;
 
     if (updateTeamDto.memberIds) {
       team.members = await this.userRepository.findBy({

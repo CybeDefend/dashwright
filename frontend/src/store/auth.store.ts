@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface User {
   id: string;
@@ -19,11 +19,11 @@ interface AuthState {
 
 // Helper functions to persist/retrieve user from localStorage
 const persistUser = (user: User) => {
-  localStorage.setItem('user', JSON.stringify(user));
+  localStorage.setItem("user", JSON.stringify(user));
 };
 
 const retrieveUser = (): User | null => {
-  const userStr = localStorage.getItem('user');
+  const userStr = localStorage.getItem("user");
   if (!userStr) return null;
   try {
     return JSON.parse(userStr);
@@ -34,26 +34,31 @@ const retrieveUser = (): User | null => {
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: retrieveUser(),
-  accessToken: localStorage.getItem('accessToken'),
-  refreshToken: localStorage.getItem('refreshToken'),
-  isAuthenticated: !!localStorage.getItem('accessToken'),
-  
+  accessToken: localStorage.getItem("accessToken"),
+  refreshToken: localStorage.getItem("refreshToken"),
+  isAuthenticated: !!localStorage.getItem("accessToken"),
+
   login: (accessToken, refreshToken, user) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
     persistUser(user);
     set({ user, accessToken, refreshToken, isAuthenticated: true });
   },
-  
+
   setUser: (user) => {
     persistUser(user);
     set({ user });
   },
-  
+
   logout: () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    set({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      isAuthenticated: false,
+    });
   },
 }));

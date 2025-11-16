@@ -1,22 +1,24 @@
-import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { UserPlus, CheckCircle } from 'lucide-react';
-import { invitationService } from '../services/invitationService';
-import { InvitationVerification, AcceptInvitationDto } from '../types';
+import { useState, useEffect, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { UserPlus, CheckCircle } from "lucide-react";
+import { invitationService } from "../services/invitationService";
+import { InvitationVerification, AcceptInvitationDto } from "../types";
 
 export default function AcceptInvitationPage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const [invitation, setInvitation] = useState<InvitationVerification | null>(null);
+  const [invitation, setInvitation] = useState<InvitationVerification | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    confirmPassword: '',
-    fullName: '',
+    username: "",
+    password: "",
+    confirmPassword: "",
+    fullName: "",
   });
   const hasFetched = useRef(false);
 
@@ -29,7 +31,7 @@ export default function AcceptInvitationPage() {
 
   const verifyInvitation = async () => {
     if (!token) {
-      setError('Invalid invitation link');
+      setError("Invalid invitation link");
       setLoading(false);
       return;
     }
@@ -38,7 +40,10 @@ export default function AcceptInvitationPage() {
       const data = await invitationService.verify(token);
       setInvitation(data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'This invitation is invalid or has expired');
+      setError(
+        err.response?.data?.message ||
+          "This invitation is invalid or has expired"
+      );
     } finally {
       setLoading(false);
     }
@@ -48,17 +53,17 @@ export default function AcceptInvitationPage() {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError("Password must be at least 8 characters long");
       return;
     }
 
     if (!token) {
-      setError('Invalid invitation token');
+      setError("Invalid invitation token");
       return;
     }
 
@@ -75,13 +80,13 @@ export default function AcceptInvitationPage() {
 
       await invitationService.accept(acceptData);
       setSuccess(true);
-      
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
-        navigate('/login');
+        navigate("/login");
       }, 3000);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create account');
+      setError(err.response?.data?.message || "Failed to create account");
     } finally {
       setSubmitting(false);
     }
@@ -103,12 +108,11 @@ export default function AcceptInvitationPage() {
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-4xl">❌</span>
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Invalid Invitation</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Invalid Invitation
+            </h1>
             <p className="text-gray-600 mb-6">{error}</p>
-            <button
-              onClick={() => navigate('/login')}
-              className="btn-primary"
-            >
+            <button onClick={() => navigate("/login")} className="btn-primary">
               Go to Login
             </button>
           </div>
@@ -125,9 +129,12 @@ export default function AcceptInvitationPage() {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Account Created!</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Account Created!
+            </h1>
             <p className="text-gray-600 mb-6">
-              Your account has been successfully created. Redirecting to login...
+              Your account has been successfully created. Redirecting to
+              login...
             </p>
           </div>
         </div>
@@ -142,12 +149,21 @@ export default function AcceptInvitationPage() {
           <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <UserPlus className="w-10 h-10 text-indigo-600" />
           </div>
-          <h1 className="text-3xl font-bold gradient-text mb-2">Join Dashwright</h1>
+          <h1 className="text-3xl font-bold gradient-text mb-2">
+            Join Dashwright
+          </h1>
           {invitation && (
             <div className="text-gray-600 text-sm space-y-1">
               <p>You've been invited to join</p>
-              <p className="text-lg font-semibold text-indigo-600">{invitation.organizationName}</p>
-              <p className="text-gray-500">as a <span className="text-indigo-600 font-medium">{invitation.role}</span></p>
+              <p className="text-lg font-semibold text-indigo-600">
+                {invitation.organizationName}
+              </p>
+              <p className="text-gray-500">
+                as a{" "}
+                <span className="text-indigo-600 font-medium">
+                  {invitation.role}
+                </span>
+              </p>
             </div>
           )}
         </div>
@@ -165,7 +181,7 @@ export default function AcceptInvitationPage() {
             </label>
             <input
               type="email"
-              value={invitation?.email || ''}
+              value={invitation?.email || ""}
               disabled
               className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-gray-500 cursor-not-allowed"
             />
@@ -178,7 +194,9 @@ export default function AcceptInvitationPage() {
             <input
               type="text"
               value={formData.fullName}
-              onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, fullName: e.target.value })
+              }
               placeholder="John Doe"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
@@ -192,7 +210,9 @@ export default function AcceptInvitationPage() {
             <input
               type="text"
               value={formData.username}
-              onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, username: e.target.value })
+              }
               placeholder="johndoe"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
@@ -206,7 +226,9 @@ export default function AcceptInvitationPage() {
             <input
               type="password"
               value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, password: e.target.value })
+              }
               placeholder="••••••••"
               minLength={8}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -222,7 +244,9 @@ export default function AcceptInvitationPage() {
             <input
               type="password"
               value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, confirmPassword: e.target.value })
+              }
               placeholder="••••••••"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
@@ -234,14 +258,14 @@ export default function AcceptInvitationPage() {
             disabled={submitting}
             className="w-full btn-primary py-3 disabled:opacity-50"
           >
-            {submitting ? 'Creating Account...' : 'Create Account'}
+            {submitting ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
         <p className="text-center text-sm text-gray-600 mt-6">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <button
-            onClick={() => navigate('/login')}
+            onClick={() => navigate("/login")}
             className="text-indigo-600 hover:text-indigo-700 font-medium"
           >
             Sign in

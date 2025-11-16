@@ -1,7 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { ApiKey } from '../../entities/api-key.entity';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { ApiKey } from "../../entities/api-key.entity";
 
 @Injectable()
 export class ApiKeyGuard implements CanActivate {
@@ -15,21 +20,21 @@ export class ApiKeyGuard implements CanActivate {
     const apiKey = this.extractApiKeyFromHeader(request);
 
     if (!apiKey) {
-      throw new UnauthorizedException('API key is missing');
+      throw new UnauthorizedException("API key is missing");
     }
 
     const keyRecord = await this.apiKeyRepository.findOne({
       where: { key: apiKey, isActive: true },
-      relations: ['user', 'organization'],
+      relations: ["user", "organization"],
     });
 
     if (!keyRecord) {
-      throw new UnauthorizedException('Invalid or inactive API key');
+      throw new UnauthorizedException("Invalid or inactive API key");
     }
 
     // Check if the key has expired
     if (keyRecord.expiresAt && keyRecord.expiresAt < new Date()) {
-      throw new UnauthorizedException('API key has expired');
+      throw new UnauthorizedException("API key has expired");
     }
 
     // Update last used timestamp (fire and forget)
@@ -45,7 +50,7 @@ export class ApiKeyGuard implements CanActivate {
   }
 
   private extractApiKeyFromHeader(request: any): string | undefined {
-    const apiKey = request.headers['x-api-key'];
+    const apiKey = request.headers["x-api-key"];
     return apiKey;
   }
 }

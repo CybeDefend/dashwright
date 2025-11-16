@@ -1,13 +1,13 @@
-import { 
-  IsString, 
-  IsNotEmpty, 
-  MinLength, 
-  IsOptional, 
-  IsUUID, 
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  IsOptional,
+  IsUUID,
   IsBoolean,
-  IsEnum 
-} from 'class-validator';
-import { RoleType } from '../../entities';
+  IsEnum,
+} from "class-validator";
+import { RoleType } from "../../entities";
 
 export class CreateUserDto {
   @IsString()

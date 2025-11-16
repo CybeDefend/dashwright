@@ -1,7 +1,7 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class InitialSchema1763304308000 implements MigrationInterface {
-  name = 'InitialSchema1763304308000';
+  name = "InitialSchema1763304308000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Enable UUID extension
@@ -213,20 +213,36 @@ export class InitialSchema1763304308000 implements MigrationInterface {
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_test_runs_status"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_test_runs_userId"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_test_runs_teamId"`);
-    await queryRunner.query(`DROP INDEX IF EXISTS "IDX_test_runs_organizationId"`);
+    await queryRunner.query(
+      `DROP INDEX IF EXISTS "IDX_test_runs_organizationId"`,
+    );
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_user_roles_userId"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_users_username"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_users_organizationId"`);
     await queryRunner.query(`DROP INDEX IF EXISTS "IDX_teams_organizationId"`);
 
     // Drop foreign key constraints
-    await queryRunner.query(`ALTER TABLE "artifacts" DROP CONSTRAINT IF EXISTS "FK_artifacts_test_run"`);
-    await queryRunner.query(`ALTER TABLE "test_runs" DROP CONSTRAINT IF EXISTS "FK_test_runs_user"`);
-    await queryRunner.query(`ALTER TABLE "test_runs" DROP CONSTRAINT IF EXISTS "FK_test_runs_team"`);
-    await queryRunner.query(`ALTER TABLE "test_runs" DROP CONSTRAINT IF EXISTS "FK_test_runs_organization"`);
-    await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT IF EXISTS "FK_user_roles_user"`);
-    await queryRunner.query(`ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "FK_users_organization"`);
-    await queryRunner.query(`ALTER TABLE "teams" DROP CONSTRAINT IF EXISTS "FK_teams_organization"`);
+    await queryRunner.query(
+      `ALTER TABLE "artifacts" DROP CONSTRAINT IF EXISTS "FK_artifacts_test_run"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "test_runs" DROP CONSTRAINT IF EXISTS "FK_test_runs_user"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "test_runs" DROP CONSTRAINT IF EXISTS "FK_test_runs_team"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "test_runs" DROP CONSTRAINT IF EXISTS "FK_test_runs_organization"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "user_roles" DROP CONSTRAINT IF EXISTS "FK_user_roles_user"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "users" DROP CONSTRAINT IF EXISTS "FK_users_organization"`,
+    );
+    await queryRunner.query(
+      `ALTER TABLE "teams" DROP CONSTRAINT IF EXISTS "FK_teams_organization"`,
+    );
 
     // Drop tables
     await queryRunner.query(`DROP TABLE IF EXISTS "artifacts"`);

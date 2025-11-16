@@ -21,7 +21,7 @@ export interface DashwrightConfig {
 export interface TestRunResult {
   id: string;
   name: string;
-  status: 'running' | 'passed' | 'failed' | 'skipped';
+  status: "running" | "passed" | "failed" | "skipped";
   totalTests: number;
   passedTests: number;
   failedTests: number;
@@ -37,7 +37,7 @@ export interface TestRunResult {
 
 export interface ArtifactUpload {
   filename: string;
-  type: 'screenshot' | 'video' | 'log' | 'trace' | 'other';
+  type: "screenshot" | "video" | "log" | "trace" | "other";
   mimeType: string;
   size: number;
   testRunId: string;

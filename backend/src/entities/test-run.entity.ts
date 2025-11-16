@@ -7,58 +7,58 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
-} from 'typeorm';
-import { User } from './user.entity';
-import { Organization } from './organization.entity';
-import { Artifact } from './artifact.entity';
+} from "typeorm";
+import { User } from "./user.entity";
+import { Organization } from "./organization.entity";
+import { Artifact } from "./artifact.entity";
 
 export enum TestRunStatus {
-  RUNNING = 'running',
-  PASSED = 'passed',
-  FAILED = 'failed',
-  SKIPPED = 'skipped',
+  RUNNING = "running",
+  PASSED = "passed",
+  FAILED = "failed",
+  SKIPPED = "skipped",
 }
 
-@Entity('test_runs')
+@Entity("test_runs")
 export class TestRun {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ length: 255 })
   name: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: TestRunStatus,
     default: TestRunStatus.RUNNING,
   })
   status: TestRunStatus;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   totalTests: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   passedTests: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   failedTests: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   skippedTests: number;
 
-  @Column({ type: 'bigint', nullable: true })
+  @Column({ type: "bigint", nullable: true })
   duration: number;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   startedAt: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   finishedAt: Date;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   metadata: Record<string, any>;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   logs: string;
 
   @Column({ length: 255, nullable: true })
@@ -71,9 +71,9 @@ export class TestRun {
   environment: string;
 
   @ManyToOne(() => Organization, (organization) => organization.testRuns, {
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'organizationId' })
+  @JoinColumn({ name: "organizationId" })
   organization: Organization;
 
   @Column()
@@ -82,7 +82,7 @@ export class TestRun {
   @ManyToOne(() => User, (user) => user.testRuns, {
     nullable: true,
   })
-  @JoinColumn({ name: 'createdById' })
+  @JoinColumn({ name: "createdById" })
   createdBy: User;
 
   @Column({ nullable: true })

@@ -5,6 +5,7 @@
 ## 🔗 Related Issue
 
 <!-- Link to the issue this PR addresses -->
+
 Fixes #(issue number)
 
 ## 🎯 Type of Change
@@ -32,6 +33,7 @@ Fixes #(issue number)
 - [ ] Manual testing
 
 **Test Configuration**:
+
 - OS:
 - Node.js version:
 - Browser (if applicable):
@@ -41,9 +43,11 @@ Fixes #(issue number)
 <!-- Add screenshots to help explain your changes -->
 
 ### Before
+
 <!-- Screenshot before changes -->
 
 ### After
+
 <!-- Screenshot after changes -->
 
 ## ✅ Checklist
@@ -65,10 +69,12 @@ Fixes #(issue number)
 <!-- If this PR includes breaking changes, describe them here and provide migration steps -->
 
 **Breaking changes**:
-- 
+
+-
 
 **Migration guide**:
-- 
+
+-
 
 ## 📋 Additional Notes
 
@@ -91,6 +97,7 @@ Fixes #(issue number)
 ---
 
 **Before submitting:**
+
 - Make sure your PR title follows the [Conventional Commits](https://www.conventionalcommits.org/) format
 - Ensure all CI checks pass
 - Request review from maintainers

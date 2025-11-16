@@ -1,5 +1,5 @@
-import { randomBytes } from 'crypto';
-import * as path from 'path';
+import { randomBytes } from "crypto";
+import * as path from "path";
 
 export class FileUtil {
   /**
@@ -7,7 +7,7 @@ export class FileUtil {
    */
   static sanitizeFilename(filename: string): string {
     // Remove path separators and null bytes
-    return path.basename(filename).replace(/[\/\\:\*\?"<>\|]/g, '_');
+    return path.basename(filename).replace(/[\/\\:\*\?"<>\|]/g, "_");
   }
 
   /**
@@ -18,8 +18,8 @@ export class FileUtil {
     const ext = path.extname(sanitized);
     const name = path.basename(sanitized, ext);
     const timestamp = Date.now();
-    const random = randomBytes(8).toString('hex');
-    
+    const random = randomBytes(8).toString("hex");
+
     return `${name}-${timestamp}-${random}${ext}`;
   }
 
@@ -28,7 +28,7 @@ export class FileUtil {
    */
   static isValidMimeType(mimeType: string, allowedTypes: string[]): boolean {
     return allowedTypes.some((allowed) => {
-      if (allowed.endsWith('/*')) {
+      if (allowed.endsWith("/*")) {
         const prefix = allowed.slice(0, -2);
         return mimeType.startsWith(prefix);
       }

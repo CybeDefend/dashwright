@@ -1,26 +1,26 @@
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
+const WS_URL = import.meta.env.VITE_WS_URL || "ws://localhost:3000";
 
 class WebSocketService {
   private socket: Socket | null = null;
 
   connect() {
-    const token = localStorage.getItem('accessToken');
-    
+    const token = localStorage.getItem("accessToken");
+
     this.socket = io(WS_URL, {
       auth: {
         token,
       },
-      transports: ['websocket'],
+      transports: ["websocket"],
     });
 
-    this.socket.on('connect', () => {
-      console.log('✅ WebSocket connected');
+    this.socket.on("connect", () => {
+      console.log("✅ WebSocket connected");
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('❌ WebSocket disconnected');
+    this.socket.on("disconnect", () => {
+      console.log("❌ WebSocket disconnected");
     });
 
     return this.socket;

@@ -7,14 +7,14 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
-} from 'typeorm';
-import { Organization } from './organization.entity';
-import { UserRole } from './user-role.entity';
-import { TestRun } from './test-run.entity';
+} from "typeorm";
+import { Organization } from "./organization.entity";
+import { UserRole } from "./user-role.entity";
+import { TestRun } from "./test-run.entity";
 
-@Entity('users')
+@Entity("users")
 export class User {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true, length: 255 })
@@ -32,13 +32,13 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   lastLoginAt: Date;
 
   @ManyToOne(() => Organization, (organization) => organization.users, {
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'organizationId' })
+  @JoinColumn({ name: "organizationId" })
   organization: Organization;
 
   @Column()

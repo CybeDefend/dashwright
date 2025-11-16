@@ -1,6 +1,6 @@
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3006';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3006";
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -28,7 +28,7 @@ export const createApiClient = (): AxiosInstance => {
   // Request interceptor
   client.interceptors.request.use(
     (config: InternalAxiosRequestConfig) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -60,13 +60,13 @@ export const createApiClient = (): AxiosInstance => {
         originalRequest._retry = true;
         isRefreshing = true;
 
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
           // No refresh token, logout
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login';
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/login";
           return Promise.reject(error);
         }
 
@@ -77,9 +77,9 @@ export const createApiClient = (): AxiosInstance => {
 
           const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-          localStorage.setItem('token', accessToken);
+          localStorage.setItem("token", accessToken);
           if (newRefreshToken) {
-            localStorage.setItem('refreshToken', newRefreshToken);
+            localStorage.setItem("refreshToken", newRefreshToken);
           }
 
           // Update authorization header
@@ -91,12 +91,12 @@ export const createApiClient = (): AxiosInstance => {
           return client(originalRequest);
         } catch (refreshError) {
           processQueue(refreshError, null);
-          
+
           // Refresh failed, logout
-          localStorage.removeItem('token');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/login';
-          
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/login";
+
           return Promise.reject(refreshError);
         } finally {
           isRefreshing = false;

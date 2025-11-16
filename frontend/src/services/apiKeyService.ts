@@ -1,14 +1,14 @@
-import { ApiKey, ApiKeyWithSecret, CreateApiKeyDto } from '../types';
-import { apiClient } from './apiClient';
+import { ApiKey, ApiKeyWithSecret, CreateApiKeyDto } from "../types";
+import { apiClient } from "./apiClient";
 
 export const apiKeyService = {
   async create(data: CreateApiKeyDto): Promise<ApiKeyWithSecret> {
-    const response = await apiClient.post<ApiKeyWithSecret>('/api-keys', data);
+    const response = await apiClient.post<ApiKeyWithSecret>("/api-keys", data);
     return response.data;
   },
 
   async getAll(): Promise<ApiKey[]> {
-    const response = await apiClient.get<ApiKey[]>('/api-keys');
+    const response = await apiClient.get<ApiKey[]>("/api-keys");
     return response.data;
   },
 

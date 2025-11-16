@@ -83,6 +83,7 @@ git checkout -b fix/your-bug-fix
 ```
 
 Branch naming conventions:
+
 - `feat/` - New features
 - `fix/` - Bug fixes
 - `docs/` - Documentation changes
@@ -175,18 +176,22 @@ refactor(npm-package): simplify artifact upload logic
 
 ```markdown
 ## Description
+
 Brief description of what this PR does
 
 ## Type of Change
+
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
 - [ ] Documentation update
 
 ## How Has This Been Tested?
+
 Describe the tests you ran to verify your changes
 
 ## Checklist
+
 - [ ] My code follows the code style of this project
 - [ ] I have performed a self-review of my own code
 - [ ] I have commented my code, particularly in hard-to-understand areas
@@ -199,6 +204,7 @@ Describe the tests you ran to verify your changes
 ### Review Process
 
 1. **Automated Checks** - CI/CD runs automatically
+
    - Tests (backend, frontend, npm package)
    - Linting
    - Security scanning (Trivy)
@@ -206,6 +212,7 @@ Describe the tests you ran to verify your changes
    - PR title validation
 
 2. **Code Review** - At least one maintainer must approve
+
    - Code quality
    - Test coverage
    - Documentation
@@ -233,7 +240,7 @@ Describe the tests you ran to verify your changes
 export class TestRunService {
   constructor(
     @InjectRepository(TestRun)
-    private readonly testRunRepository: Repository<TestRun>,
+    private readonly testRunRepository: Repository<TestRun>
   ) {}
 
   async findById(id: string): Promise<TestRun | null> {
@@ -260,7 +267,10 @@ interface TestResultProps {
   onRefresh: () => void;
 }
 
-export const TestResult: React.FC<TestResultProps> = ({ testRun, onRefresh }) => {
+export const TestResult: React.FC<TestResultProps> = ({
+  testRun,
+  onRefresh,
+}) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -274,7 +284,8 @@ export const TestResult: React.FC<TestResultProps> = ({ testRun, onRefresh }) =>
 };
 
 // Bad
-export const TestResult = (props: any) => { // Use proper types
+export const TestResult = (props: any) => {
+  // Use proper types
   const [loading, setLoading] = useState(); // Specify type
 
   return <div>{/* ... */}</div>;
@@ -367,6 +378,7 @@ pnpm run test:cov          # Coverage report
 ```
 
 Write tests for:
+
 - ✅ Controllers (API endpoints)
 - ✅ Services (business logic)
 - ✅ Guards (authentication, authorization)
@@ -382,6 +394,7 @@ pnpm run test:coverage     # Coverage report
 ```
 
 Write tests for:
+
 - ✅ Components (rendering, interactions)
 - ✅ Hooks (custom React hooks)
 - ✅ Services (API calls)
@@ -405,15 +418,15 @@ pnpm run test:e2e
 - Document function parameters and return types
 - Include usage examples
 
-```typescript
+````typescript
 /**
  * Uploads a test artifact to MinIO storage
- * 
+ *
  * @param file - The file to upload
  * @param testRunId - ID of the test run
  * @param type - Type of artifact (screenshot, video, trace)
  * @returns Promise with the uploaded artifact metadata
- * 
+ *
  * @example
  * ```typescript
  * const artifact = await uploadArtifact(
@@ -430,11 +443,12 @@ async uploadArtifact(
 ): Promise<Artifact> {
   // Implementation
 }
-```
+````
 
 ### README Updates
 
 When adding new features:
+
 - Update main README.md
 - Add to appropriate section
 - Include code examples
@@ -458,27 +472,34 @@ When adding new features:
 
 ```markdown
 ## Bug Description
+
 Clear and concise description of the bug
 
 ## To Reproduce
+
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '...'
 3. See error
 
 ## Expected Behavior
+
 What you expected to happen
 
 ## Screenshots
+
 If applicable, add screenshots
 
 ## Environment
+
 - OS: [e.g., macOS 14.0]
 - Node.js: [e.g., 22.14.0]
 - Browser: [e.g., Chrome 120]
 - Version: [e.g., 1.0.0]
 
 ## Additional Context
+
 Any other context about the problem
 ```
 
@@ -488,18 +509,23 @@ Any other context about the problem
 
 ```markdown
 ## Feature Description
+
 Clear and concise description of the feature
 
 ## Problem
+
 What problem does this solve?
 
 ## Proposed Solution
+
 How should it work?
 
 ## Alternatives Considered
+
 Other solutions you've considered
 
 ## Additional Context
+
 Mockups, examples, etc.
 ```
 
@@ -514,18 +540,21 @@ Mockups, examples, etc.
 Looking for where to help? Check these areas:
 
 ### Good First Issues
+
 - Documentation improvements
 - Adding tests
 - Fixing typos
 - Small bug fixes
 
 ### Help Wanted
+
 - Performance optimizations
 - UI/UX improvements
 - New integrations
 - Advanced features
 
 ### Priorities
+
 - 🔴 High - Critical bugs, security issues
 - 🟡 Medium - Feature requests, enhancements
 - 🟢 Low - Nice-to-have improvements

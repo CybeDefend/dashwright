@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { TestRun } from '../entities';
-import { CreateTestRunDto, UpdateTestRunDto } from '../common/dto/test-run.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { TestRun } from "../entities";
+import { CreateTestRunDto, UpdateTestRunDto } from "../common/dto/test-run.dto";
 
 @Injectable()
 export class TestRunsService {
@@ -11,12 +11,19 @@ export class TestRunsService {
     private testRunRepository: Repository<TestRun>,
   ) {}
 
-  async create(createTestRunDto: CreateTestRunDto, createdById?: string): Promise<TestRun> {
+  async create(
+    createTestRunDto: CreateTestRunDto,
+    createdById?: string,
+  ): Promise<TestRun> {
     const testRun = this.testRunRepository.create({
       ...createTestRunDto,
       createdById,
-      startedAt: createTestRunDto.startedAt ? new Date(createTestRunDto.startedAt) : new Date(),
-      finishedAt: createTestRunDto.finishedAt ? new Date(createTestRunDto.finishedAt) : undefined,
+      startedAt: createTestRunDto.startedAt
+        ? new Date(createTestRunDto.startedAt)
+        : new Date(),
+      finishedAt: createTestRunDto.finishedAt
+        ? new Date(createTestRunDto.finishedAt)
+        : undefined,
     });
 
     return this.testRunRepository.save(testRun);
@@ -24,27 +31,32 @@ export class TestRunsService {
 
   async findAll(organizationId?: string): Promise<TestRun[]> {
     const where = organizationId ? { organizationId } : {};
-    
+
     return this.testRunRepository.find({
       where,
-      relations: ['artifacts', 'createdBy', 'organization'],
-      order: { createdAt: 'DESC' },
+      relations: ["artifacts", "createdBy", "organization"],
+      order: { createdAt: "DESC" },
     });
   }
 
   async findOne(id: string): Promise<TestRun | null> {
     return this.testRunRepository.findOne({
       where: { id },
-      relations: ['artifacts', 'createdBy', 'organization'],
+      relations: ["artifacts", "createdBy", "organization"],
     });
   }
 
-  async update(id: string, updateTestRunDto: UpdateTestRunDto): Promise<TestRun | null> {
+  async update(
+    id: string,
+    updateTestRunDto: UpdateTestRunDto,
+  ): Promise<TestRun | null> {
     const updateData = {
       ...updateTestRunDto,
-      finishedAt: updateTestRunDto.finishedAt ? new Date(updateTestRunDto.finishedAt) : undefined,
+      finishedAt: updateTestRunDto.finishedAt
+        ? new Date(updateTestRunDto.finishedAt)
+        : undefined,
     };
-    
+
     await this.testRunRepository.update(id, updateData);
     return this.findOne(id);
   }

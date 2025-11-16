@@ -17,44 +17,47 @@ yarn add @dashwright/playwright-reporter
 Add the reporter to your `playwright.config.ts`:
 
 ```typescript
-import { defineConfig } from '@playwright/test';
+import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   reporter: [
-    ['@dashwright/playwright-reporter', {
-      apiUrl: 'http://localhost:3000',
-      apiToken: 'your-api-token',
-      organizationId: 'your-organization-id',
-      uploadScreenshots: true,
-      uploadVideos: true,
-      uploadTraces: true,        // 📊 Upload traces (includes console logs, network, screenshots)
-      retryAttempts: 3,
-      retryDelay: 1000,
-    }],
-    ['html'], // You can still use other reporters
+    [
+      "@dashwright/playwright-reporter",
+      {
+        apiUrl: "http://localhost:3000",
+        apiToken: "your-api-token",
+        organizationId: "your-organization-id",
+        uploadScreenshots: true,
+        uploadVideos: true,
+        uploadTraces: true, // 📊 Upload traces (includes console logs, network, screenshots)
+        retryAttempts: 3,
+        retryDelay: 1000,
+      },
+    ],
+    ["html"], // You can still use other reporters
   ],
-  
+
   // Enable screenshots, videos and traces
   use: {
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
-    trace: 'on-first-retry',     // 📊 Generate traces on retry (recommended)
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
+    trace: "on-first-retry", // 📊 Generate traces on retry (recommended)
   },
 });
 ```
 
 ## Configuration Options
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `apiUrl` | string | **required** | Your Dashwright API URL |
-| `apiToken` | string | **required** | Your API authentication token |
-| `organizationId` | string | **required** | Your organization ID |
-| `uploadScreenshots` | boolean | `true` | Upload test screenshots |
-| `uploadVideos` | boolean | `true` | Upload test videos |
-| `uploadTraces` | boolean | `true` | Upload Playwright traces (includes console logs, network requests, DOM snapshots, and screenshots) |
-| `retryAttempts` | number | `3` | Number of retry attempts for uploads |
-| `retryDelay` | number | `1000` | Delay between retries (ms) |
+| Option              | Type    | Default      | Description                                                                                        |
+| ------------------- | ------- | ------------ | -------------------------------------------------------------------------------------------------- |
+| `apiUrl`            | string  | **required** | Your Dashwright API URL                                                                            |
+| `apiToken`          | string  | **required** | Your API authentication token                                                                      |
+| `organizationId`    | string  | **required** | Your organization ID                                                                               |
+| `uploadScreenshots` | boolean | `true`       | Upload test screenshots                                                                            |
+| `uploadVideos`      | boolean | `true`       | Upload test videos                                                                                 |
+| `uploadTraces`      | boolean | `true`       | Upload Playwright traces (includes console logs, network requests, DOM snapshots, and screenshots) |
+| `retryAttempts`     | number  | `3`          | Number of retry attempts for uploads                                                               |
+| `retryDelay`        | number  | `1000`       | Delay between retries (ms)                                                                         |
 
 ### Trace Generation
 
@@ -89,6 +92,7 @@ npx playwright test
 ```
 
 The reporter will automatically:
+
 - ✅ Create a test run in Dashwright
 - 📸 Upload screenshots from failed tests
 - 🎥 Upload videos when available
@@ -99,6 +103,7 @@ The reporter will automatically:
 ## View Results
 
 After your tests complete, view the results at:
+
 ```
 http://your-dashwright-url/runs/{run-id}
 ```

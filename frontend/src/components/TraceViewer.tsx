@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface TraceViewerProps {
   traceUrl: string;
@@ -8,22 +8,25 @@ interface TraceViewerProps {
 
 /**
  * Interactive Playwright Trace Viewer
- * 
+ *
  * Embeds trace.playwright.dev in an iframe for interactive trace viewing
  */
-const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }) => {
-  
+const TraceViewer: React.FC<TraceViewerProps> = ({
+  traceUrl,
+  filename,
+  onClose,
+}) => {
   const handleDownloadAndView = async () => {
     try {
       // Download the trace file
       const response = await fetch(traceUrl);
       if (!response.ok) {
-        throw new Error('Failed to fetch trace');
+        throw new Error("Failed to fetch trace");
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = filename;
       document.body.appendChild(a);
@@ -32,9 +35,13 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }
       window.URL.revokeObjectURL(url);
 
       // Open trace viewer in new tab
-      window.open('https://trace.playwright.dev/', '_blank', 'noopener,noreferrer');
+      window.open(
+        "https://trace.playwright.dev/",
+        "_blank",
+        "noopener,noreferrer"
+      );
     } catch (err) {
-      console.error('Error:', err);
+      console.error("Error:", err);
     }
   };
 
@@ -45,7 +52,9 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }
         <div className="flex items-center gap-3">
           <span className="text-2xl">📊</span>
           <div>
-            <h3 className="font-semibold text-white">Playwright Trace Viewer</h3>
+            <h3 className="font-semibold text-white">
+              Playwright Trace Viewer
+            </h3>
             <p className="text-sm text-gray-400">{filename}</p>
           </div>
         </div>
@@ -54,8 +63,18 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }
           className="p-2 hover:bg-gray-800 rounded-lg transition-colors text-white"
           title="Fermer"
         >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -64,7 +83,10 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }
       <div className="flex-1 relative flex items-center justify-center bg-gray-900">
         <div className="max-w-4xl w-full px-6">
           {/* Embedded iframe */}
-          <div className="mb-8 rounded-2xl overflow-hidden shadow-2xl" style={{ height: '70vh' }}>
+          <div
+            className="mb-8 rounded-2xl overflow-hidden shadow-2xl"
+            style={{ height: "70vh" }}
+          >
             <iframe
               src="https://trace.playwright.dev/"
               className="w-full h-full border-0"
@@ -82,16 +104,31 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }
             </h4>
             <ol className="text-gray-300 space-y-3 mb-6">
               <li className="flex items-start gap-3">
-                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-sm font-semibold">1</span>
-                <span>Cliquez sur le bouton ci-dessous pour télécharger la trace et ouvrir le viewer</span>
+                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+                  1
+                </span>
+                <span>
+                  Cliquez sur le bouton ci-dessous pour télécharger la trace et
+                  ouvrir le viewer
+                </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-sm font-semibold">2</span>
-                <span>Dans la nouvelle fenêtre, glissez-déposez le fichier téléchargé dans la zone prévue</span>
+                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+                  2
+                </span>
+                <span>
+                  Dans la nouvelle fenêtre, glissez-déposez le fichier
+                  téléchargé dans la zone prévue
+                </span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-sm font-semibold">3</span>
-                <span>Explorez la timeline, les actions, les screenshots, et les requêtes réseau !</span>
+                <span className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 text-sm font-semibold">
+                  3
+                </span>
+                <span>
+                  Explorez la timeline, les actions, les screenshots, et les
+                  requêtes réseau !
+                </span>
               </li>
             </ol>
             <button
@@ -107,7 +144,8 @@ const TraceViewer: React.FC<TraceViewerProps> = ({ traceUrl, filename, onClose }
       {/* Footer Info */}
       <div className="p-3 bg-gray-900 border-t border-gray-700">
         <p className="text-xs text-gray-400 text-center">
-          💡 Explorez la timeline, les actions, les screenshots, le réseau, et plus encore de manière interactive
+          💡 Explorez la timeline, les actions, les screenshots, le réseau, et
+          plus encore de manière interactive
         </p>
       </div>
     </div>

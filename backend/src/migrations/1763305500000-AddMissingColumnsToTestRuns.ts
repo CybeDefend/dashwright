@@ -1,7 +1,9 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AddMissingColumnsToTestRuns1763305500000 implements MigrationInterface {
-  name = 'AddMissingColumnsToTestRuns1763305500000';
+export class AddMissingColumnsToTestRuns1763305500000
+  implements MigrationInterface
+{
+  name = "AddMissingColumnsToTestRuns1763305500000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Add missing columns to test_runs table

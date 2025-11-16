@@ -4,7 +4,7 @@
 
 ### Modern Playwright Dashboard
 
-*A beautiful, intuitive dashboard for visualizing Playwright test runs with real-time updates*
+_A beautiful, intuitive dashboard for visualizing Playwright test runs with real-time updates_
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Node](https://img.shields.io/badge/Node-22.14.0-green.svg)](https://nodejs.org/)
@@ -41,6 +41,7 @@
 ## ✨ Features
 
 ### Dashboard
+
 - 📈 Real-time test run visualization
 - 🎥 Video playback of test executions
 - 📸 Screenshot galleries for failed tests
@@ -49,6 +50,7 @@
 - 📊 Test run statistics and trends
 
 ### Security & Access Control
+
 - 🔐 JWT-based authentication
 - 👥 Organizations and teams
 - 🛡️ Role-based access control (RBAC)
@@ -56,6 +58,7 @@
 - 🚦 Rate limiting and input validation
 
 ### Developer Experience
+
 - 🎯 Simple NPM package integration
 - 🔄 Automatic artifact uploads
 - 🎭 Native Playwright reporter
@@ -75,18 +78,21 @@
 ### Run with Docker Compose
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/CybeDefend/Dashwright.git
    cd Dashwright
    ```
 
 2. **Configure environment**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 3. **Start the services**
+
    ```bash
    docker-compose up -d
    ```
@@ -97,15 +103,18 @@
    - MinIO Console: http://localhost:9001
 
 ### Default Credentials
+
 ```
 Username: admin
 Password: changeme
 ```
+
 > ⚠️ **Important:** Change default credentials in production!
 
 ### Development Mode
 
 **First time setup:**
+
 ```bash
 cp .env.example .env.local
 # Edit .env.local (use localhost for DB_HOST and STORAGE_ENDPOINT)
@@ -113,6 +122,7 @@ make install
 ```
 
 **Daily workflow:**
+
 ```bash
 make dev              # Start PostgreSQL + MinIO (Terminal 1)
 make dev-backend      # Start backend with hot reload (Terminal 2)
@@ -142,6 +152,7 @@ docker compose up -d
 ```
 
 **Specific versions:**
+
 ```bash
 docker pull ghcr.io/cybedefend/dashwright/backend:1.0.0
 docker pull ghcr.io/cybedefend/dashwright/frontend:1.0.0
@@ -186,30 +197,34 @@ pnpm add @dashwright/playwright-reporter
 Configure in `playwright.config.ts`:
 
 ```typescript
-import { defineConfig } from '@playwright/test';
-import DashwrightReporter from '@dashwright/playwright-reporter';
+import { defineConfig } from "@playwright/test";
+import DashwrightReporter from "@dashwright/playwright-reporter";
 
 export default defineConfig({
   reporter: [
-    ['list'],
-    [DashwrightReporter, {
-      apiUrl: 'http://localhost:3006',
-      apiKey: 'your-api-key',
-      runName: 'CI Test Run',
-      environment: 'staging',
-      branch: process.env.CI_BRANCH || 'main',
-    }],
-    ['html'],
+    ["list"],
+    [
+      DashwrightReporter,
+      {
+        apiUrl: "http://localhost:3006",
+        apiKey: "your-api-key",
+        runName: "CI Test Run",
+        environment: "staging",
+        branch: process.env.CI_BRANCH || "main",
+      },
+    ],
+    ["html"],
   ],
-  
+
   use: {
-    screenshot: 'only-on-failure',
-    video: 'retain-on-failure',
+    screenshot: "only-on-failure",
+    video: "retain-on-failure",
   },
 });
 ```
 
 Run your tests:
+
 ```bash
 npx playwright test
 ```
@@ -221,6 +236,7 @@ npx playwright test
 ### Technology Stack
 
 #### Backend
+
 - **Framework:** NestJS 11.1
 - **Language:** TypeScript 5.9
 - **Database:** PostgreSQL 16 with TypeORM
@@ -230,6 +246,7 @@ npx playwright test
 - **Validation:** class-validator & class-transformer
 
 #### Frontend
+
 - **Framework:** React 19.2
 - **Build Tool:** Vite 7.2
 - **Styling:** Tailwind CSS 4.1
@@ -239,6 +256,7 @@ npx playwright test
 - **Real-time:** Socket.IO Client
 
 #### Infrastructure
+
 - **Containerization:** Docker
 - **Orchestration:** Kubernetes with Helm
 - **Node Version:** 22.14.0
@@ -327,6 +345,7 @@ docker-compose up -d
 ```
 
 Services included:
+
 - Backend (NestJS)
 - Frontend (React)
 - PostgreSQL
@@ -335,12 +354,14 @@ Services included:
 ### Kubernetes with Helm (Production)
 
 1. **Add the Helm repository** (if published)
+
    ```bash
    helm repo add dashwright https://charts.dashwright.io
    helm repo update
    ```
 
 2. **Install the chart**
+
    ```bash
    helm install dashwright dashwright/dashwright \
      --namespace dashwright \
@@ -385,6 +406,7 @@ env:
 ```
 
 Deploy:
+
 ```bash
 helm install dashwright ./helm-chart -f custom-values.yaml
 ```
@@ -396,30 +418,33 @@ helm install dashwright ./helm-chart -f custom-values.yaml
 ### Environment Variables
 
 #### Backend
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NODE_ENV` | Environment mode | `development` |
-| `PORT` | Server port | `3000` |
-| `DB_HOST` | PostgreSQL host | `postgres` |
-| `DB_PORT` | PostgreSQL port | `5432` |
-| `DB_USERNAME` | Database username | `dashwright` |
-| `DB_PASSWORD` | Database password | `changeme` |
-| `JWT_SECRET` | JWT signing secret | **required** |
-| `JWT_EXPIRES_IN` | Access token expiry | `1h` |
-| `STORAGE_ENDPOINT` | MinIO/S3 endpoint | `minio` |
-| `STORAGE_BUCKET` | Bucket name | `dashwright-artifacts` |
+
+| Variable           | Description         | Default                |
+| ------------------ | ------------------- | ---------------------- |
+| `NODE_ENV`         | Environment mode    | `development`          |
+| `PORT`             | Server port         | `3000`                 |
+| `DB_HOST`          | PostgreSQL host     | `postgres`             |
+| `DB_PORT`          | PostgreSQL port     | `5432`                 |
+| `DB_USERNAME`      | Database username   | `dashwright`           |
+| `DB_PASSWORD`      | Database password   | `changeme`             |
+| `JWT_SECRET`       | JWT signing secret  | **required**           |
+| `JWT_EXPIRES_IN`   | Access token expiry | `1h`                   |
+| `STORAGE_ENDPOINT` | MinIO/S3 endpoint   | `minio`                |
+| `STORAGE_BUCKET`   | Bucket name         | `dashwright-artifacts` |
 
 #### Frontend
-| Variable | Description | Default |
-|----------|-------------|---------|
+
+| Variable       | Description     | Default                 |
+| -------------- | --------------- | ----------------------- |
 | `VITE_API_URL` | Backend API URL | `http://localhost:3000` |
-| `VITE_WS_URL` | WebSocket URL | `ws://localhost:3000` |
+| `VITE_WS_URL`  | WebSocket URL   | `ws://localhost:3000`   |
 
 ---
 
 ## 🛡️ Security Features
 
 ### Authentication & Authorization
+
 - ✅ JWT access & refresh tokens
 - ✅ Argon2 password hashing
 - ✅ Role-based access control (Admin, Maintainer, Viewer)
@@ -427,6 +452,7 @@ helm install dashwright ./helm-chart -f custom-values.yaml
 - ✅ IP-based rate limiting
 
 ### Data Protection
+
 - ✅ Input validation with class-validator
 - ✅ SQL injection prevention with TypeORM
 - ✅ Secure file uploads with MIME type validation
@@ -435,6 +461,7 @@ helm install dashwright ./helm-chart -f custom-values.yaml
 - ✅ HTTPS/TLS support
 
 ### Best Practices
+
 - ✅ Principle of least privilege
 - ✅ Secure defaults
 - ✅ Regular dependency updates
@@ -448,17 +475,20 @@ helm install dashwright ./helm-chart -f custom-values.yaml
 ### API Documentation
 
 Once running, access the API documentation at:
+
 - Swagger UI: `http://localhost:3000/api/docs` (if enabled)
 
 ### Key Endpoints
 
 #### Authentication
+
 ```bash
 POST /auth/login          # Login
 POST /auth/refresh        # Refresh token
 ```
 
 #### Test Runs
+
 ```bash
 GET    /test-runs         # List all runs
 POST   /test-runs         # Create run
@@ -468,6 +498,7 @@ DELETE /test-runs/:id     # Delete run
 ```
 
 #### Artifacts
+
 ```bash
 POST   /artifacts/upload         # Upload artifact
 GET    /artifacts/test-run/:id   # Get run artifacts
@@ -487,6 +518,7 @@ Dashwright is built with a focus on:
 - **Modern** - Latest technologies and best practices
 
 The UI follows modern design principles with:
+
 - Generous whitespace
 - Clear typography
 - Subtle animations
@@ -502,28 +534,31 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ### Development Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/CybeDefend/Dashwright.git
    cd Dashwright
    ```
 
 2. **Install dependencies**
+
    ```bash
    # Backend
    cd backend && pnpm install
-   
+
    # Frontend
    cd ../frontend && pnpm install
-   
+
    # NPM Package
    cd ../integrations/npm-package && pnpm install
    ```
 
 3. **Start development servers**
+
    ```bash
    # Backend
    cd backend && pnpm run start:dev
-   
+
    # Frontend
    cd frontend && pnpm run dev
    ```

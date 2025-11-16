@@ -5,20 +5,20 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
-} from 'typeorm';
-import { User } from './user.entity';
-import { Team } from './team.entity';
-import { TestRun } from './test-run.entity';
+} from "typeorm";
+import { User } from "./user.entity";
+import { Team } from "./team.entity";
+import { TestRun } from "./test-run.entity";
 
-@Entity('organizations')
+@Entity("organizations")
 export class Organization {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true, length: 255 })
   name: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
   @Column({ default: true })

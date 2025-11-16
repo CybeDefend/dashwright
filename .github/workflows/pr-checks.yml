@@ -50,16 +50,16 @@ jobs:
           script: |
             const output = `
             ## 📊 Changes Summary
-            
+
             ${steps['changed-files'].outputs.backend_any_changed === 'true' ? '🔧 **Backend** changes detected' : ''}
             ${steps['changed-files'].outputs.frontend_any_changed === 'true' ? '🎨 **Frontend** changes detected' : ''}
             ${steps['changed-files'].outputs.npm_any_changed === 'true' ? '📦 **NPM Package** changes detected' : ''}
             ${steps['changed-files'].outputs.docker_any_changed === 'true' ? '🐳 **Docker** configuration changes detected' : ''}
             ${steps['changed-files'].outputs.ci_any_changed === 'true' ? '⚙️ **CI/CD** changes detected' : ''}
-            
+
             **Total files changed:** ${{ steps.changed-files.outputs.all_changed_files_count }}
             `;
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
@@ -77,13 +77,13 @@ jobs:
         if: contains(github.event.pull_request.changed_files, 'Dockerfile')
         run: |
           echo "Building images to check sizes..."
-          
+
           if [ -f "backend/Dockerfile" ]; then
             docker build -t dashwright-backend:pr ./backend
             BACKEND_SIZE=$(docker images dashwright-backend:pr --format "{{.Size}}")
             echo "Backend image size: $BACKEND_SIZE"
           fi
-          
+
           if [ -f "frontend/Dockerfile" ]; then
             docker build -t dashwright-frontend:pr ./frontend
             FRONTEND_SIZE=$(docker images dashwright-frontend:pr --format "{{.Size}}")
@@ -99,17 +99,17 @@ jobs:
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-          severity: 'CRITICAL,HIGH'
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: 'trivy-results.sarif'
+          sarif_file: "trivy-results.sarif"
 
   dependency-review:
     runs-on: ubuntu-latest

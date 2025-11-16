@@ -1,9 +1,14 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
-import { ApiKey } from '../../entities/api-key.entity';
-import { User } from '../../entities/user.entity';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { JwtService } from "@nestjs/jwt";
+import { ApiKey } from "../../entities/api-key.entity";
+import { User } from "../../entities/user.entity";
 
 /**
  * Combined guard that allows authentication via either JWT or API Key
@@ -21,23 +26,23 @@ export class JwtOrApiKeyGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    
+
     // Check if Authorization header exists (JWT)
-    const authHeader = request.headers['authorization'];
-    if (authHeader && authHeader.startsWith('Bearer ')) {
+    const authHeader = request.headers["authorization"];
+    if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.substring(7);
       try {
         const payload = await this.jwtService.verifyAsync(token, {
-          secret: process.env.JWT_SECRET || 'your-secret-key',
+          secret: process.env.JWT_SECRET || "your-secret-key",
         });
-        
+
         const user = await this.userRepository.findOne({
           where: { id: payload.sub },
-          relations: ['organization'],
+          relations: ["organization"],
         });
 
         if (!user || !user.isActive) {
-          throw new UnauthorizedException('Invalid or inactive user');
+          throw new UnauthorizedException("Invalid or inactive user");
         }
 
         request.user = user;
@@ -48,20 +53,20 @@ export class JwtOrApiKeyGuard implements CanActivate {
     }
 
     // Check if X-API-Key header exists
-    const apiKeyHeader = request.headers['x-api-key'];
+    const apiKeyHeader = request.headers["x-api-key"];
     if (apiKeyHeader) {
       const keyRecord = await this.apiKeyRepository.findOne({
         where: { key: apiKeyHeader, isActive: true },
-        relations: ['user', 'organization'],
+        relations: ["user", "organization"],
       });
 
       if (!keyRecord) {
-        throw new UnauthorizedException('Invalid or inactive API key');
+        throw new UnauthorizedException("Invalid or inactive API key");
       }
 
       // Check if the key has expired
       if (keyRecord.expiresAt && keyRecord.expiresAt < new Date()) {
-        throw new UnauthorizedException('API key has expired');
+        throw new UnauthorizedException("API key has expired");
       }
 
       // Update last used timestamp (fire and forget)
@@ -76,6 +81,8 @@ export class JwtOrApiKeyGuard implements CanActivate {
     }
 
     // Neither JWT nor API key provided
-    throw new UnauthorizedException('Authentication required. Provide either JWT Bearer token or X-API-Key header');
+    throw new UnauthorizedException(
+      "Authentication required. Provide either JWT Bearer token or X-API-Key header",
+    );
   }
 }

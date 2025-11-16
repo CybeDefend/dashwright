@@ -1,15 +1,15 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from './store/auth.store';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import TestRunDetailPage from './pages/TestRunDetailPage';
-import AdminPage from './pages/AdminPage';
-import ApiKeysPage from './pages/ApiKeysPage';
-import OrganizationPage from './pages/OrganizationPage';
-import AcceptInvitationPage from './pages/AcceptInvitationPage';
-import AppLayout from './layouts/AppLayout';
-import AuthProvider from './components/AuthProvider';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuthStore } from "./store/auth.store";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import DashboardPage from "./pages/DashboardPage";
+import TestRunDetailPage from "./pages/TestRunDetailPage";
+import AdminPage from "./pages/AdminPage";
+import ApiKeysPage from "./pages/ApiKeysPage";
+import OrganizationPage from "./pages/OrganizationPage";
+import AcceptInvitationPage from "./pages/AcceptInvitationPage";
+import AppLayout from "./layouts/AppLayout";
+import AuthProvider from "./components/AuthProvider";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -22,8 +22,11 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/invite/accept/:token" element={<AcceptInvitationPage />} />
-        
+        <Route
+          path="/invite/accept/:token"
+          element={<AcceptInvitationPage />}
+        />
+
         <Route
           path="/"
           element={

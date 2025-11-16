@@ -17,10 +17,12 @@ Get up and running with Dashwright in 5 minutes!
 Choose one of the following setups:
 
 ### For Production (Docker)
+
 - Docker 24.0+
 - Docker Compose 2.0+
 
 ### For Development
+
 - Node.js 22.14.0+
 - pnpm 10.22.0+
 - Docker (for PostgreSQL and MinIO)
@@ -247,38 +249,38 @@ npm install @dashwright/playwright-reporter
 Edit your `playwright.config.ts`:
 
 ```typescript
-import { defineConfig } from '@playwright/test';
-import DashwrightReporter from '@dashwright/playwright-reporter';
+import { defineConfig } from "@playwright/test";
+import DashwrightReporter from "@dashwright/playwright-reporter";
 
 export default defineConfig({
   reporter: [
-    ['list'], // Keep console output
+    ["list"], // Keep console output
     [
       DashwrightReporter,
       {
         // API URL of your Dashwright backend
-        apiUrl: 'http://localhost:3000',
-        
+        apiUrl: "http://localhost:3000",
+
         // API key from Dashwright dashboard
-        apiKey: 'your-api-key-here',
-        
+        apiKey: "your-api-key-here",
+
         // Upload artifacts (screenshots, videos, traces)
         uploadArtifacts: true,
-        
+
         // Optional: Project name
-        projectName: 'My Awesome Project',
-        
+        projectName: "My Awesome Project",
+
         // Optional: Branch name (auto-detected from git)
         branch: process.env.BRANCH_NAME,
       },
     ],
   ],
-  
+
   // Enable screenshots, videos, and traces
   use: {
-    screenshot: 'on',
-    video: 'retain-on-failure',
-    trace: 'retain-on-failure',
+    screenshot: "on",
+    video: "retain-on-failure",
+    trace: "retain-on-failure",
   },
 });
 ```

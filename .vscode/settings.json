@@ -5,7 +5,7 @@
     "source.fixAll.eslint": "explicit"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  
+
   // Fichiers
   "files.exclude": {
     "**/node_modules": true,
@@ -17,12 +17,12 @@
     "**/node_modules/**": true,
     "**/dist/**": true
   },
-  
+
   // TypeScript
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.preferences.importModuleSpecifier": "relative",
-  
+
   // ESLint
   "eslint.workingDirectories": [
     "./backend",
@@ -35,7 +35,7 @@
     "typescript",
     "typescriptreact"
   ],
-  
+
   // Prettier
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
@@ -49,11 +49,11 @@
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  
+
   // Terminal
   "terminal.integrated.defaultProfile.osx": "zsh",
   "terminal.integrated.env.osx": {},
-  
+
   // Recherche
   "search.exclude": {
     "**/node_modules": true,
@@ -61,10 +61,10 @@
     "**/.vite": true,
     "**/pnpm-lock.yaml": true
   },
-  
+
   // Git
   "git.ignoreLimitWarning": true,
-  
+
   // Tailwind CSS
   "tailwindCSS.experimental.classRegex": [
     ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
@@ -74,7 +74,7 @@
     "typescript": "javascript",
     "typescriptreact": "javascript"
   },
-  
+
   // Extensions recommandées pour ce projet
   "recommendations": [
     "dbaeumer.vscode-eslint",

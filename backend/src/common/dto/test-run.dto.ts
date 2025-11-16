@@ -7,8 +7,8 @@ import {
   IsUUID,
   IsObject,
   IsDateString,
-} from 'class-validator';
-import { TestRunStatus } from '../../entities';
+} from "class-validator";
+import { TestRunStatus } from "../../entities";
 
 export class CreateTestRunDto {
   @IsString()

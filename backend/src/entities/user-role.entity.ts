@@ -5,31 +5,31 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { User } from './user.entity';
+} from "typeorm";
+import { User } from "./user.entity";
 
 export enum RoleType {
-  ADMIN = 'admin',
-  MAINTAINER = 'maintainer',
-  VIEWER = 'viewer',
+  ADMIN = "admin",
+  MAINTAINER = "maintainer",
+  VIEWER = "viewer",
 }
 
-@Entity('user_roles')
+@Entity("user_roles")
 export class UserRole {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: RoleType,
     default: RoleType.VIEWER,
   })
   role: RoleType;
 
   @ManyToOne(() => User, (user) => user.roles, {
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn({ name: "userId" })
   user: User;
 
   @Column()

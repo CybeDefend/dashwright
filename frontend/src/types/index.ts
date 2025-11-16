@@ -19,16 +19,16 @@ export interface CreateApiKeyDto {
 }
 
 export enum RoleType {
-  ADMIN = 'admin',
-  MAINTAINER = 'maintainer',
-  VIEWER = 'viewer',
+  ADMIN = "admin",
+  MAINTAINER = "maintainer",
+  VIEWER = "viewer",
 }
 
 export enum InvitationStatus {
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  EXPIRED = 'expired',
-  REVOKED = 'revoked',
+  PENDING = "pending",
+  ACCEPTED = "accepted",
+  EXPIRED = "expired",
+  REVOKED = "revoked",
 }
 
 export interface Invitation {

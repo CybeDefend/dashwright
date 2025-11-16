@@ -39,6 +39,7 @@ Before running the script, ensure:
 ```
 
 This will:
+
 1. ✅ Check git working directory is clean
 2. ✅ Check you're on the main branch
 3. ✅ Prompt to update CHANGELOG.md
@@ -55,6 +56,7 @@ This will:
 ```
 
 This will:
+
 1. ✅ Check git working directory is clean
 2. ✅ Check you're on the main branch
 3. ✅ Update `integrations/npm-package/package.json` version
@@ -72,6 +74,7 @@ This will:
 ```
 
 This will:
+
 1. ✅ Update NPM package version
 2. ✅ Prompt to update all changelogs
 3. ✅ Create git tag `v1.0.0`
@@ -83,6 +86,7 @@ This will:
 The script expects semantic versioning: `MAJOR.MINOR.PATCH`
 
 Examples:
+
 - ✅ `1.0.0`
 - ✅ `2.1.3`
 - ✅ `0.1.0`
@@ -94,10 +98,12 @@ Examples:
 Once you push the tag:
 
 1. **Docker Workflow** triggers and builds multi-arch images
+
    - Images are pushed to `ghcr.io/cybedefend/dashwright/backend:VERSION`
    - And `ghcr.io/cybedefend/dashwright/frontend:VERSION`
 
 2. **NPM Workflow** triggers and publishes package
+
    - Package is published to `@dashwright/playwright-reporter@VERSION`
    - A GitHub release is created automatically
 
@@ -148,12 +154,14 @@ git stash
 ### Script says "Invalid version format"
 
 Use semantic versioning without the 'v' prefix:
+
 - ✅ `1.0.0`
 - ❌ `v1.0.0`
 
 ### GitHub Actions workflow doesn't trigger
 
 Check:
+
 1. Tag was pushed: `git push origin --tags`
 2. Workflow file exists: `.github/workflows/docker.yml` or `publish-npm.yml`
 3. You have push permissions to the repository
@@ -161,6 +169,7 @@ Check:
 ### Docker images don't appear in GHCR
 
 Check GitHub Actions logs for build errors:
+
 - Navigate to repository Actions tab
 - Click on the failed workflow
 - Check build logs for errors
@@ -168,6 +177,7 @@ Check GitHub Actions logs for build errors:
 ### NPM package doesn't publish
 
 Ensure:
+
 1. `package.json` has correct `publishConfig`
 2. `GITHUB_TOKEN` has packages write permission
 3. Package name matches scoped format: `@dashwright/playwright-reporter`

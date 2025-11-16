@@ -1,4 +1,4 @@
-import { AlertTriangle, X } from 'lucide-react';
+import { AlertTriangle, X } from "lucide-react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -8,7 +8,7 @@ interface ConfirmModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
-  type?: 'danger' | 'warning' | 'info';
+  type?: "danger" | "warning" | "info";
 }
 
 export default function ConfirmModal({
@@ -17,31 +17,31 @@ export default function ConfirmModal({
   onConfirm,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  type = 'warning',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  type = "warning",
 }: ConfirmModalProps) {
   if (!isOpen) return null;
 
   const getColorClasses = () => {
     switch (type) {
-      case 'danger':
+      case "danger":
         return {
-          icon: 'text-red-600',
-          iconBg: 'bg-red-100',
-          button: 'bg-red-600 hover:bg-red-700',
+          icon: "text-red-600",
+          iconBg: "bg-red-100",
+          button: "bg-red-600 hover:bg-red-700",
         };
-      case 'warning':
+      case "warning":
         return {
-          icon: 'text-yellow-600',
-          iconBg: 'bg-yellow-100',
-          button: 'bg-yellow-600 hover:bg-yellow-700',
+          icon: "text-yellow-600",
+          iconBg: "bg-yellow-100",
+          button: "bg-yellow-600 hover:bg-yellow-700",
         };
-      case 'info':
+      case "info":
         return {
-          icon: 'text-blue-600',
-          iconBg: 'bg-blue-100',
-          button: 'bg-blue-600 hover:bg-blue-700',
+          icon: "text-blue-600",
+          iconBg: "bg-blue-100",
+          button: "bg-blue-600 hover:bg-blue-700",
         };
     }
   };
@@ -58,7 +58,9 @@ export default function ConfirmModal({
       <div className="card max-w-md w-full mx-4 animate-scale-in">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-3">
-            <div className={`w-10 h-10 ${colors.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}>
+            <div
+              className={`w-10 h-10 ${colors.iconBg} rounded-full flex items-center justify-center flex-shrink-0`}
+            >
               <AlertTriangle className={`w-6 h-6 ${colors.icon}`} />
             </div>
             <div>

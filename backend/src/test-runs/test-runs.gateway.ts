@@ -3,13 +3,13 @@ import {
   WebSocketServer,
   SubscribeMessage,
   MessageBody,
-} from '@nestjs/websockets';
-import { Server } from 'socket.io';
-import { TestRun } from '../entities';
+} from "@nestjs/websockets";
+import { Server } from "socket.io";
+import { TestRun } from "../entities";
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+    origin: process.env.CORS_ORIGIN || "http://localhost:5173",
     credentials: true,
   },
 })
@@ -18,15 +18,15 @@ export class TestRunsGateway {
   server: Server;
 
   notifyTestRunCreated(testRun: TestRun) {
-    this.server.emit('test-run:created', testRun);
+    this.server.emit("test-run:created", testRun);
   }
 
   notifyTestRunUpdated(testRun: TestRun) {
-    this.server.emit('test-run:updated', testRun);
+    this.server.emit("test-run:updated", testRun);
   }
 
-  @SubscribeMessage('subscribe:test-run')
+  @SubscribeMessage("subscribe:test-run")
   handleSubscribeToTestRun(@MessageBody() testRunId: string) {
-    return { event: 'subscribed', data: { testRunId } };
+    return { event: "subscribed", data: { testRunId } };
   }
 }

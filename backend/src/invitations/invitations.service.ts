@@ -1,10 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Invitation, InvitationStatus } from '../entities/invitation.entity';
-import { User } from '../entities/user.entity';
-import { CreateInvitationDto, AcceptInvitationDto } from '../common/dto/invitation.dto';
-import * as argon2 from 'argon2';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Invitation, InvitationStatus } from "../entities/invitation.entity";
+import { User } from "../entities/user.entity";
+import {
+  CreateInvitationDto,
+  AcceptInvitationDto,
+} from "../common/dto/invitation.dto";
+import * as argon2 from "argon2";
 
 @Injectable()
 export class InvitationsService {
@@ -26,7 +34,9 @@ export class InvitationsService {
     });
 
     if (existingUser) {
-      throw new ConflictException('User with this email already exists in your organization');
+      throw new ConflictException(
+        "User with this email already exists in your organization",
+      );
     }
 
     // Check if there's already a pending invitation
@@ -39,7 +49,9 @@ export class InvitationsService {
     });
 
     if (existingInvitation) {
-      throw new ConflictException('An invitation for this email is already pending');
+      throw new ConflictException(
+        "An invitation for this email is already pending",
+      );
     }
 
     const invitation = this.invitationsRepository.create({
@@ -55,30 +67,32 @@ export class InvitationsService {
   async findAll(organizationId: string): Promise<Invitation[]> {
     return await this.invitationsRepository.find({
       where: { organizationId },
-      relations: ['invitedBy'],
-      order: { createdAt: 'DESC' },
+      relations: ["invitedBy"],
+      order: { createdAt: "DESC" },
     });
   }
 
   async findByToken(token: string): Promise<Invitation> {
     const invitation = await this.invitationsRepository.findOne({
       where: { token },
-      relations: ['organization'],
+      relations: ["organization"],
     });
 
     if (!invitation) {
-      throw new NotFoundException('Invitation not found');
+      throw new NotFoundException("Invitation not found");
     }
 
     if (invitation.status !== InvitationStatus.PENDING) {
-      throw new BadRequestException('This invitation has already been used or revoked');
+      throw new BadRequestException(
+        "This invitation has already been used or revoked",
+      );
     }
 
     if (invitation.expiresAt < new Date()) {
       // Update status to expired
       invitation.status = InvitationStatus.EXPIRED;
       await this.invitationsRepository.save(invitation);
-      throw new BadRequestException('This invitation has expired');
+      throw new BadRequestException("This invitation has expired");
     }
 
     return invitation;
@@ -93,7 +107,7 @@ export class InvitationsService {
     });
 
     if (existingUser) {
-      throw new ConflictException('Username already taken');
+      throw new ConflictException("Username already taken");
     }
 
     // Check if user with this email already exists
@@ -102,7 +116,7 @@ export class InvitationsService {
     });
 
     if (existingEmailUser) {
-      throw new ConflictException('A user with this email already exists');
+      throw new ConflictException("A user with this email already exists");
     }
 
     // Hash password
@@ -138,11 +152,11 @@ export class InvitationsService {
     });
 
     if (!invitation) {
-      throw new NotFoundException('Invitation not found');
+      throw new NotFoundException("Invitation not found");
     }
 
     if (invitation.status !== InvitationStatus.PENDING) {
-      throw new BadRequestException('Only pending invitations can be revoked');
+      throw new BadRequestException("Only pending invitations can be revoked");
     }
 
     invitation.status = InvitationStatus.REVOKED;
@@ -155,7 +169,7 @@ export class InvitationsService {
     });
 
     if (!invitation) {
-      throw new NotFoundException('Invitation not found');
+      throw new NotFoundException("Invitation not found");
     }
 
     await this.invitationsRepository.remove(invitation);
@@ -168,7 +182,7 @@ export class InvitationsService {
     });
 
     const now = new Date();
-    const toUpdate = expiredInvitations.filter(inv => inv.expiresAt < now);
+    const toUpdate = expiredInvitations.filter((inv) => inv.expiresAt < now);
 
     for (const invitation of toUpdate) {
       invitation.status = InvitationStatus.EXPIRED;

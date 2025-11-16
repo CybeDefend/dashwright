@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { apiClient } from '../services/apiClient';
-import NativeTraceViewer from '../components/NativeTraceViewer';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { apiClient } from "../services/apiClient";
+import NativeTraceViewer from "../components/NativeTraceViewer";
 
 interface TestRun {
   id: string;
   name: string;
-  status: 'running' | 'passed' | 'failed';
+  status: "running" | "passed" | "failed";
   totalTests: number;
   passedTests: number;
   failedTests: number;
@@ -42,10 +42,15 @@ const TestRunDetailPage: React.FC = () => {
   const [testRun, setTestRun] = useState<TestRun | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
+  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(
+    null
+  );
   const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
   const [expandedTest, setExpandedTest] = useState<string | null>(null);
-  const [traceToView, setTraceToView] = useState<{ url: string; filename: string } | null>(null);
+  const [traceToView, setTraceToView] = useState<{
+    url: string;
+    filename: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -55,13 +60,22 @@ const TestRunDetailPage: React.FC = () => {
         setLoading(true);
         const response = await apiClient.get(`/test-runs/${id}`);
         setTestRun(response.data);
-        
+
         // Debug: Log artifacts to see if traces are present
-        console.log('📊 Test Run Artifacts:', response.data.artifacts);
-        console.log('📊 Artifact types:', response.data.artifacts?.map((a: Artifact) => a.type));
-        console.log('📊 Trace artifacts:', response.data.artifacts?.filter((a: Artifact) => a.type === 'trace'));
-        console.log('📊 Log artifacts:', response.data.artifacts?.filter((a: Artifact) => a.type === 'log'));
-        
+        console.log("📊 Test Run Artifacts:", response.data.artifacts);
+        console.log(
+          "📊 Artifact types:",
+          response.data.artifacts?.map((a: Artifact) => a.type)
+        );
+        console.log(
+          "📊 Trace artifacts:",
+          response.data.artifacts?.filter((a: Artifact) => a.type === "trace")
+        );
+        console.log(
+          "📊 Log artifacts:",
+          response.data.artifacts?.filter((a: Artifact) => a.type === "log")
+        );
+
         // Auto-expand first test if available
         if (response.data.artifacts && response.data.artifacts.length > 0) {
           const firstTestName = response.data.artifacts[0].testName;
@@ -70,8 +84,8 @@ const TestRunDetailPage: React.FC = () => {
           }
         }
       } catch (err: any) {
-        console.error('Failed to fetch test run:', err);
-        setError(err.response?.data?.message || 'Failed to load test run');
+        console.error("Failed to fetch test run:", err);
+        setError(err.response?.data?.message || "Failed to load test run");
       } finally {
         setLoading(false);
       }
@@ -88,10 +102,12 @@ const TestRunDetailPage: React.FC = () => {
       }
 
       try {
-        const response = await apiClient.get(`/artifacts/${selectedArtifact.id}/download-url`);
+        const response = await apiClient.get(
+          `/artifacts/${selectedArtifact.id}/download-url`
+        );
         setArtifactUrl(response.data.url);
       } catch (err) {
-        console.error('Failed to fetch artifact URL:', err);
+        console.error("Failed to fetch artifact URL:", err);
         setArtifactUrl(null);
       }
     };
@@ -103,11 +119,13 @@ const TestRunDetailPage: React.FC = () => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
+    return minutes > 0
+      ? `${minutes}m ${remainingSeconds}s`
+      : `${remainingSeconds}s`;
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('fr-FR');
+    return new Date(dateString).toLocaleString("fr-FR");
   };
 
   const formatFileSize = (bytes: number) => {
@@ -118,7 +136,7 @@ const TestRunDetailPage: React.FC = () => {
 
   const groupArtifactsByTest = (artifacts: Artifact[]): GroupedArtifacts => {
     return artifacts.reduce((acc, artifact) => {
-      const testName = artifact.testName || 'Sans nom de test';
+      const testName = artifact.testName || "Sans nom de test";
       if (!acc[testName]) {
         acc[testName] = [];
       }
@@ -129,15 +147,17 @@ const TestRunDetailPage: React.FC = () => {
 
   const openArtifactViewer = async (artifact: Artifact) => {
     // For traces, open the interactive viewer
-    if (artifact.type === 'trace') {
+    if (artifact.type === "trace") {
       try {
-        const response = await apiClient.get(`/artifacts/${artifact.id}/download-url`);
+        const response = await apiClient.get(
+          `/artifacts/${artifact.id}/download-url`
+        );
         setTraceToView({
           url: response.data.url,
           filename: artifact.filename,
         });
       } catch (err) {
-        console.error('Error fetching trace URL:', err);
+        console.error("Error fetching trace URL:", err);
       }
     } else {
       // For other artifacts, use the standard viewer
@@ -160,16 +180,16 @@ const TestRunDetailPage: React.FC = () => {
 
   const getArtifactIcon = (type: string) => {
     switch (type) {
-      case 'screenshot':
-        return '📸';
-      case 'video':
-        return '🎥';
-      case 'log':
-        return '📄';
-      case 'trace':
-        return '📊';
+      case "screenshot":
+        return "📸";
+      case "video":
+        return "🎥";
+      case "log":
+        return "📄";
+      case "trace":
+        return "📊";
       default:
-        return '📎';
+        return "📎";
     }
   };
 
@@ -191,9 +211,9 @@ const TestRunDetailPage: React.FC = () => {
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60 text-center">
-            <p className="text-red-600 mb-4">{error || 'Test run not found'}</p>
+            <p className="text-red-600 mb-4">{error || "Test run not found"}</p>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate("/dashboard")}
               className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all"
             >
               Retour au tableau de bord
@@ -205,16 +225,19 @@ const TestRunDetailPage: React.FC = () => {
   }
 
   const statusColors = {
-    running: 'bg-blue-100 text-blue-800',
-    passed: 'bg-green-100 text-green-800',
-    failed: 'bg-red-100 text-red-800',
+    running: "bg-blue-100 text-blue-800",
+    passed: "bg-green-100 text-green-800",
+    failed: "bg-red-100 text-red-800",
   };
 
-  const successRate = testRun.totalTests > 0 
-    ? Math.round((testRun.passedTests / testRun.totalTests) * 100) 
-    : 0;
+  const successRate =
+    testRun.totalTests > 0
+      ? Math.round((testRun.passedTests / testRun.totalTests) * 100)
+      : 0;
 
-  const groupedArtifacts = testRun.artifacts ? groupArtifactsByTest(testRun.artifacts) : {};
+  const groupedArtifacts = testRun.artifacts
+    ? groupArtifactsByTest(testRun.artifacts)
+    : {};
   const testNames = Object.keys(groupedArtifacts).sort();
 
   return (
@@ -223,17 +246,35 @@ const TestRunDetailPage: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate("/dashboard")}
             className="flex items-center gap-2 text-gray-600 hover:text-purple-600 transition-colors"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
             Retour
           </button>
-          
-          <span className={`px-4 py-2 rounded-full text-sm font-medium ${statusColors[testRun.status]}`}>
-            {testRun.status === 'running' ? '⏳ En cours' : testRun.status === 'passed' ? '✅ Réussi' : '❌ Échoué'}
+
+          <span
+            className={`px-4 py-2 rounded-full text-sm font-medium ${
+              statusColors[testRun.status]
+            }`}
+          >
+            {testRun.status === "running"
+              ? "⏳ En cours"
+              : testRun.status === "passed"
+              ? "✅ Réussi"
+              : "❌ Échoué"}
           </span>
         </div>
 
@@ -255,7 +296,9 @@ const TestRunDetailPage: React.FC = () => {
                 <span className="text-green-600">✓ {testRun.passedTests}</span>
                 <span className="text-red-600">✗ {testRun.failedTests}</span>
                 {testRun.skippedTests > 0 && (
-                  <span className="text-gray-500">⊝ {testRun.skippedTests}</span>
+                  <span className="text-gray-500">
+                    ⊝ {testRun.skippedTests}
+                  </span>
                 )}
               </div>
             </div>
@@ -278,7 +321,9 @@ const TestRunDetailPage: React.FC = () => {
             <div className="space-y-2">
               <p className="text-sm text-gray-500">Durée</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold">{formatDuration(testRun.duration)}</span>
+                <span className="text-3xl font-bold">
+                  {formatDuration(testRun.duration)}
+                </span>
               </div>
               <p className="text-sm text-gray-500">
                 {formatDate(testRun.startedAt)}
@@ -304,7 +349,9 @@ const TestRunDetailPage: React.FC = () => {
               {testRun.commit && (
                 <div>
                   <p className="text-sm text-gray-500">Commit</p>
-                  <p className="font-mono text-sm">{testRun.commit.substring(0, 8)}</p>
+                  <p className="font-mono text-sm">
+                    {testRun.commit.substring(0, 8)}
+                  </p>
                 </div>
               )}
             </div>
@@ -314,18 +361,27 @@ const TestRunDetailPage: React.FC = () => {
         {/* Tests List - Accordion Style */}
         {testNames.length > 0 ? (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
-            <h2 className="text-2xl font-bold mb-6">Tests exécutés ({testNames.length})</h2>
+            <h2 className="text-2xl font-bold mb-6">
+              Tests exécutés ({testNames.length})
+            </h2>
             <div className="space-y-3">
               {testNames.map((testName) => {
                 const artifacts = groupedArtifacts[testName];
-                const screenshots = artifacts.filter(a => a.type === 'screenshot');
-                const videos = artifacts.filter(a => a.type === 'video');
-                const traces = artifacts.filter(a => a.type === 'trace');
-                const others = artifacts.filter(a => !['screenshot', 'video', 'trace'].includes(a.type));
+                const screenshots = artifacts.filter(
+                  (a) => a.type === "screenshot"
+                );
+                const videos = artifacts.filter((a) => a.type === "video");
+                const traces = artifacts.filter((a) => a.type === "trace");
+                const others = artifacts.filter(
+                  (a) => !["screenshot", "video", "trace"].includes(a.type)
+                );
                 const isExpanded = expandedTest === testName;
 
                 return (
-                  <div key={testName} className="border border-gray-200 rounded-lg overflow-hidden">
+                  <div
+                    key={testName}
+                    className="border border-gray-200 rounded-lg overflow-hidden"
+                  >
                     {/* Test Header - Clickable */}
                     <button
                       onClick={() => toggleTest(testName)}
@@ -335,24 +391,39 @@ const TestRunDetailPage: React.FC = () => {
                         {/* Status Icon */}
                         <span className="text-xl text-green-500">✓</span>
                         {/* Test Name */}
-                        <h3 className="text-lg font-semibold text-gray-800 text-left">{testName}</h3>
+                        <h3 className="text-lg font-semibold text-gray-800 text-left">
+                          {testName}
+                        </h3>
                       </div>
                       <div className="flex items-center gap-3">
                         {/* Artifact Counts */}
                         <div className="flex items-center gap-2 text-sm text-gray-500">
-                          {screenshots.length > 0 && <span>📸 {screenshots.length}</span>}
+                          {screenshots.length > 0 && (
+                            <span>📸 {screenshots.length}</span>
+                          )}
                           {videos.length > 0 && <span>🎥 {videos.length}</span>}
-                          {traces.length > 0 && <span className="font-semibold text-purple-600">📊 {traces.length}</span>}
+                          {traces.length > 0 && (
+                            <span className="font-semibold text-purple-600">
+                              📊 {traces.length}
+                            </span>
+                          )}
                           {others.length > 0 && <span>📎 {others.length}</span>}
                         </div>
                         {/* Chevron Icon */}
                         <svg
-                          className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          className={`w-5 h-5 text-gray-400 transition-transform ${
+                            isExpanded ? "rotate-180" : ""
+                          }`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 9l-7 7-7-7"
+                          />
                         </svg>
                       </div>
                     </button>
@@ -364,7 +435,9 @@ const TestRunDetailPage: React.FC = () => {
                           {/* Screenshots */}
                           {screenshots.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-600 mb-2">📸 Screenshots ({screenshots.length})</p>
+                              <p className="text-sm font-medium text-gray-600 mb-2">
+                                📸 Screenshots ({screenshots.length})
+                              </p>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 {screenshots.map((artifact) => (
                                   <button
@@ -387,7 +460,9 @@ const TestRunDetailPage: React.FC = () => {
                           {/* Videos */}
                           {videos.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-600 mb-2">🎥 Vidéos ({videos.length})</p>
+                              <p className="text-sm font-medium text-gray-600 mb-2">
+                                🎥 Vidéos ({videos.length})
+                              </p>
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                                 {videos.map((artifact) => (
                                   <button
@@ -410,7 +485,9 @@ const TestRunDetailPage: React.FC = () => {
                           {/* Traces - Highlighted */}
                           {traces.length > 0 && (
                             <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                              <p className="text-sm font-semibold text-purple-700 mb-2">📊 Traces ({traces.length})</p>
+                              <p className="text-sm font-semibold text-purple-700 mb-2">
+                                📊 Traces ({traces.length})
+                              </p>
                               <div className="space-y-2">
                                 {traces.map((artifact) => (
                                   <div
@@ -420,12 +497,18 @@ const TestRunDetailPage: React.FC = () => {
                                     <div className="flex items-center gap-3">
                                       <span className="text-2xl">📊</span>
                                       <div>
-                                        <p className="text-sm font-medium text-gray-800">{artifact.filename}</p>
-                                        <p className="text-xs text-gray-500">{formatFileSize(artifact.size)}</p>
+                                        <p className="text-sm font-medium text-gray-800">
+                                          {artifact.filename}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                          {formatFileSize(artifact.size)}
+                                        </p>
                                       </div>
                                     </div>
                                     <button
-                                      onClick={() => openArtifactViewer(artifact)}
+                                      onClick={() =>
+                                        openArtifactViewer(artifact)
+                                      }
                                       className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-100 rounded transition-colors font-medium"
                                     >
                                       Voir
@@ -439,7 +522,9 @@ const TestRunDetailPage: React.FC = () => {
                           {/* Other Artifacts */}
                           {others.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-600 mb-2">📎 Autres ({others.length})</p>
+                              <p className="text-sm font-medium text-gray-600 mb-2">
+                                📎 Autres ({others.length})
+                              </p>
                               <div className="space-y-2">
                                 {others.map((artifact) => (
                                   <div
@@ -447,14 +532,22 @@ const TestRunDetailPage: React.FC = () => {
                                     className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-100 transition-colors"
                                   >
                                     <div className="flex items-center gap-3">
-                                      <span className="text-2xl">{getArtifactIcon(artifact.type)}</span>
+                                      <span className="text-2xl">
+                                        {getArtifactIcon(artifact.type)}
+                                      </span>
                                       <div>
-                                        <p className="text-sm font-medium text-gray-800">{artifact.filename}</p>
-                                        <p className="text-xs text-gray-500">{formatFileSize(artifact.size)}</p>
+                                        <p className="text-sm font-medium text-gray-800">
+                                          {artifact.filename}
+                                        </p>
+                                        <p className="text-xs text-gray-500">
+                                          {formatFileSize(artifact.size)}
+                                        </p>
                                       </div>
                                     </div>
                                     <button
-                                      onClick={() => openArtifactViewer(artifact)}
+                                      onClick={() =>
+                                        openArtifactViewer(artifact)
+                                      }
                                       className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 rounded transition-colors"
                                     >
                                       Voir
@@ -474,7 +567,9 @@ const TestRunDetailPage: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60 text-center">
-            <p className="text-gray-500">Aucun artifact disponible pour ce test run</p>
+            <p className="text-gray-500">
+              Aucun artifact disponible pour ce test run
+            </p>
             <p className="text-sm text-gray-400 mt-2">
               Les screenshots, vidéos et traces apparaîtront ici
             </p>
@@ -495,11 +590,16 @@ const TestRunDetailPage: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{getArtifactIcon(selectedArtifact.type)}</span>
+                <span className="text-2xl">
+                  {getArtifactIcon(selectedArtifact.type)}
+                </span>
                 <div>
-                  <h3 className="font-semibold text-gray-800">{selectedArtifact.filename}</h3>
+                  <h3 className="font-semibold text-gray-800">
+                    {selectedArtifact.filename}
+                  </h3>
                   <p className="text-sm text-gray-500">
-                    {selectedArtifact.testName} • {formatFileSize(selectedArtifact.size)}
+                    {selectedArtifact.testName} •{" "}
+                    {formatFileSize(selectedArtifact.size)}
                   </p>
                 </div>
               </div>
@@ -507,8 +607,18 @@ const TestRunDetailPage: React.FC = () => {
                 onClick={closeViewer}
                 className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
               >
-                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -516,13 +626,13 @@ const TestRunDetailPage: React.FC = () => {
             {/* Content */}
             <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
               {artifactUrl ? (
-                selectedArtifact.type === 'screenshot' ? (
+                selectedArtifact.type === "screenshot" ? (
                   <img
                     src={artifactUrl}
                     alt={selectedArtifact.filename}
                     className="w-full h-auto rounded-lg"
                   />
-                ) : selectedArtifact.type === 'video' ? (
+                ) : selectedArtifact.type === "video" ? (
                   <video
                     src={artifactUrl}
                     controls
@@ -530,17 +640,27 @@ const TestRunDetailPage: React.FC = () => {
                   />
                 ) : (
                   <div className="text-center py-12">
-                    <p className="text-gray-600 mb-4">Aperçu non disponible pour ce type de fichier</p>
-                    {selectedArtifact.type === 'trace' && (
+                    <p className="text-gray-600 mb-4">
+                      Aperçu non disponible pour ce type de fichier
+                    </p>
+                    {selectedArtifact.type === "trace" && (
                       <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-sm text-left max-w-md mx-auto">
-                        <p className="font-semibold text-purple-900 mb-2">📊 Comment ouvrir cette trace :</p>
+                        <p className="font-semibold text-purple-900 mb-2">
+                          📊 Comment ouvrir cette trace :
+                        </p>
                         <ol className="list-decimal list-inside space-y-1 text-purple-800">
                           <li>Téléchargez le fichier trace.zip</li>
                           <li>Ouvrez un terminal</li>
-                          <li>Exécutez : <code className="bg-purple-100 px-2 py-0.5 rounded">npx playwright show-trace trace.zip</code></li>
+                          <li>
+                            Exécutez :{" "}
+                            <code className="bg-purple-100 px-2 py-0.5 rounded">
+                              npx playwright show-trace trace.zip
+                            </code>
+                          </li>
                         </ol>
                         <p className="mt-2 text-purple-700 text-xs">
-                          Cela ouvrira une interface interactive pour explorer tous les détails de l'exécution du test.
+                          Cela ouvrira une interface interactive pour explorer
+                          tous les détails de l'exécution du test.
                         </p>
                       </div>
                     )}

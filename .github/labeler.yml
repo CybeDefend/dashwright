@@ -8,7 +8,7 @@ npm-package:
   - integrations/npm-package/**/*
 
 docker:
-  - '**/Dockerfile'
+  - "**/Dockerfile"
   - docker-compose.yaml
   - docker-compose.*.yaml
 
@@ -16,19 +16,19 @@ ci-cd:
   - .github/workflows/**/*
 
 documentation:
-  - '**/*.md'
+  - "**/*.md"
   - docs/**/*
 
 helm:
   - helm-chart/**/*
 
 dependencies:
-  - '**/package.json'
-  - '**/pnpm-lock.yaml'
-  - '**/requirements.txt'
+  - "**/package.json"
+  - "**/pnpm-lock.yaml"
+  - "**/requirements.txt"
 
 configuration:
-  - '**/.env.example'
-  - '**/*.config.js'
-  - '**/*.config.ts'
-  - '**/tsconfig.json'
+  - "**/.env.example"
+  - "**/*.config.js"
+  - "**/*.config.ts"
+  - "**/tsconfig.json"

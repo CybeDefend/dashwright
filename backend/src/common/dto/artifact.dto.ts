@@ -1,5 +1,12 @@
-import { IsString, IsNotEmpty, IsEnum, IsNumber, IsOptional, IsUUID } from 'class-validator';
-import { ArtifactType } from '../../entities';
+import {
+  IsString,
+  IsNotEmpty,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsUUID,
+} from "class-validator";
+import { ArtifactType } from "../../entities";
 
 export class CreateArtifactDto {
   @IsString()

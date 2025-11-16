@@ -7,22 +7,22 @@ import {
   ManyToOne,
   JoinColumn,
   BeforeInsert,
-} from 'typeorm';
-import { Organization } from './organization.entity';
-import { User } from './user.entity';
-import { RoleType } from './user-role.entity';
-import { randomBytes } from 'crypto';
+} from "typeorm";
+import { Organization } from "./organization.entity";
+import { User } from "./user.entity";
+import { RoleType } from "./user-role.entity";
+import { randomBytes } from "crypto";
 
 export enum InvitationStatus {
-  PENDING = 'pending',
-  ACCEPTED = 'accepted',
-  EXPIRED = 'expired',
-  REVOKED = 'revoked',
+  PENDING = "pending",
+  ACCEPTED = "accepted",
+  EXPIRED = "expired",
+  REVOKED = "revoked",
 }
 
-@Entity('invitations')
+@Entity("invitations")
 export class Invitation {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true })
@@ -32,44 +32,44 @@ export class Invitation {
   email: string;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: RoleType,
     default: RoleType.VIEWER,
   })
   role: RoleType;
 
   @Column({
-    type: 'enum',
+    type: "enum",
     enum: InvitationStatus,
     default: InvitationStatus.PENDING,
   })
   status: InvitationStatus;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: "timestamp" })
   expiresAt: Date;
 
-  @ManyToOne(() => Organization, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'organizationId' })
+  @ManyToOne(() => Organization, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "organizationId" })
   organization: Organization;
 
   @Column()
   organizationId: string;
 
-  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'invitedById' })
+  @ManyToOne(() => User, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "invitedById" })
   invitedBy: User;
 
   @Column({ nullable: true })
   invitedById: string;
 
-  @ManyToOne(() => User, { nullable: true, onDelete: 'SET NULL' })
-  @JoinColumn({ name: 'acceptedByUserId' })
+  @ManyToOne(() => User, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "acceptedByUserId" })
   acceptedByUser: User;
 
   @Column({ nullable: true })
   acceptedByUserId: string;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: "timestamp", nullable: true })
   acceptedAt: Date;
 
   @CreateDateColumn()
@@ -81,7 +81,7 @@ export class Invitation {
   @BeforeInsert()
   generateToken() {
     if (!this.token) {
-      this.token = randomBytes(32).toString('hex');
+      this.token = randomBytes(32).toString("hex");
     }
     if (!this.expiresAt) {
       // Expire in 7 days by default

@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Artifact } from '../entities';
-import { CreateArtifactDto } from '../common/dto/artifact.dto';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Artifact } from "../entities";
+import { CreateArtifactDto } from "../common/dto/artifact.dto";
 
 @Injectable()
 export class ArtifactsService {
@@ -19,14 +19,14 @@ export class ArtifactsService {
   async findByTestRun(testRunId: string): Promise<Artifact[]> {
     return this.artifactRepository.find({
       where: { testRunId },
-      order: { createdAt: 'ASC' },
+      order: { createdAt: "ASC" },
     });
   }
 
   async findOne(id: string): Promise<Artifact | null> {
     return this.artifactRepository.findOne({
       where: { id },
-      relations: ['testRun'],
+      relations: ["testRun"],
     });
   }
 

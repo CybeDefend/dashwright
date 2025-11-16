@@ -8,28 +8,28 @@ import {
   ManyToMany,
   JoinTable,
   JoinColumn,
-} from 'typeorm';
-import { Organization } from './organization.entity';
-import { User } from './user.entity';
+} from "typeorm";
+import { Organization } from "./organization.entity";
+import { User } from "./user.entity";
 
-@Entity('teams')
+@Entity("teams")
 export class Team {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ length: 255 })
   name: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
   @Column({ default: true })
   isActive: boolean;
 
   @ManyToOne(() => Organization, (organization) => organization.teams, {
-    onDelete: 'CASCADE',
+    onDelete: "CASCADE",
   })
-  @JoinColumn({ name: 'organizationId' })
+  @JoinColumn({ name: "organizationId" })
   organization: Organization;
 
   @Column()
@@ -37,9 +37,9 @@ export class Team {
 
   @ManyToMany(() => User)
   @JoinTable({
-    name: 'team_members',
-    joinColumn: { name: 'teamId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'userId', referencedColumnName: 'id' },
+    name: "team_members",
+    joinColumn: { name: "teamId", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "userId", referencedColumnName: "id" },
   })
   members: User[];
 
