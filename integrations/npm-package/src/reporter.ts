@@ -62,8 +62,13 @@ export class DashwrightReporter implements Reporter {
 
       this.testRunId = response.data.testRunId;
       console.log(`✅ Dashwright: Test run created with ID: ${this.testRunId}`);
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Dashwright: Failed to create test run:', error);
+      if (error.response) {
+        console.error('Response status:', error.response.status);
+        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+        console.error('Request payload:', JSON.stringify(error.config.data, null, 2));
+      }
     }
   }
 
