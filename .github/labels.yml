@@ -1,0 +1,149 @@
+# GitHub Labels Configuration
+# This file can be used with https://github.com/crazy-max/ghaction-github-labeler
+# Or manually to configure repository labels
+
+labels:
+  # Type labels
+  - name: "bug"
+    color: "d73a4a"
+    description: "Something isn't working"
+
+  - name: "enhancement"
+    color: "a2eeef"
+    description: "New feature or request"
+
+  - name: "documentation"
+    color: "0075ca"
+    description: "Improvements or additions to documentation"
+
+  - name: "question"
+    color: "d876e3"
+    description: "Further information is requested"
+
+  - name: "duplicate"
+    color: "cfd3d7"
+    description: "This issue or pull request already exists"
+
+  - name: "invalid"
+    color: "e4e669"
+    description: "This doesn't seem right"
+
+  - name: "wontfix"
+    color: "ffffff"
+    description: "This will not be worked on"
+
+  # Priority labels
+  - name: "priority: critical"
+    color: "b60205"
+    description: "Must be fixed ASAP"
+
+  - name: "priority: high"
+    color: "d93f0b"
+    description: "Should be fixed soon"
+
+  - name: "priority: medium"
+    color: "fbca04"
+    description: "Should be fixed eventually"
+
+  - name: "priority: low"
+    color: "0e8a16"
+    description: "Nice to have"
+
+  # Component labels (auto-applied by labeler.yml)
+  - name: "backend"
+    color: "5319e7"
+    description: "Backend API changes"
+
+  - name: "frontend"
+    color: "1d76db"
+    description: "Frontend UI changes"
+
+  - name: "npm-package"
+    color: "c5def5"
+    description: "NPM package changes"
+
+  - name: "docker"
+    color: "0db7ed"
+    description: "Docker configuration"
+
+  - name: "ci-cd"
+    color: "2cbe4e"
+    description: "CI/CD workflows and automation"
+
+  - name: "helm"
+    color: "0f1689"
+    description: "Helm chart changes"
+
+  - name: "dependencies"
+    color: "0366d6"
+    description: "Dependency updates"
+
+  - name: "configuration"
+    color: "fef2c0"
+    description: "Configuration files"
+
+  # Status labels
+  - name: "status: needs-review"
+    color: "fbca04"
+    description: "Waiting for code review"
+
+  - name: "status: needs-testing"
+    color: "d4c5f9"
+    description: "Needs manual testing"
+
+  - name: "status: blocked"
+    color: "d73a4a"
+    description: "Blocked by another issue"
+
+  - name: "status: in-progress"
+    color: "1d76db"
+    description: "Work in progress"
+
+  - name: "status: ready"
+    color: "0e8a16"
+    description: "Ready to merge"
+
+  # Special labels
+  - name: "good first issue"
+    color: "7057ff"
+    description: "Good for newcomers"
+
+  - name: "help wanted"
+    color: "008672"
+    description: "Extra attention is needed"
+
+  - name: "security"
+    color: "d73a4a"
+    description: "Security issue"
+
+  - name: "breaking change"
+    color: "b60205"
+    description: "Introduces a breaking change"
+
+  - name: "refactor"
+    color: "d4c5f9"
+    description: "Code refactoring"
+
+  - name: "performance"
+    color: "0e8a16"
+    description: "Performance improvement"
+
+  - name: "testing"
+    color: "c5def5"
+    description: "Testing related"
+
+  - name: "ui/ux"
+    color: "d4c5f9"
+    description: "User interface or experience"
+
+  - name: "api"
+    color: "5319e7"
+    description: "API related"
+
+  - name: "database"
+    color: "0db7ed"
+    description: "Database related"
+
+  - name: "needs-discussion"
+    color: "fbca04"
+    description: "Needs team discussion"

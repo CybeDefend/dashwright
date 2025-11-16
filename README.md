@@ -12,7 +12,11 @@
 [![React](https://img.shields.io/badge/React-19.2-61dafb.svg)](https://reactjs.org/)
 [![NestJS](https://img.shields.io/badge/NestJS-11.1-ea2845.svg)](https://nestjs.com/)
 
-[Features](#✨-features) • [Quick Start](#🚀-quick-start) • [Documentation](#📚-documentation) • [Architecture](#🏗️-architecture) • [Contributing](#🤝-contributing)
+[![CI](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml)
+[![Docker](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml)
+[![NPM](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml)
+
+[Features](#✨-features) • [Quick Start](#🚀-quick-start) • [Installation](#📦-installation) • [Documentation](#📚-documentation) • [Architecture](#🏗️-architecture) • [Contributing](#🤝-contributing) • [License](#📄-license)
 
 ---
 
@@ -121,28 +125,79 @@ See [DEVELOPMENT.md](DEVELOPMENT.md) for more details.
 
 ---
 
-## 📦 NPM Package Integration
+## 📦 Installation
 
-Install the Playwright reporter:
+### Using Published Docker Images
+
+Pull the latest images from GitHub Container Registry:
 
 ```bash
+# Pull images
+docker pull ghcr.io/cybedefend/dashwright/backend:latest
+docker pull ghcr.io/cybedefend/dashwright/frontend:latest
+
+# Or use docker-compose
+docker compose pull
+docker compose up -d
+```
+
+**Specific versions:**
+```bash
+docker pull ghcr.io/cybedefend/dashwright/backend:1.0.0
+docker pull ghcr.io/cybedefend/dashwright/frontend:1.0.0
+```
+
+### Authentication for Private Registry
+
+```bash
+# Login to GitHub Container Registry
+echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+```
+
+---
+
+## 📦 NPM Package Integration
+
+### Installation
+
+1. **Create `.npmrc` in your project root:**
+
+```properties
+@dashwright:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
+2. **Set your GitHub token:**
+
+```bash
+export GITHUB_TOKEN=your_github_personal_access_token
+```
+
+3. **Install the package:**
+
+```bash
+npm install @dashwright/playwright-reporter
+# or
 pnpm add @dashwright/playwright-reporter
 ```
+
+### Configuration
 
 Configure in `playwright.config.ts`:
 
 ```typescript
 import { defineConfig } from '@playwright/test';
+import DashwrightReporter from '@dashwright/playwright-reporter';
 
 export default defineConfig({
   reporter: [
-    ['@dashwright/playwright-reporter', {
-      apiUrl: 'http://localhost:3000',
-      apiToken: 'your-api-token',
-      organizationId: 'your-org-id',
-      uploadScreenshots: true,
-      uploadVideos: true,
-      uploadLogs: true,
+    ['list'],
+    [DashwrightReporter, {
+      apiUrl: 'http://localhost:3006',
+      apiKey: 'your-api-key',
+      runName: 'CI Test Run',
+      environment: 'staging',
+      branch: process.env.CI_BRANCH || 'main',
     }],
     ['html'],
   ],
@@ -502,6 +557,16 @@ limitations under the License.
 
 ---
 
+## 📚 Additional Resources
+
+- **[Contributing Guide](./CONTRIBUTING.md)** - Learn how to contribute to the project
+- **[CI/CD Documentation](./.github/CI-CD.md)** - Automated deployment workflows
+- **[Scripts Documentation](./scripts/README.md)** - Helper scripts for development
+- **[Changelog](./CHANGELOG.md)** - Version history and release notes
+- **[Issue Templates](./.github/ISSUE_TEMPLATE/)** - Report bugs or request features
+
+---
+
 ## 🌟 Star History
 
 If you find Dashwright useful, please consider giving it a star! ⭐
@@ -510,9 +575,16 @@ If you find Dashwright useful, please consider giving it a star! ⭐
 
 ## 📧 Support
 
-- **Issues:** [GitHub Issues](https://github.com/CybeDefend/Dashwright/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/CybeDefend/Dashwright/discussions)
+- **Issues:** [GitHub Issues](https://github.com/CybeDefend/dashwright/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/CybeDefend/dashwright/discussions)
+- **Documentation:** Check our [guides and API docs](./docs/)
 - **Email:** support@cybedefend.com
+
+### Common Issues
+
+- **Authentication Problems**: Check the [troubleshooting guide](./.github/CI-CD.md#troubleshooting)
+- **Docker Issues**: Ensure Docker and Docker Compose are properly installed
+- **Build Errors**: Verify Node.js 22.14.0+ and pnpm 10.22.0+ are installed
 
 ---
 

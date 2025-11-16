@@ -1,0 +1,138 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|perf|test|chore|ci|build|revert)(\(.+\))?: ]]; then
+            echo "❌ PR title must follow conventional commits format"
+            echo "Examples:"
+            echo "  feat: add new feature"
+            echo "  fix(backend): resolve authentication bug"
+            echo "  docs: update README"
+            exit 1
+          fi
+          echo "✅ PR title follows conventional commits format"
+
+      - name: Check changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files_yaml: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+            npm:
+              - 'integrations/npm-package/**'
+            docker:
+              - 'docker-compose.yaml'
+              - '**/Dockerfile'
+            ci:
+              - '.github/workflows/**'
+
+      - name: Comment on PR with changes summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `
+            ## 📊 Changes Summary
+            
+            ${steps['changed-files'].outputs.backend_any_changed === 'true' ? '🔧 **Backend** changes detected' : ''}
+            ${steps['changed-files'].outputs.frontend_any_changed === 'true' ? '🎨 **Frontend** changes detected' : ''}
+            ${steps['changed-files'].outputs.npm_any_changed === 'true' ? '📦 **NPM Package** changes detected' : ''}
+            ${steps['changed-files'].outputs.docker_any_changed === 'true' ? '🐳 **Docker** configuration changes detected' : ''}
+            ${steps['changed-files'].outputs.ci_any_changed === 'true' ? '⚙️ **CI/CD** changes detected' : ''}
+            
+            **Total files changed:** ${{ steps.changed-files.outputs.all_changed_files_count }}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+  size-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check Docker image sizes
+        if: contains(github.event.pull_request.changed_files, 'Dockerfile')
+        run: |
+          echo "Building images to check sizes..."
+          
+          if [ -f "backend/Dockerfile" ]; then
+            docker build -t dashwright-backend:pr ./backend
+            BACKEND_SIZE=$(docker images dashwright-backend:pr --format "{{.Size}}")
+            echo "Backend image size: $BACKEND_SIZE"
+          fi
+          
+          if [ -f "frontend/Dockerfile" ]; then
+            docker build -t dashwright-frontend:pr ./frontend
+            FRONTEND_SIZE=$(docker images dashwright-frontend:pr --format "{{.Size}}")
+            echo "Frontend image size: $FRONTEND_SIZE"
+          fi
+
+  security-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          deny-licenses: GPL-2.0, GPL-3.0
+
+  label-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Label PR based on changed files
+        uses: actions/labeler@v5
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}

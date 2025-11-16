@@ -1,0 +1,34 @@
+backend:
+  - backend/**/*
+
+frontend:
+  - frontend/**/*
+
+npm-package:
+  - integrations/npm-package/**/*
+
+docker:
+  - '**/Dockerfile'
+  - docker-compose.yaml
+  - docker-compose.*.yaml
+
+ci-cd:
+  - .github/workflows/**/*
+
+documentation:
+  - '**/*.md'
+  - docs/**/*
+
+helm:
+  - helm-chart/**/*
+
+dependencies:
+  - '**/package.json'
+  - '**/pnpm-lock.yaml'
+  - '**/requirements.txt'
+
+configuration:
+  - '**/.env.example'
+  - '**/*.config.js'
+  - '**/*.config.ts'
+  - '**/tsconfig.json'
