@@ -109,8 +109,8 @@ jobs:
 
           echo "Updating index.html to version $CHART_VERSION"
 
-          # Update the badge version in index.html
-          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v$CHART_VERSION/g" index.html
+          # Update the badge version in index.html (without 'v' prefix as it's in the badge class)
+          sed -i "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$CHART_VERSION/g" index.html
 
           # Check if there are changes
           if git diff --quiet index.html; then
