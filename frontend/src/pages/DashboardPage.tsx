@@ -4,6 +4,7 @@ import { Play, CheckCircle, XCircle, Clock } from "lucide-react";
 import apiClient from "../services/api";
 import { wsService } from "../services/websocket";
 import { format } from "date-fns";
+import ConfirmModal from "../components/ConfirmModal";
 
 interface TestRun {
   id: string;
@@ -24,6 +25,22 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const hasFetched = useRef(false);
   const wsConnected = useRef(false);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [environmentFilter, setEnvironmentFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    type: "delete" | "force-fail" | null;
+    runId: string | null;
+    runName: string;
+  }>({
+    isOpen: false,
+    type: null,
+    runId: null,
+    runName: "",
+  });
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -66,23 +83,38 @@ export default function DashboardPage() {
     }
   };
 
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
   const handleForceFail = async (runId: string, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setOpenMenuId(null);
 
-    if (!confirm("Marquer ce test run comme échoué ?")) {
-      return;
-    }
+    const run = testRuns.find((r) => r.id === runId);
+    setConfirmModal({
+      isOpen: true,
+      type: "force-fail",
+      runId,
+      runName: run?.name || "this test run",
+    });
+  };
+
+  const handleConfirmAction = async () => {
+    if (!confirmModal.runId || !confirmModal.type) return;
 
     try {
-      await apiClient.put(`/test-runs/${runId}/force-fail`);
-      // Update will be received via WebSocket
+      if (confirmModal.type === "force-fail") {
+        await apiClient.put(`/test-runs/${confirmModal.runId}/force-fail`);
+        // Update will be received via WebSocket
+      } else if (confirmModal.type === "delete") {
+        await apiClient.delete(`/test-runs/${confirmModal.runId}`);
+        setTestRuns((prev) =>
+          prev.filter((run) => run.id !== confirmModal.runId)
+        );
+      }
     } catch (error) {
-      console.error("Failed to force fail test run:", error);
-      alert("Erreur lors de la mise à jour du test run");
+      console.error(`Failed to ${confirmModal.type} test run:`, error);
+      alert(`Error during test run ${confirmModal.type}`);
+    } finally {
+      setConfirmModal({ isOpen: false, type: null, runId: null, runName: "" });
     }
   };
 
@@ -91,17 +123,13 @@ export default function DashboardPage() {
     e.stopPropagation();
     setOpenMenuId(null);
 
-    if (!confirm("Supprimer ce test run ? Cette action est irréversible.")) {
-      return;
-    }
-
-    try {
-      await apiClient.delete(`/test-runs/${runId}`);
-      setTestRuns((prev) => prev.filter((run) => run.id !== runId));
-    } catch (error) {
-      console.error("Failed to delete test run:", error);
-      alert("Erreur lors de la suppression du test run");
-    }
+    const run = testRuns.find((r) => r.id === runId);
+    setConfirmModal({
+      isOpen: true,
+      type: "delete",
+      runId,
+      runName: run?.name || "this test run",
+    });
   };
 
   const toggleMenu = (runId: string, e: React.MouseEvent) => {
@@ -122,6 +150,40 @@ export default function DashboardPage() {
         return <Play className="text-gray-500" size={20} />;
     }
   };
+
+  // Get unique environments from test runs
+  const environments = Array.from(
+    new Set(testRuns.map((run) => run.environment).filter(Boolean))
+  ) as string[];
+
+  // Filter and sort test runs
+  const filteredAndSortedRuns = testRuns
+    .filter((run) => {
+      // Search filter
+      const matchesSearch =
+        searchQuery === "" ||
+        run.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        run.branch?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      // Status filter
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "failed" && run.status === "failed") ||
+        (statusFilter === "passed" && run.status === "passed") ||
+        (statusFilter === "running" && run.status === "running") ||
+        (statusFilter === "has-failures" && run.failedTests > 0);
+
+      // Environment filter
+      const matchesEnvironment =
+        environmentFilter === "all" || run.environment === environmentFilter;
+
+      return matchesSearch && matchesStatus && matchesEnvironment;
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime();
+      const dateB = new Date(b.createdAt).getTime();
+      return sortBy === "newest" ? dateB - dateA : dateA - dateB;
+    });
 
   if (loading) {
     return <div className="text-center py-12">Loading test runs...</div>;
@@ -194,9 +256,89 @@ export default function DashboardPage() {
         )}
       </div>
 
+      {/* Filters and Search */}
+      {testRuns.length > 0 && (
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+          <div className="flex flex-col lg:flex-row gap-3 items-end">
+            {/* Search */}
+            <div className="flex-1">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Search
+              </label>
+              <input
+                type="text"
+                placeholder="Search by name or branch..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div className="w-full lg:w-44">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value="all">All Status</option>
+                <option value="passed">Passed</option>
+                <option value="failed">Failed</option>
+                <option value="running">Running</option>
+                <option value="has-failures">Has Failures</option>
+              </select>
+            </div>
+
+            {/* Environment Filter */}
+            {environments.length > 0 && (
+              <div className="w-full lg:w-44">
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Environment
+                </label>
+                <select
+                  value={environmentFilter}
+                  onChange={(e) => setEnvironmentFilter(e.target.value)}
+                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                >
+                  <option value="all">All Environments</option>
+                  {environments.map((env) => (
+                    <option key={env} value={env}>
+                      {env}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Sort */}
+            <div className="w-full lg:w-44">
+              <label className="block text-xs font-medium text-gray-700 mb-1">
+                Sort By
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as "newest" | "oldest")}
+                className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+              >
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+
+            {/* Results Count - Inline */}
+            <div className="text-xs text-gray-600 whitespace-nowrap lg:pb-2">
+              {filteredAndSortedRuns.length} / {testRuns.length}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Test Runs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {testRuns.map((run, index) => (
+        {filteredAndSortedRuns.map((run, index) => (
           <div
             key={run.id}
             className="card hover:scale-[1.02] transition-all duration-200 group animate-scale-in relative"
@@ -370,7 +512,33 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Empty State */}
+      {/* Empty State - No Results from Filters */}
+      {testRuns.length > 0 && filteredAndSortedRuns.length === 0 && (
+        <div className="text-center py-20">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-100 to-slate-100 rounded-2xl mb-6">
+            <XCircle className="text-gray-400" size={40} />
+          </div>
+          <h3 className="text-2xl font-bold text-gray-800 mb-3">
+            No test runs match your filters
+          </h3>
+          <p className="text-gray-600 mb-8 max-w-md mx-auto">
+            Try adjusting your search or filter criteria to see more results.
+          </p>
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              setStatusFilter("all");
+              setEnvironmentFilter("all");
+              setSortBy("newest");
+            }}
+            className="btn-primary"
+          >
+            Clear All Filters
+          </button>
+        </div>
+      )}
+
+      {/* Empty State - No Test Runs */}
       {testRuns.length === 0 && (
         <div className="text-center py-20">
           <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-2xl mb-6">
@@ -393,6 +561,27 @@ export default function DashboardPage() {
           </a>
         </div>
       )}
+
+      {/* Confirm Modal */}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={() =>
+          setConfirmModal({ isOpen: false, type: null, runId: null, runName: "" })
+        }
+        onConfirm={handleConfirmAction}
+        title={
+          confirmModal.type === "delete"
+            ? "Delete Test Run"
+            : "Mark Test Run as Failed"
+        }
+        message={
+          confirmModal.type === "delete"
+            ? `Are you sure you want to permanently delete "${confirmModal.runName}"? This action cannot be undone.`
+            : `Are you sure you want to mark "${confirmModal.runName}" as failed?`
+        }
+        confirmText={confirmModal.type === "delete" ? "Delete" : "Mark as Failed"}
+        type={confirmModal.type === "delete" ? "danger" : "warning"}
+      />
     </div>
   );
 }

@@ -178,7 +178,6 @@ const NativeTraceViewer: React.FC<NativeTraceViewerProps> = ({
             "⚠️ Console entries found in actions:",
             consoleInActions.length
           );
-          console.log("⚠️ First console in actions:", consoleInActions[0]);
         }
       }
       if (parsedTrace.network.length > 0) {

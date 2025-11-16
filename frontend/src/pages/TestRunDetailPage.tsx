@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient } from "../services/apiClient";
 import NativeTraceViewer from "../components/NativeTraceViewer";
+import ConfirmModal from "../components/ConfirmModal";
 
 interface TestRun {
   id: string;
@@ -51,6 +52,8 @@ const TestRunDetailPage: React.FC = () => {
     url: string;
     filename: string;
   } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -125,7 +128,13 @@ const TestRunDetailPage: React.FC = () => {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString("fr-FR");
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   };
 
   const formatFileSize = (bytes: number) => {
@@ -136,7 +145,7 @@ const TestRunDetailPage: React.FC = () => {
 
   const groupArtifactsByTest = (artifacts: Artifact[]): GroupedArtifacts => {
     return artifacts.reduce((acc, artifact) => {
-      const testName = artifact.testName || "Sans nom de test";
+      const testName = artifact.testName || "Unnamed test";
       if (!acc[testName]) {
         acc[testName] = [];
       }
@@ -195,11 +204,11 @@ const TestRunDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
+      <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-            <p className="mt-4 text-gray-600">Chargement...</p>
+            <p className="mt-4 text-gray-600">Loading...</p>
           </div>
         </div>
       </div>
@@ -208,7 +217,7 @@ const TestRunDetailPage: React.FC = () => {
 
   if (error || !testRun) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
+      <div className="min-h-screen p-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60 text-center">
             <p className="text-red-600 mb-4">{error || "Test run not found"}</p>
@@ -216,7 +225,7 @@ const TestRunDetailPage: React.FC = () => {
               onClick={() => navigate("/dashboard")}
               className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all"
             >
-              Retour au tableau de bord
+              Back to Dashboard
             </button>
           </div>
         </div>
@@ -241,7 +250,7 @@ const TestRunDetailPage: React.FC = () => {
   const testNames = Object.keys(groupedArtifacts).sort();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
+    <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -262,7 +271,7 @@ const TestRunDetailPage: React.FC = () => {
                 d="M15 19l-7-7 7-7"
               />
             </svg>
-            Retour
+            Back
           </button>
 
           <span
@@ -271,10 +280,10 @@ const TestRunDetailPage: React.FC = () => {
             }`}
           >
             {testRun.status === "running"
-              ? "⏳ En cours"
+              ? "⏳ Running"
               : testRun.status === "passed"
-              ? "✅ Réussi"
-              : "❌ Échoué"}
+              ? "✅ Passed"
+              : "❌ Failed"}
           </span>
         </div>
 
@@ -305,7 +314,7 @@ const TestRunDetailPage: React.FC = () => {
 
             {/* Success Rate */}
             <div className="space-y-2">
-              <p className="text-sm text-gray-500">Taux de réussite</p>
+              <p className="text-sm text-gray-500">Success Rate</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">{successRate}%</span>
               </div>
@@ -319,7 +328,7 @@ const TestRunDetailPage: React.FC = () => {
 
             {/* Duration */}
             <div className="space-y-2">
-              <p className="text-sm text-gray-500">Durée</p>
+              <p className="text-sm text-gray-500">Duration</p>
               <div className="flex items-baseline gap-2">
                 <span className="text-3xl font-bold">
                   {formatDuration(testRun.duration)}
@@ -336,13 +345,13 @@ const TestRunDetailPage: React.FC = () => {
             <div className="border-t border-gray-200 pt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
               {testRun.environment && (
                 <div>
-                  <p className="text-sm text-gray-500">Environnement</p>
+                  <p className="text-sm text-gray-500">Environment</p>
                   <p className="font-medium">{testRun.environment}</p>
                 </div>
               )}
               {testRun.branch && (
                 <div>
-                  <p className="text-sm text-gray-500">Branche</p>
+                  <p className="text-sm text-gray-500">Branch</p>
                   <p className="font-medium">{testRun.branch}</p>
                 </div>
               )}
@@ -362,10 +371,10 @@ const TestRunDetailPage: React.FC = () => {
         {testNames.length > 0 ? (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
             <h2 className="text-2xl font-bold mb-6">
-              Tests exécutés ({testNames.length})
+              Tests Executed ({testNames.length})
             </h2>
-            <div className="space-y-3">
-              {testNames.map((testName) => {
+            <div className="space-y-2">
+              {testNames.map((testName, index) => {
                 const artifacts = groupedArtifacts[testName];
                 const screenshots = artifacts.filter(
                   (a) => a.type === "screenshot"
@@ -376,28 +385,41 @@ const TestRunDetailPage: React.FC = () => {
                   (a) => !["screenshot", "video", "trace"].includes(a.type)
                 );
                 const isExpanded = expandedTest === testName;
+                const firstArtifact = artifacts[0];
+                const testDate = firstArtifact
+                  ? formatDate(firstArtifact.createdAt)
+                  : "";
 
                 return (
                   <div
                     key={testName}
-                    className="border border-gray-200 rounded-lg overflow-hidden"
+                    className="border border-gray-200 rounded-lg overflow-hidden bg-white hover:border-gray-300 transition-colors"
                   >
-                    {/* Test Header - Clickable */}
+                    {/* Test Header - Clickable - More Compact */}
                     <button
                       onClick={() => toggleTest(testName)}
-                      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                      className={`w-full flex items-center justify-between px-4 py-2.5 transition-colors ${
+                        isExpanded ? "bg-gray-50" : "hover:bg-gray-50"
+                      }`}
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        {/* Test Number */}
+                        <span className="text-xs font-mono text-gray-400 w-8 text-right">
+                          #{index + 1}
+                        </span>
                         {/* Status Icon */}
-                        <span className="text-xl text-green-500">✓</span>
-                        {/* Test Name */}
-                        <h3 className="text-lg font-semibold text-gray-800 text-left">
-                          {testName}
-                        </h3>
+                        <span className="text-base text-green-500">✓</span>
+                        {/* Test Info */}
+                        <div className="flex-1 min-w-0 text-left">
+                          <h3 className="text-sm font-medium text-gray-800 truncate">
+                            {testName}
+                          </h3>
+                          <p className="text-xs text-gray-500">{testDate}</p>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-shrink-0">
                         {/* Artifact Counts */}
-                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2 text-xs text-gray-500">
                           {screenshots.length > 0 && (
                             <span>📸 {screenshots.length}</span>
                           )}
@@ -411,7 +433,7 @@ const TestRunDetailPage: React.FC = () => {
                         </div>
                         {/* Chevron Icon */}
                         <svg
-                          className={`w-5 h-5 text-gray-400 transition-transform ${
+                          className={`w-4 h-4 text-gray-400 transition-transform ${
                             isExpanded ? "rotate-180" : ""
                           }`}
                           fill="none"
@@ -428,17 +450,17 @@ const TestRunDetailPage: React.FC = () => {
                       </div>
                     </button>
 
-                    {/* Test Details - Expandable */}
+                    {/* Test Details - Expandable - More Compact */}
                     {isExpanded && (
-                      <div className="p-6 pt-2 border-t border-gray-200 bg-gray-50/50">
-                        <div className="space-y-4">
+                      <div className="px-4 py-3 border-t border-gray-200 bg-gray-50/50">
+                        <div className="space-y-3">
                           {/* Screenshots */}
                           {screenshots.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-600 mb-2">
+                              <p className="text-xs font-medium text-gray-600 mb-2">
                                 📸 Screenshots ({screenshots.length})
                               </p>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                              <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
                                 {screenshots.map((artifact) => (
                                   <button
                                     key={artifact.id}
@@ -460,10 +482,10 @@ const TestRunDetailPage: React.FC = () => {
                           {/* Videos */}
                           {videos.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-600 mb-2">
-                                🎥 Vidéos ({videos.length})
+                              <p className="text-xs font-medium text-gray-600 mb-2">
+                                🎥 Videos ({videos.length})
                               </p>
-                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                              <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
                                 {videos.map((artifact) => (
                                   <button
                                     key={artifact.id}
@@ -484,8 +506,8 @@ const TestRunDetailPage: React.FC = () => {
 
                           {/* Traces - Highlighted */}
                           {traces.length > 0 && (
-                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                              <p className="text-sm font-semibold text-purple-700 mb-2">
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                              <p className="text-xs font-semibold text-purple-700 mb-2">
                                 📊 Traces ({traces.length})
                               </p>
                               <div className="space-y-2">
@@ -511,7 +533,7 @@ const TestRunDetailPage: React.FC = () => {
                                       }
                                       className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-100 rounded transition-colors font-medium"
                                     >
-                                      Voir
+                                      View
                                     </button>
                                   </div>
                                 ))}
@@ -522,8 +544,8 @@ const TestRunDetailPage: React.FC = () => {
                           {/* Other Artifacts */}
                           {others.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-600 mb-2">
-                                📎 Autres ({others.length})
+                              <p className="text-xs font-medium text-gray-600 mb-2">
+                                📎 Other ({others.length})
                               </p>
                               <div className="space-y-2">
                                 {others.map((artifact) => (
@@ -550,7 +572,7 @@ const TestRunDetailPage: React.FC = () => {
                                       }
                                       className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 rounded transition-colors"
                                     >
-                                      Voir
+                                      View
                                     </button>
                                   </div>
                                 ))}
@@ -568,10 +590,10 @@ const TestRunDetailPage: React.FC = () => {
         ) : (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60 text-center">
             <p className="text-gray-500">
-              Aucun artifact disponible pour ce test run
+              No artifacts available for this test run
             </p>
             <p className="text-sm text-gray-400 mt-2">
-              Les screenshots, vidéos et traces apparaîtront ici
+              Screenshots, videos and traces will appear here
             </p>
           </div>
         )}
@@ -641,26 +663,26 @@ const TestRunDetailPage: React.FC = () => {
                 ) : (
                   <div className="text-center py-12">
                     <p className="text-gray-600 mb-4">
-                      Aperçu non disponible pour ce type de fichier
+                      Preview not available for this file type
                     </p>
                     {selectedArtifact.type === "trace" && (
                       <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-sm text-left max-w-md mx-auto">
                         <p className="font-semibold text-purple-900 mb-2">
-                          📊 Comment ouvrir cette trace :
+                          📊 How to open this trace:
                         </p>
                         <ol className="list-decimal list-inside space-y-1 text-purple-800">
-                          <li>Téléchargez le fichier trace.zip</li>
-                          <li>Ouvrez un terminal</li>
+                          <li>Download the trace.zip file</li>
+                          <li>Open a terminal</li>
                           <li>
-                            Exécutez :{" "}
+                            Run:{" "}
                             <code className="bg-purple-100 px-2 py-0.5 rounded">
                               npx playwright show-trace trace.zip
                             </code>
                           </li>
                         </ol>
                         <p className="mt-2 text-purple-700 text-xs">
-                          Cela ouvrira une interface interactive pour explorer
-                          tous les détails de l'exécution du test.
+                          This will open an interactive interface to explore all
+                          test execution details.
                         </p>
                       </div>
                     )}
@@ -669,7 +691,7 @@ const TestRunDetailPage: React.FC = () => {
                       download={selectedArtifact.filename}
                       className="inline-block px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all"
                     >
-                      Télécharger
+                      Download
                     </a>
                   </div>
                 )
