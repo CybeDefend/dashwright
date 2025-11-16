@@ -19,11 +19,23 @@ export class Uploader {
       ...config,
     };
 
+    // Build request headers similar to reporter: use apiKeyHeader if provided,
+    // otherwise auto-detect api keys and use X-API-Key for those, or Bearer for JWTs.
+    const headers: Record<string, string> = {};
+    const token = this.config.apiToken || '';
+    const apiKeyHeader = this.config.apiKeyHeader;
+
+    if (apiKeyHeader) {
+      headers[apiKeyHeader] = token;
+    } else if (typeof token === 'string' && (token.startsWith('dw_') || token.startsWith('ak_'))) {
+      headers['X-API-Key'] = token;
+    } else if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     this.client = axios.create({
       baseURL: this.config.apiUrl,
-      headers: {
-        Authorization: `Bearer ${this.config.apiToken}`,
-      },
+      headers,
       timeout: 60000,
     });
   }

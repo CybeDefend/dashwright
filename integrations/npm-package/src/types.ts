@@ -2,6 +2,13 @@ export interface DashwrightConfig {
   apiUrl: string;
   apiToken: string;
   organizationId: string;
+  /**
+   * If set, this header name will be used to send the API token instead of
+   * using the `Authorization: Bearer` header. Example: `X-API-Key`.
+   * If not provided the reporter will auto-detect API keys (prefix `dw_` or `ak_`) and
+   * use `X-API-Key` for those, otherwise it will send `Authorization: Bearer <token>`.
+   */
+  apiKeyHeader?: string;
   uploadArtifacts?: boolean;
   uploadScreenshots?: boolean;
   uploadVideos?: boolean;

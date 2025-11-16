@@ -23,11 +23,23 @@ export class DashwrightReporter implements Reporter {
     this.config = config;
     this.uploader = new Uploader(config);
     
+    // Build request headers depending on whether we should use an API key header
+    const headers: Record<string, string> = {};
+    const token = config.apiToken || '';
+    const apiKeyHeader = config.apiKeyHeader;
+
+    if (apiKeyHeader) {
+      headers[apiKeyHeader] = token;
+    } else if (typeof token === 'string' && (token.startsWith('dw_') || token.startsWith('ak_'))) {
+      // convention: tokens starting with dw_ (dashwright keys) or ak_ are API keys
+      headers['X-API-Key'] = token;
+    } else if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     this.client = axios.create({
       baseURL: config.apiUrl,
-      headers: {
-        Authorization: `Bearer ${config.apiToken}`,
-      },
+      headers,
     });
   }
 
