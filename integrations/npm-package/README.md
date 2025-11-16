@@ -27,6 +27,7 @@ export default defineConfig({
       organizationId: 'your-organization-id',
       uploadScreenshots: true,
       uploadVideos: true,
+      uploadTraces: true,        // 📊 Upload traces for debugging
       uploadLogs: true,
       retryAttempts: 3,
       retryDelay: 1000,
@@ -34,10 +35,11 @@ export default defineConfig({
     ['html'], // You can still use other reporters
   ],
   
-  // Enable screenshots and videos
+  // Enable screenshots, videos and traces
   use: {
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    trace: 'on-first-retry',     // 📊 Generate traces on retry (recommended)
   },
 });
 ```
@@ -51,9 +53,24 @@ export default defineConfig({
 | `organizationId` | string | **required** | Your organization ID |
 | `uploadScreenshots` | boolean | `true` | Upload test screenshots |
 | `uploadVideos` | boolean | `true` | Upload test videos |
+| `uploadTraces` | boolean | `true` | Upload Playwright traces (recommended) |
 | `uploadLogs` | boolean | `true` | Upload test logs |
 | `retryAttempts` | number | `3` | Number of retry attempts for uploads |
 | `retryDelay` | number | `1000` | Delay between retries (ms) |
+
+### Trace Generation
+
+To generate traces, add the `trace` option to your Playwright config:
+
+```typescript
+use: {
+  trace: 'on-first-retry',     // Generate trace on first retry (recommended)
+  // or 'retain-on-failure'    // Generate trace only for failed tests
+  // or 'on'                   // Generate trace for all tests (heavy)
+}
+```
+
+Learn more about traces: [Playwright Trace Viewer](https://playwright.dev/docs/trace-viewer)
 
 ## Environment Variables
 

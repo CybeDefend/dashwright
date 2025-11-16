@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiClient } from '../services/apiClient';
+import NativeTraceViewer from '../components/NativeTraceViewer';
 
 interface TestRun {
   id: string;
@@ -43,6 +44,8 @@ const TestRunDetailPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
   const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
+  const [expandedTest, setExpandedTest] = useState<string | null>(null);
+  const [traceToView, setTraceToView] = useState<{ url: string; filename: string } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -52,6 +55,18 @@ const TestRunDetailPage: React.FC = () => {
         setLoading(true);
         const response = await apiClient.get(`/test-runs/${id}`);
         setTestRun(response.data);
+        
+        // Debug: Log artifacts to see if traces are present
+        console.log('📊 Test Run Artifacts:', response.data.artifacts);
+        console.log('📊 Trace artifacts:', response.data.artifacts?.filter((a: Artifact) => a.type === 'trace'));
+        
+        // Auto-expand first test if available
+        if (response.data.artifacts && response.data.artifacts.length > 0) {
+          const firstTestName = response.data.artifacts[0].testName;
+          if (firstTestName) {
+            setExpandedTest(firstTestName);
+          }
+        }
       } catch (err: any) {
         console.error('Failed to fetch test run:', err);
         setError(err.response?.data?.message || 'Failed to load test run');
@@ -110,13 +125,35 @@ const TestRunDetailPage: React.FC = () => {
     }, {} as GroupedArtifacts);
   };
 
-  const openArtifactViewer = (artifact: Artifact) => {
-    setSelectedArtifact(artifact);
+  const openArtifactViewer = async (artifact: Artifact) => {
+    // For traces, open the interactive viewer
+    if (artifact.type === 'trace') {
+      try {
+        const response = await apiClient.get(`/artifacts/${artifact.id}/download-url`);
+        setTraceToView({
+          url: response.data.url,
+          filename: artifact.filename,
+        });
+      } catch (err) {
+        console.error('Error fetching trace URL:', err);
+      }
+    } else {
+      // For other artifacts, use the standard viewer
+      setSelectedArtifact(artifact);
+    }
   };
 
   const closeViewer = () => {
     setSelectedArtifact(null);
     setArtifactUrl(null);
+  };
+
+  const closeTraceViewer = () => {
+    setTraceToView(null);
+  };
+
+  const toggleTest = (testName: string) => {
+    setExpandedTest(expandedTest === testName ? null : testName);
   };
 
   const getArtifactIcon = (type: string) => {
@@ -272,102 +309,162 @@ const TestRunDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Tests Detail with Artifacts */}
+        {/* Tests List - Accordion Style */}
         {testNames.length > 0 ? (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
-            <h2 className="text-2xl font-bold mb-6">Détails des tests</h2>
-            <div className="space-y-6">
+            <h2 className="text-2xl font-bold mb-6">Tests exécutés ({testNames.length})</h2>
+            <div className="space-y-3">
               {testNames.map((testName) => {
                 const artifacts = groupedArtifacts[testName];
                 const screenshots = artifacts.filter(a => a.type === 'screenshot');
                 const videos = artifacts.filter(a => a.type === 'video');
-                const others = artifacts.filter(a => a.type !== 'screenshot' && a.type !== 'video');
+                const traces = artifacts.filter(a => a.type === 'trace');
+                const others = artifacts.filter(a => !['screenshot', 'video', 'trace'].includes(a.type));
+                const isExpanded = expandedTest === testName;
 
                 return (
-                  <div key={testName} className="border border-gray-200 rounded-lg p-6 hover:border-purple-300 transition-colors">
-                    {/* Test Name */}
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-800">{testName}</h3>
-                      <span className="text-sm text-gray-500">{artifacts.length} artifact(s)</span>
-                    </div>
-
-                    {/* Artifacts Grid */}
-                    <div className="space-y-4">
-                      {/* Screenshots */}
-                      {screenshots.length > 0 && (
-                        <div>
-                          <p className="text-sm font-medium text-gray-600 mb-2">📸 Screenshots ({screenshots.length})</p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {screenshots.map((artifact) => (
-                              <button
-                                key={artifact.id}
-                                onClick={() => openArtifactViewer(artifact)}
-                                className="relative group aspect-video bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
-                              >
-                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
-                                  <span className="text-4xl">📸</span>
-                                </div>
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  {formatFileSize(artifact.size)}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
+                  <div key={testName} className="border border-gray-200 rounded-lg overflow-hidden">
+                    {/* Test Header - Clickable */}
+                    <button
+                      onClick={() => toggleTest(testName)}
+                      className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        {/* Status Icon */}
+                        <span className="text-xl text-green-500">✓</span>
+                        {/* Test Name */}
+                        <h3 className="text-lg font-semibold text-gray-800 text-left">{testName}</h3>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {/* Artifact Counts */}
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          {screenshots.length > 0 && <span>📸 {screenshots.length}</span>}
+                          {videos.length > 0 && <span>🎥 {videos.length}</span>}
+                          {traces.length > 0 && <span className="font-semibold text-purple-600">📊 {traces.length}</span>}
+                          {others.length > 0 && <span>📎 {others.length}</span>}
                         </div>
-                      )}
+                        {/* Chevron Icon */}
+                        <svg
+                          className={`w-5 h-5 text-gray-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
 
-                      {/* Videos */}
-                      {videos.length > 0 && (
-                        <div>
-                          <p className="text-sm font-medium text-gray-600 mb-2">🎥 Vidéos ({videos.length})</p>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {videos.map((artifact) => (
-                              <button
-                                key={artifact.id}
-                                onClick={() => openArtifactViewer(artifact)}
-                                className="relative group aspect-video bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
-                              >
-                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
-                                  <span className="text-4xl">🎥</span>
-                                </div>
-                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  {formatFileSize(artifact.size)}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Other Artifacts */}
-                      {others.length > 0 && (
-                        <div>
-                          <p className="text-sm font-medium text-gray-600 mb-2">📎 Autres ({others.length})</p>
-                          <div className="space-y-2">
-                            {others.map((artifact) => (
-                              <div
-                                key={artifact.id}
-                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                              >
-                                <div className="flex items-center gap-3">
-                                  <span className="text-2xl">{getArtifactIcon(artifact.type)}</span>
-                                  <div>
-                                    <p className="text-sm font-medium text-gray-800">{artifact.filename}</p>
-                                    <p className="text-xs text-gray-500">{formatFileSize(artifact.size)}</p>
-                                  </div>
-                                </div>
-                                <button
-                                  onClick={() => openArtifactViewer(artifact)}
-                                  className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 rounded transition-colors"
-                                >
-                                  Voir
-                                </button>
+                    {/* Test Details - Expandable */}
+                    {isExpanded && (
+                      <div className="p-6 pt-2 border-t border-gray-200 bg-gray-50/50">
+                        <div className="space-y-4">
+                          {/* Screenshots */}
+                          {screenshots.length > 0 && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-600 mb-2">📸 Screenshots ({screenshots.length})</p>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {screenshots.map((artifact) => (
+                                  <button
+                                    key={artifact.id}
+                                    onClick={() => openArtifactViewer(artifact)}
+                                    className="relative group aspect-video bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                                  >
+                                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                                      <span className="text-4xl">📸</span>
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {formatFileSize(artifact.size)}
+                                    </div>
+                                  </button>
+                                ))}
                               </div>
-                            ))}
-                          </div>
+                            </div>
+                          )}
+
+                          {/* Videos */}
+                          {videos.length > 0 && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-600 mb-2">🎥 Vidéos ({videos.length})</p>
+                              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                {videos.map((artifact) => (
+                                  <button
+                                    key={artifact.id}
+                                    onClick={() => openArtifactViewer(artifact)}
+                                    className="relative group aspect-video bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                                  >
+                                    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
+                                      <span className="text-4xl">🎥</span>
+                                    </div>
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                      {formatFileSize(artifact.size)}
+                                    </div>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Traces - Highlighted */}
+                          {traces.length > 0 && (
+                            <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                              <p className="text-sm font-semibold text-purple-700 mb-2">📊 Traces ({traces.length})</p>
+                              <div className="space-y-2">
+                                {traces.map((artifact) => (
+                                  <div
+                                    key={artifact.id}
+                                    className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-purple-50 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-2xl">📊</span>
+                                      <div>
+                                        <p className="text-sm font-medium text-gray-800">{artifact.filename}</p>
+                                        <p className="text-xs text-gray-500">{formatFileSize(artifact.size)}</p>
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => openArtifactViewer(artifact)}
+                                      className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-100 rounded transition-colors font-medium"
+                                    >
+                                      Voir
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Other Artifacts */}
+                          {others.length > 0 && (
+                            <div>
+                              <p className="text-sm font-medium text-gray-600 mb-2">📎 Autres ({others.length})</p>
+                              <div className="space-y-2">
+                                {others.map((artifact) => (
+                                  <div
+                                    key={artifact.id}
+                                    className="flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-100 transition-colors"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <span className="text-2xl">{getArtifactIcon(artifact.type)}</span>
+                                      <div>
+                                        <p className="text-sm font-medium text-gray-800">{artifact.filename}</p>
+                                        <p className="text-xs text-gray-500">{formatFileSize(artifact.size)}</p>
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={() => openArtifactViewer(artifact)}
+                                      className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                                    >
+                                      Voir
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -432,6 +529,19 @@ const TestRunDetailPage: React.FC = () => {
                 ) : (
                   <div className="text-center py-12">
                     <p className="text-gray-600 mb-4">Aperçu non disponible pour ce type de fichier</p>
+                    {selectedArtifact.type === 'trace' && (
+                      <div className="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg text-sm text-left max-w-md mx-auto">
+                        <p className="font-semibold text-purple-900 mb-2">📊 Comment ouvrir cette trace :</p>
+                        <ol className="list-decimal list-inside space-y-1 text-purple-800">
+                          <li>Téléchargez le fichier trace.zip</li>
+                          <li>Ouvrez un terminal</li>
+                          <li>Exécutez : <code className="bg-purple-100 px-2 py-0.5 rounded">npx playwright show-trace trace.zip</code></li>
+                        </ol>
+                        <p className="mt-2 text-purple-700 text-xs">
+                          Cela ouvrira une interface interactive pour explorer tous les détails de l'exécution du test.
+                        </p>
+                      </div>
+                    )}
                     <a
                       href={artifactUrl}
                       download={selectedArtifact.filename}
@@ -449,6 +559,15 @@ const TestRunDetailPage: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Native Trace Viewer */}
+      {traceToView && (
+        <NativeTraceViewer
+          traceUrl={traceToView.url}
+          filename={traceToView.filename}
+          onClose={closeTraceViewer}
+        />
       )}
     </div>
   );
