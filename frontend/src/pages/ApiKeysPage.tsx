@@ -1,10 +1,19 @@
-import { useState, useEffect, useRef } from 'react';
-import { Plus, Key, Copy, Check, Trash2, XCircle, Calendar, Clock } from 'lucide-react';
-import { apiKeyService } from '../services/apiKeyService';
-import { ApiKey, ApiKeyWithSecret, CreateApiKeyDto } from '../types';
-import { format } from 'date-fns';
-import ConfirmModal from '../components/ConfirmModal';
-import { useAuthStore, canManage } from '../store/auth.store';
+import { useState, useEffect, useRef } from "react";
+import {
+  Plus,
+  Key,
+  Copy,
+  Check,
+  Trash2,
+  XCircle,
+  Calendar,
+  Clock,
+} from "lucide-react";
+import { apiKeyService } from "../services/apiKeyService";
+import { ApiKey, ApiKeyWithSecret, CreateApiKeyDto } from "../types";
+import { format } from "date-fns";
+import ConfirmModal from "../components/ConfirmModal";
+import { useAuthStore, canManage } from "../store/auth.store";
 
 export default function ApiKeysPage() {
   const { user } = useAuthStore();
@@ -15,10 +24,10 @@ export default function ApiKeysPage() {
   const [copied, setCopied] = useState(false);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
-    type: 'revoke' | 'delete';
+    type: "revoke" | "delete";
     keyId: string;
     keyName: string;
-  }>({ isOpen: false, type: 'revoke', keyId: '', keyName: '' });
+  }>({ isOpen: false, type: "revoke", keyId: "", keyName: "" });
   const hasFetched = useRef(false);
 
   useEffect(() => {
@@ -33,7 +42,7 @@ export default function ApiKeysPage() {
       const keys = await apiKeyService.getAll();
       setApiKeys(keys);
     } catch (error) {
-      console.error('Failed to load API keys:', error);
+      console.error("Failed to load API keys:", error);
     } finally {
       setLoading(false);
     }
@@ -48,16 +57,16 @@ export default function ApiKeysPage() {
   };
 
   const handleRevoke = async (id: string, name: string) => {
-    setConfirmModal({ isOpen: true, type: 'revoke', keyId: id, keyName: name });
+    setConfirmModal({ isOpen: true, type: "revoke", keyId: id, keyName: name });
   };
 
   const handleDelete = async (id: string, name: string) => {
-    setConfirmModal({ isOpen: true, type: 'delete', keyId: id, keyName: name });
+    setConfirmModal({ isOpen: true, type: "delete", keyId: id, keyName: name });
   };
 
   const confirmAction = async () => {
     try {
-      if (confirmModal.type === 'revoke') {
+      if (confirmModal.type === "revoke") {
         await apiKeyService.revoke(confirmModal.keyId);
       } else {
         await apiKeyService.delete(confirmModal.keyId);
@@ -82,7 +91,9 @@ export default function ApiKeysPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold gradient-text mb-2">API Keys</h1>
-          <p className="text-gray-600">Manage API keys for programmatic access to Dashwright</p>
+          <p className="text-gray-600">
+            Manage API keys for programmatic access to Dashwright
+          </p>
         </div>
         {canManage(user) && (
           <button
@@ -120,7 +131,9 @@ export default function ApiKeysPage() {
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <Key className="w-5 h-5 text-indigo-600" />
-                      <h3 className="text-lg font-semibold text-gray-900">{key.name}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {key.name}
+                      </h3>
                       {!key.isActive && (
                         <span className="px-2 py-1 bg-red-100 text-red-600 text-xs font-medium rounded-full">
                           Revoked
@@ -128,23 +141,27 @@ export default function ApiKeysPage() {
                       )}
                     </div>
                     {key.description && (
-                      <p className="text-gray-600 text-sm mb-3 ml-8">{key.description}</p>
+                      <p className="text-gray-600 text-sm mb-3 ml-8">
+                        {key.description}
+                      </p>
                     )}
                     <div className="flex items-center gap-4 text-sm text-gray-500 ml-8">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        Created {format(new Date(key.createdAt), 'MMM d, yyyy')}
+                        Created {format(new Date(key.createdAt), "MMM d, yyyy")}
                       </div>
                       {key.lastUsedAt && (
                         <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4" />
-                          Last used {format(new Date(key.lastUsedAt), 'MMM d, yyyy')}
+                          Last used{" "}
+                          {format(new Date(key.lastUsedAt), "MMM d, yyyy")}
                         </div>
                       )}
                       {key.expiresAt && (
                         <div className="flex items-center gap-1">
                           <Calendar className="w-4 h-4" />
-                          Expires {format(new Date(key.expiresAt), 'MMM d, yyyy')}
+                          Expires{" "}
+                          {format(new Date(key.expiresAt), "MMM d, yyyy")}
                         </div>
                       )}
                     </div>
@@ -192,18 +209,24 @@ export default function ApiKeysPage() {
       {createdKey && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="card max-w-2xl w-full mx-4">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">API Key Created!</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              API Key Created!
+            </h2>
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
               <p className="text-yellow-800 text-sm mb-2">
-                ⚠️ <strong>Important:</strong> This is the only time you'll see this key!
+                ⚠️ <strong>Important:</strong> This is the only time you'll see
+                this key!
               </p>
               <p className="text-yellow-700 text-sm">
-                Make sure to copy it now and store it securely. You won't be able to see it again.
+                Make sure to copy it now and store it securely. You won't be
+                able to see it again.
               </p>
             </div>
             <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-gray-600 text-sm font-medium">Your API Key:</span>
+                <span className="text-gray-600 text-sm font-medium">
+                  Your API Key:
+                </span>
                 <button
                   onClick={handleCopy}
                   className="flex items-center gap-2 px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm transition-colors"
@@ -242,14 +265,16 @@ export default function ApiKeysPage() {
         isOpen={confirmModal.isOpen}
         onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
         onConfirm={confirmAction}
-        title={confirmModal.type === 'revoke' ? 'Revoke API Key?' : 'Delete API Key?'}
+        title={
+          confirmModal.type === "revoke" ? "Revoke API Key?" : "Delete API Key?"
+        }
         message={
-          confirmModal.type === 'revoke'
+          confirmModal.type === "revoke"
             ? `Are you sure you want to revoke "${confirmModal.keyName}"? It will no longer work and cannot be reactivated.`
             : `Are you sure you want to permanently delete "${confirmModal.keyName}"? This action cannot be undone.`
         }
-        confirmText={confirmModal.type === 'revoke' ? 'Revoke' : 'Delete'}
-        type={confirmModal.type === 'revoke' ? 'warning' : 'danger'}
+        confirmText={confirmModal.type === "revoke" ? "Revoke" : "Delete"}
+        type={confirmModal.type === "revoke" ? "warning" : "danger"}
       />
     </div>
   );
@@ -263,8 +288,8 @@ function CreateApiKeyModal({
   onCreated: (key: ApiKeyWithSecret) => void;
 }) {
   const [formData, setFormData] = useState<CreateApiKeyDto>({
-    name: '',
-    description: '',
+    name: "",
+    description: "",
   });
   const [loading, setLoading] = useState(false);
 
@@ -276,8 +301,8 @@ function CreateApiKeyModal({
       const key = await apiKeyService.create(formData);
       onCreated(key);
     } catch (error) {
-      console.error('Failed to create API key:', error);
-      alert('Failed to create API key');
+      console.error("Failed to create API key:", error);
+      alert("Failed to create API key");
     } finally {
       setLoading(false);
     }
@@ -286,7 +311,9 @@ function CreateApiKeyModal({
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
       <div className="card max-w-md w-full mx-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">Create API Key</h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          Create API Key
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -295,7 +322,9 @@ function CreateApiKeyModal({
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               placeholder="Production API Key"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
               required
@@ -307,7 +336,9 @@ function CreateApiKeyModal({
             </label>
             <textarea
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               placeholder="Used for CI/CD pipeline..."
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
@@ -326,7 +357,7 @@ function CreateApiKeyModal({
               disabled={loading}
               className="btn-primary disabled:opacity-50"
             >
-              {loading ? 'Creating...' : 'Create API Key'}
+              {loading ? "Creating..." : "Create API Key"}
             </button>
           </div>
         </form>

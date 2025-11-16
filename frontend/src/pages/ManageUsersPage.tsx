@@ -142,9 +142,7 @@ export default function ManageUsersPage() {
             </button>
             <Users className="text-indigo-600" size={32} />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">
-                Manage Users
-              </h1>
+              <h1 className="text-2xl font-bold text-gray-900">Manage Users</h1>
               <p className="text-sm text-gray-600">
                 {total} user{total !== 1 ? "s" : ""} total
               </p>

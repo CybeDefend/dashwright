@@ -490,7 +490,7 @@ export class AdminController {
     // Check if organization has users
     if (organization.users && organization.users.length > 0) {
       throw new Error(
-        "Cannot delete organization with existing users. Please remove or transfer users first."
+        "Cannot delete organization with existing users. Please remove or transfer users first.",
       );
     }
 
