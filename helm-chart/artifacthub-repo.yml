@@ -1,0 +1,27 @@
+displayName: Dashwright
+repositoryURL: https://github.com/CybeDefend/dashwright
+description: |
+  Dashwright is a modern, feature-rich dashboard for Playwright test automation.
+  
+  Features:
+  - Real-time test execution monitoring
+  - Interactive trace viewer
+  - Artifact storage and management
+  - Multi-organization support
+  - Role-based access control
+  - REST API and WebSocket support
+  - CI/CD integration
+  
+  This Helm chart deploys Dashwright on Kubernetes with PostgreSQL and MinIO (S3-compatible storage).
+
+owners:
+  - name: CybeDefend
+    email: florentinledy@cybedefend.com
+
+links:
+  - name: GitHub
+    url: https://github.com/CybeDefend/dashwright
+  - name: Issues
+    url: https://github.com/CybeDefend/dashwright/issues
+  - name: Discussions
+    url: https://github.com/CybeDefend/dashwright/discussions

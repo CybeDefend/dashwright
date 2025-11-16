@@ -1,7 +1,7 @@
 # Default values for Dashwright
 replicaCount:
-  backend: 2
-  frontend: 2
+  backend: 1
+  frontend: 1
 
 image:
   backend:
@@ -30,27 +30,31 @@ service:
     type: ClusterIP
     port: 80
 
-ingress:
-  enabled: true
-  className: "nginx"
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  hosts:
-    - host: dashwright.example.com
-      paths:
-        - path: /
-          pathType: Prefix
-          service: frontend
-        - path: /api
-          pathType: Prefix
-          service: backend
-        - path: /socket.io
-          pathType: Prefix
-          service: backend
-  tls:
-    - secretName: dashwright-tls
-      hosts:
-        - dashwright.example.com
+# Ingress is not included - use your own ingress configuration
+# Example ingress configuration:
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: dashwright-ingress
+# spec:
+#   rules:
+#   - host: your-domain.com
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: dashwright-frontend
+#             port:
+#               number: 80
+#       - path: /api
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: dashwright-backend
+#             port:
+#               number: 3000
 
 resources:
   backend:
@@ -107,8 +111,8 @@ env:
     RATE_LIMIT_MAX: "10"
     STORAGE_BUCKET: "dashwright-artifacts"
   frontend:
-    VITE_API_URL: "https://dashwright.example.com/api"
-    VITE_WS_URL: "wss://dashwright.example.com"
+    VITE_API_URL: "http://dashwright.local/api"
+    VITE_WS_URL: "ws://dashwright.local"
 
 nodeSelector: {}
 

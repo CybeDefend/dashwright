@@ -15,6 +15,7 @@ _A beautiful, intuitive dashboard for visualizing Playwright test runs with real
 [![CI](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml)
 [![Docker](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml)
 [![NPM](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml)
+[![Helm](https://img.shields.io/badge/Helm-v1.0.0-0f1689.svg)](https://github.com/CybeDefend/dashwright/tree/main/helm-chart)
 
 [Features](#✨-features) • [Quick Start](#🚀-quick-start) • [Installation](#📦-installation) • [Documentation](#📚-documentation) • [Architecture](#🏗️-architecture) • [Contributing](#🤝-contributing) • [License](#📄-license)
 
@@ -353,10 +354,10 @@ Services included:
 
 ### Kubernetes with Helm (Production)
 
-1. **Add the Helm repository** (if published)
+1. **Add the Helm repository**
 
    ```bash
-   helm repo add dashwright https://charts.dashwright.io
+   helm repo add dashwright https://cybedefend.github.io/dashwright
    helm repo update
    ```
 
@@ -366,7 +367,7 @@ Services included:
    helm install dashwright dashwright/dashwright \
      --namespace dashwright \
      --create-namespace \
-     --set ingress.hosts[0].host=dashwright.example.com \
+     --set ingress.hosts[0].host=dashwright.local \
      --set postgresql.auth.password=secure-password \
      --set minio.auth.rootPassword=secure-password \
      --set env.backend.JWT_SECRET=your-jwt-secret
@@ -625,8 +626,8 @@ If you find Dashwright useful, please consider giving it a star! ⭐
 
 <div align="center">
 
-**Built with ❤️ by [CybeDefend](https://cybedefend.com)**
+**Built with ❤️ by [CybeDefend](https://github.com/CybeDefend)**
 
-[Website](https://dashwright.io) • [Documentation](https://docs.dashwright.io) • [Community](https://community.dashwright.io)
+[GitHub](https://github.com/CybeDefend/dashwright) • [Issues](https://github.com/CybeDefend/dashwright/issues) • [Discussions](https://github.com/CybeDefend/dashwright/discussions)
 
 </div>

@@ -14,3 +14,5 @@ sources:
   - https://github.com/CybeDefend/Dashwright
 maintainers:
   - name: CybeDefend
+    email: florentin.ledy@cybedefend.com
+license: Apache-2.0
