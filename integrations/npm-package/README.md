@@ -27,8 +27,7 @@ export default defineConfig({
       organizationId: 'your-organization-id',
       uploadScreenshots: true,
       uploadVideos: true,
-      uploadTraces: true,        // 📊 Upload traces for debugging
-      uploadLogs: true,
+      uploadTraces: true,        // 📊 Upload traces (includes console logs, network, screenshots)
       retryAttempts: 3,
       retryDelay: 1000,
     }],
@@ -53,8 +52,7 @@ export default defineConfig({
 | `organizationId` | string | **required** | Your organization ID |
 | `uploadScreenshots` | boolean | `true` | Upload test screenshots |
 | `uploadVideos` | boolean | `true` | Upload test videos |
-| `uploadTraces` | boolean | `true` | Upload Playwright traces (recommended) |
-| `uploadLogs` | boolean | `true` | Upload test logs |
+| `uploadTraces` | boolean | `true` | Upload Playwright traces (includes console logs, network requests, DOM snapshots, and screenshots) |
 | `retryAttempts` | number | `3` | Number of retry attempts for uploads |
 | `retryDelay` | number | `1000` | Delay between retries (ms) |
 
@@ -94,9 +92,9 @@ The reporter will automatically:
 - ✅ Create a test run in Dashwright
 - 📸 Upload screenshots from failed tests
 - 🎥 Upload videos when available
-- 📝 Upload test logs and traces
+- � Upload Playwright traces (includes console logs, network requests, and DOM snapshots)
 - ✨ Provide real-time updates via WebSocket
-- 📊 Display results in your dashboard
+- � Display results in your dashboard with interactive trace viewer
 
 ## View Results
 

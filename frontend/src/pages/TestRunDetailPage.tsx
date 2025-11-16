@@ -58,7 +58,9 @@ const TestRunDetailPage: React.FC = () => {
         
         // Debug: Log artifacts to see if traces are present
         console.log('📊 Test Run Artifacts:', response.data.artifacts);
+        console.log('📊 Artifact types:', response.data.artifacts?.map((a: Artifact) => a.type));
         console.log('📊 Trace artifacts:', response.data.artifacts?.filter((a: Artifact) => a.type === 'trace'));
+        console.log('📊 Log artifacts:', response.data.artifacts?.filter((a: Artifact) => a.type === 'log'));
         
         // Auto-expand first test if available
         if (response.data.artifacts && response.data.artifacts.length > 0) {
