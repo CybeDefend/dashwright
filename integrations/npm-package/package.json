@@ -8,11 +8,11 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/CybeDefend/dashwright.git",
+    "url": "git+https://github.com/CybeDefend/dashwright.git",
     "directory": "integrations/npm-package"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "engines": {
     "node": ">=22.14.0",
@@ -45,5 +45,10 @@
   },
   "peerDependencies": {
     "@playwright/test": "^1.0.0"
-  }
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CybeDefend/dashwright/issues"
+  },
+  "homepage": "https://github.com/CybeDefend/dashwright#readme"
 }

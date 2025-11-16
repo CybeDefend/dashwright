@@ -3,13 +3,13 @@ name: Publish NPM Package
 on:
   push:
     tags:
-      - 'v*.*.*'
+      - "v*.*.*"
     paths:
-      - 'integrations/npm-package/**'
+      - "integrations/npm-package/**"
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g., 1.0.0)'
+        description: "Version to publish (e.g., 1.0.0)"
         required: true
         type: string
 
@@ -27,9 +27,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.14.0'
-          registry-url: 'https://npm.pkg.github.com'
-          scope: '@dashwright'
+          node-version: "22.14.0"
+          registry-url: "https://registry.npmjs.org"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -64,11 +63,11 @@ jobs:
         working-directory: ./integrations/npm-package
         run: pnpm run build
 
-      - name: Publish to GitHub Packages
+      - name: Publish to npmjs.org
         working-directory: ./integrations/npm-package
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Get package version
         id: package-version
@@ -84,15 +83,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref_name }}
-          release_name: '@dashwright/playwright-reporter v${{ steps.package-version.outputs.version }}'
+          release_name: "@dashwright/playwright-reporter v${{ steps.package-version.outputs.version }}"
           body: |
             ## @dashwright/playwright-reporter v${{ steps.package-version.outputs.version }}
-            
+
             ### Installation
             ```bash
             npm install @dashwright/playwright-reporter@${{ steps.package-version.outputs.version }}
             ```
-            
+
             ### Changes
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/integrations/npm-package/CHANGELOG.md)
           draft: false
