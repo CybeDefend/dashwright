@@ -9,6 +9,14 @@ import {
   Param,
   Delete,
 } from "@nestjs/common";
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiParam,
+} from "@nestjs/swagger";
 import { JwtAuthGuard } from "../common/guards/jwt-auth.guard";
 import { SuperAdmin } from "../decorators/super-admin.decorator";
 import { SuperAdminGuard } from "../guards/super-admin.guard";
@@ -23,6 +31,8 @@ import { StorageService } from "../artifacts/storage.service";
 import * as packageJson from "../../package.json";
 import { Request } from "express";
 
+@ApiTags("Admin")
+@ApiBearerAuth("JWT-auth")
 @Controller("admin")
 @UseGuards(JwtAuthGuard, SuperAdminGuard)
 @SuperAdmin()
@@ -40,6 +50,16 @@ export class AdminController {
     private storageService: StorageService,
   ) {}
 
+  @ApiOperation({
+    summary: "Get admin dashboard statistics",
+    description:
+      "Retrieve comprehensive dashboard statistics including users, organizations, test runs, and system information. Super admin only.",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Dashboard statistics retrieved successfully",
+  })
+  @ApiResponse({ status: 403, description: "Forbidden - Super admin only" })
   @Get("dashboard")
   async getDashboard() {
     const now = new Date();
