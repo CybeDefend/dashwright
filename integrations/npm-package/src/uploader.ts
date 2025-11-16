@@ -65,8 +65,10 @@ export class Uploader {
     try {
       await this.retryRequest(async () => {
         console.log(`   → Attempt to upload ${filename}...`);
+        // Merge FormData headers with existing auth headers
         const response = await this.client.post('/artifacts/upload', formData, {
           headers: {
+            ...this.client.defaults.headers.common,
             ...formData.getHeaders(),
           },
         });
