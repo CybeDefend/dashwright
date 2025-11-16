@@ -121,8 +121,16 @@ export class DashwrightReporter implements Reporter {
       try {
         await Promise.all(uploadPromises);
         console.log(`✅ Uploaded ${uploadPromises.length} artifact(s) for test: ${test.title}`);
-      } catch (error) {
+      } catch (error: any) {
         console.error(`❌ Dashwright: Failed to upload artifacts for test "${test.title}":`, error);
+        if (error.response) {
+          console.error('Response status:', error.response.status);
+          console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+        }
+        if (error.request) {
+          console.error('Request URL:', error.config?.url);
+          console.error('Request method:', error.config?.method);
+        }
       }
     }
   }

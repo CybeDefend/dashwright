@@ -44,6 +44,9 @@ export class Uploader {
     filePath: string,
     artifactData: Omit<ArtifactUpload, 'filename' | 'size'>
   ): Promise<void> {
+    console.log(`🔧 Preparing upload for: ${filePath}`);
+    console.log(`   Type: ${artifactData.type}, TestRunId: ${artifactData.testRunId}`);
+    
     const stats = fs.statSync(filePath);
     const filename = path.basename(filePath);
 
@@ -58,12 +61,15 @@ export class Uploader {
       formData.append('testName', artifactData.testName);
     }
 
+    console.log(`📤 Uploading to: ${this.config.apiUrl}/artifacts/upload`);
     await this.retryRequest(async () => {
-      await this.client.post('/artifacts/upload', formData, {
+      const response = await this.client.post('/artifacts/upload', formData, {
         headers: {
           ...formData.getHeaders(),
         },
       });
+      console.log(`✅ Upload successful, artifact ID: ${response.data.id || 'unknown'}`);
+      return response;
     });
   }
 
