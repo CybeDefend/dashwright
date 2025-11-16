@@ -27,7 +27,12 @@ interface Artifact {
   size: number;
   mimeType: string;
   testName?: string;
+  storageKey: string;
   createdAt: string;
+}
+
+interface GroupedArtifacts {
+  [testName: string]: Artifact[];
 }
 
 const TestRunDetailPage: React.FC = () => {
@@ -36,6 +41,8 @@ const TestRunDetailPage: React.FC = () => {
   const [testRun, setTestRun] = useState<TestRun | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
+  const [artifactUrl, setArtifactUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -56,6 +63,25 @@ const TestRunDetailPage: React.FC = () => {
     fetchTestRun();
   }, [id]);
 
+  useEffect(() => {
+    const fetchArtifactUrl = async () => {
+      if (!selectedArtifact) {
+        setArtifactUrl(null);
+        return;
+      }
+
+      try {
+        const response = await apiClient.get(`/artifacts/${selectedArtifact.id}/download-url`);
+        setArtifactUrl(response.data.url);
+      } catch (err) {
+        console.error('Failed to fetch artifact URL:', err);
+        setArtifactUrl(null);
+      }
+    };
+
+    fetchArtifactUrl();
+  }, [selectedArtifact]);
+
   const formatDuration = (ms: number) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -65,6 +91,47 @@ const TestRunDetailPage: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('fr-FR');
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const groupArtifactsByTest = (artifacts: Artifact[]): GroupedArtifacts => {
+    return artifacts.reduce((acc, artifact) => {
+      const testName = artifact.testName || 'Sans nom de test';
+      if (!acc[testName]) {
+        acc[testName] = [];
+      }
+      acc[testName].push(artifact);
+      return acc;
+    }, {} as GroupedArtifacts);
+  };
+
+  const openArtifactViewer = (artifact: Artifact) => {
+    setSelectedArtifact(artifact);
+  };
+
+  const closeViewer = () => {
+    setSelectedArtifact(null);
+    setArtifactUrl(null);
+  };
+
+  const getArtifactIcon = (type: string) => {
+    switch (type) {
+      case 'screenshot':
+        return '📸';
+      case 'video':
+        return '🎥';
+      case 'log':
+        return '📄';
+      case 'trace':
+        return '📊';
+      default:
+        return '📎';
+    }
   };
 
   if (loading) {
@@ -107,6 +174,9 @@ const TestRunDetailPage: React.FC = () => {
   const successRate = testRun.totalTests > 0 
     ? Math.round((testRun.passedTests / testRun.totalTests) * 100) 
     : 0;
+
+  const groupedArtifacts = testRun.artifacts ? groupArtifactsByTest(testRun.artifacts) : {};
+  const testNames = Object.keys(groupedArtifacts).sort();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 p-6">
@@ -202,34 +272,108 @@ const TestRunDetailPage: React.FC = () => {
           )}
         </div>
 
-        {/* Artifacts */}
-        {testRun.artifacts && testRun.artifacts.length > 0 && (
+        {/* Tests Detail with Artifacts */}
+        {testNames.length > 0 ? (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
-            <h2 className="text-2xl font-bold mb-6">Artifacts</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {testRun.artifacts.map((artifact) => (
-                <div
-                  key={artifact.id}
-                  className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">{artifact.type}</span>
-                    <span className="text-xs text-gray-500">
-                      {(artifact.size / 1024).toFixed(1)} KB
-                    </span>
+            <h2 className="text-2xl font-bold mb-6">Détails des tests</h2>
+            <div className="space-y-6">
+              {testNames.map((testName) => {
+                const artifacts = groupedArtifacts[testName];
+                const screenshots = artifacts.filter(a => a.type === 'screenshot');
+                const videos = artifacts.filter(a => a.type === 'video');
+                const others = artifacts.filter(a => a.type !== 'screenshot' && a.type !== 'video');
+
+                return (
+                  <div key={testName} className="border border-gray-200 rounded-lg p-6 hover:border-purple-300 transition-colors">
+                    {/* Test Name */}
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-800">{testName}</h3>
+                      <span className="text-sm text-gray-500">{artifacts.length} artifact(s)</span>
+                    </div>
+
+                    {/* Artifacts Grid */}
+                    <div className="space-y-4">
+                      {/* Screenshots */}
+                      {screenshots.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-2">📸 Screenshots ({screenshots.length})</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {screenshots.map((artifact) => (
+                              <button
+                                key={artifact.id}
+                                onClick={() => openArtifactViewer(artifact)}
+                                className="relative group aspect-video bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                              >
+                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
+                                  <span className="text-4xl">📸</span>
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {formatFileSize(artifact.size)}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Videos */}
+                      {videos.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-2">🎥 Vidéos ({videos.length})</p>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            {videos.map((artifact) => (
+                              <button
+                                key={artifact.id}
+                                onClick={() => openArtifactViewer(artifact)}
+                                className="relative group aspect-video bg-gray-100 rounded-lg overflow-hidden hover:ring-2 hover:ring-purple-500 transition-all"
+                              >
+                                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
+                                  <span className="text-4xl">🎥</span>
+                                </div>
+                                <div className="absolute bottom-0 left-0 right-0 bg-black/70 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {formatFileSize(artifact.size)}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Other Artifacts */}
+                      {others.length > 0 && (
+                        <div>
+                          <p className="text-sm font-medium text-gray-600 mb-2">📎 Autres ({others.length})</p>
+                          <div className="space-y-2">
+                            {others.map((artifact) => (
+                              <div
+                                key={artifact.id}
+                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <span className="text-2xl">{getArtifactIcon(artifact.type)}</span>
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-800">{artifact.filename}</p>
+                                    <p className="text-xs text-gray-500">{formatFileSize(artifact.size)}</p>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => openArtifactViewer(artifact)}
+                                  className="px-3 py-1 text-sm text-purple-600 hover:bg-purple-50 rounded transition-colors"
+                                >
+                                  Voir
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  {artifact.testName && (
-                    <p className="text-sm text-gray-600 mb-2">{artifact.testName}</p>
-                  )}
-                  <p className="text-xs text-gray-400 truncate">{artifact.filename}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
-        )}
-
-        {/* No Artifacts Message */}
-        {(!testRun.artifacts || testRun.artifacts.length === 0) && (
+        ) : (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60 text-center">
             <p className="text-gray-500">Aucun artifact disponible pour ce test run</p>
             <p className="text-sm text-gray-400 mt-2">
@@ -238,6 +382,74 @@ const TestRunDetailPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Artifact Viewer Modal */}
+      {selectedArtifact && (
+        <div
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={closeViewer}
+        >
+          <div
+            className="relative max-w-6xl w-full max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{getArtifactIcon(selectedArtifact.type)}</span>
+                <div>
+                  <h3 className="font-semibold text-gray-800">{selectedArtifact.filename}</h3>
+                  <p className="text-sm text-gray-500">
+                    {selectedArtifact.testName} • {formatFileSize(selectedArtifact.size)}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={closeViewer}
+                className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
+              {artifactUrl ? (
+                selectedArtifact.type === 'screenshot' ? (
+                  <img
+                    src={artifactUrl}
+                    alt={selectedArtifact.filename}
+                    className="w-full h-auto rounded-lg"
+                  />
+                ) : selectedArtifact.type === 'video' ? (
+                  <video
+                    src={artifactUrl}
+                    controls
+                    className="w-full h-auto rounded-lg"
+                  />
+                ) : (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600 mb-4">Aperçu non disponible pour ce type de fichier</p>
+                    <a
+                      href={artifactUrl}
+                      download={selectedArtifact.filename}
+                      className="inline-block px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all"
+                    >
+                      Télécharger
+                    </a>
+                  </div>
+                )
+              ) : (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
