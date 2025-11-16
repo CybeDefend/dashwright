@@ -118,6 +118,7 @@ export class DashwrightReporter implements Reporter {
 
     // Wait for all uploads to complete
     if (uploadPromises.length > 0) {
+      console.log(`⏳ Waiting for ${uploadPromises.length} upload(s) to complete...`);
       try {
         await Promise.all(uploadPromises);
         console.log(`✅ Uploaded ${uploadPromises.length} artifact(s) for test: ${test.title}`);

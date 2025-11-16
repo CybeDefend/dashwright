@@ -62,15 +62,34 @@ export class Uploader {
     }
 
     console.log(`📤 Uploading to: ${this.config.apiUrl}/artifacts/upload`);
-    await this.retryRequest(async () => {
-      const response = await this.client.post('/artifacts/upload', formData, {
-        headers: {
-          ...formData.getHeaders(),
-        },
+    try {
+      await this.retryRequest(async () => {
+        console.log(`   → Attempt to upload ${filename}...`);
+        const response = await this.client.post('/artifacts/upload', formData, {
+          headers: {
+            ...formData.getHeaders(),
+          },
+        });
+        console.log(`✅ Upload successful, artifact ID: ${response.data.id || 'unknown'}`);
+        return response;
       });
-      console.log(`✅ Upload successful, artifact ID: ${response.data.id || 'unknown'}`);
-      return response;
-    });
+    } catch (error: any) {
+      console.error(`❌ Upload failed for ${filename}:`, error.message);
+      if (error.response) {
+        console.error('   Status:', error.response.status);
+        console.error('   Data:', JSON.stringify(error.response.data, null, 2));
+      } else if (error.request) {
+        console.error('   No response received from server');
+        console.error('   Request config:', {
+          url: error.config?.url,
+          method: error.config?.method,
+          baseURL: error.config?.baseURL,
+        });
+      } else {
+        console.error('   Error details:', error);
+      }
+      throw error;
+    }
   }
 
   async uploadScreenshot(
