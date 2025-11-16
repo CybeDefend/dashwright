@@ -15,7 +15,7 @@ export class Uploader {
       uploadScreenshots: true,
       uploadVideos: true,
       uploadLogs: true,
-      retryAttempts: 3,
+      retryAttempts: 0, // Disable retries for faster error diagnosis
       retryDelay: 1000,
       ...config,
     };
@@ -37,9 +37,34 @@ export class Uploader {
     this.client = axios.create({
       baseURL: this.config.apiUrl,
       headers: this.authHeaders,
-      timeout: 30000, // 30s timeout to avoid infinite hangs
+      timeout: 15000, // 15s timeout for faster error diagnosis
       validateStatus: (status) => status < 500, // Don't throw on 4xx errors
     });
+
+    // Add request interceptor for debugging
+    this.client.interceptors.request.use(
+      (config) => {
+        console.log(`   🌐 Axios request: ${config.method?.toUpperCase()} ${config.baseURL}${config.url}`);
+        return config;
+      },
+      (error) => {
+        console.error('   ❌ Axios request setup error:', error);
+        return Promise.reject(error);
+      }
+    );
+
+    // Add response interceptor for debugging
+    this.client.interceptors.response.use(
+      (response) => {
+        console.log(`   ✅ Axios response: ${response.status} ${response.statusText}`);
+        return response;
+      },
+      (error) => {
+        console.error(`   ❌ Axios response error: ${error.message}`);
+        if (error.code) console.error(`   Error code: ${error.code}`);
+        return Promise.reject(error);
+      }
+    );
   }
 
   async uploadArtifact(
@@ -63,7 +88,9 @@ export class Uploader {
       formData.append('testName', artifactData.testName);
     }
 
-    console.log(`📤 Uploading to: ${this.config.apiUrl}/artifacts/upload`);
+    const uploadUrl = '/artifacts/upload';
+    const fullUrl = `${this.client.defaults.baseURL}${uploadUrl}`;
+    console.log(`📤 Uploading to: ${fullUrl}`);
     console.log(`   Auth headers: ${JSON.stringify(this.authHeaders)}`);
     
     try {
@@ -75,7 +102,7 @@ export class Uploader {
         };
         console.log(`   → Full headers: ${JSON.stringify(mergedHeaders)}`);
         
-        const response = await this.client.post('/artifacts/upload', formData, {
+        const response = await this.client.post(uploadUrl, formData, {
           headers: mergedHeaders,
           maxContentLength: Infinity,
           maxBodyLength: Infinity,
@@ -176,8 +203,11 @@ export class Uploader {
   ): Promise<T> {
     try {
       return await fn();
-    } catch (error) {
-      if (attempt < (this.config.retryAttempts || 3)) {
+    } catch (error: any) {
+      const maxAttempts = this.config.retryAttempts || 3;
+      if (attempt < maxAttempts) {
+        console.log(`   ⚠️  Retry attempt ${attempt + 1}/${maxAttempts} after ${this.config.retryDelay || 1000}ms...`);
+        console.log(`   Error was: ${error.message || error.code || 'Unknown error'}`);
         await this.delay(this.config.retryDelay || 1000);
         return this.retryRequest(fn, attempt + 1);
       }
