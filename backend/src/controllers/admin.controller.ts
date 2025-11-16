@@ -101,8 +101,9 @@ export class AdminController {
     // Get real storage stats from Minio
     const bucketStats = await this.storageService.getBucketStats();
     const storageUsed = bucketStats.used; // in bytes
-    const storageTotal = 10 * 1024 * 1024 * 1024; // 10GB default limit
-    const storagePercentage = storageTotal > 0 ? (storageUsed / storageTotal) * 100 : 0;
+    const storageTotal = bucketStats.total; // in bytes from config
+    const storagePercentage =
+      storageTotal > 0 ? (storageUsed / storageTotal) * 100 : 0;
 
     return {
       stats: {
@@ -209,8 +210,9 @@ export class AdminController {
     // Get real storage stats from Minio
     const bucketStats = await this.storageService.getBucketStats();
     const storageUsed = bucketStats.used; // in bytes
-    const storageTotal = 10 * 1024 * 1024 * 1024; // 10GB default limit
-    const storagePercentage = storageTotal > 0 ? (storageUsed / storageTotal) * 100 : 0;
+    const storageTotal = bucketStats.total; // in bytes from config
+    const storagePercentage =
+      storageTotal > 0 ? (storageUsed / storageTotal) * 100 : 0;
 
     // System info
     const startTime = process.uptime();

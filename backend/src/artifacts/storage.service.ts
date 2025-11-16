@@ -63,7 +63,11 @@ export class StorageService {
     await this.minioClient.removeObject(this.bucketName, key);
   }
 
-  async getBucketStats(): Promise<{ used: number; objectCount: number }> {
+  async getBucketStats(): Promise<{
+    used: number;
+    total: number;
+    objectCount: number;
+  }> {
     try {
       let totalSize = 0;
       let objectCount = 0;
@@ -85,14 +89,27 @@ export class StorageService {
         objectsStream.on("end", () => resolve());
       });
 
+      // Get storage capacity from config or use default
+      const storageLimit = this.configService.get<number>(
+        "STORAGE_LIMIT_GB",
+        100,
+      );
+      const totalCapacity = storageLimit * 1024 * 1024 * 1024; // Convert GB to bytes
+
       return {
         used: totalSize,
+        total: totalCapacity,
         objectCount,
       };
     } catch (error) {
       console.error("Error getting bucket stats:", error);
+      const storageLimit = this.configService.get<number>(
+        "STORAGE_LIMIT_GB",
+        100,
+      );
       return {
         used: 0,
+        total: storageLimit * 1024 * 1024 * 1024,
         objectCount: 0,
       };
     }
