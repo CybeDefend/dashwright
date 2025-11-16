@@ -15,7 +15,8 @@ export class TestRunsService {
     const testRun = this.testRunRepository.create({
       ...createTestRunDto,
       createdById,
-      startedAt: createTestRunDto.startedAt || new Date(),
+      startedAt: createTestRunDto.startedAt ? new Date(createTestRunDto.startedAt) : new Date(),
+      finishedAt: createTestRunDto.finishedAt ? new Date(createTestRunDto.finishedAt) : undefined,
     });
 
     return this.testRunRepository.save(testRun);

@@ -41,11 +41,11 @@ export class CreateTestRunDto {
 
   @IsDateString()
   @IsOptional()
-  startedAt?: Date;
+  startedAt?: string;
 
   @IsDateString()
   @IsOptional()
-  finishedAt?: Date;
+  finishedAt?: string;
 
   @IsObject()
   @IsOptional()
