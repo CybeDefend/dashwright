@@ -7,6 +7,7 @@ import { DashwrightConfig, ArtifactUpload } from './types';
 export class Uploader {
   private client: AxiosInstance;
   private config: DashwrightConfig;
+  private authHeaders: Record<string, string>;
 
   constructor(config: DashwrightConfig) {
     this.config = {
@@ -21,21 +22,21 @@ export class Uploader {
 
     // Build request headers similar to reporter: use apiKeyHeader if provided,
     // otherwise auto-detect api keys and use X-API-Key for those, or Bearer for JWTs.
-    const headers: Record<string, string> = {};
+    this.authHeaders = {};
     const token = this.config.apiToken || '';
     const apiKeyHeader = this.config.apiKeyHeader;
 
     if (apiKeyHeader) {
-      headers[apiKeyHeader] = token;
+      this.authHeaders[apiKeyHeader] = token;
     } else if (typeof token === 'string' && (token.startsWith('dw_') || token.startsWith('ak_'))) {
-      headers['X-API-Key'] = token;
+      this.authHeaders['X-API-Key'] = token;
     } else if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+      this.authHeaders['Authorization'] = `Bearer ${token}`;
     }
 
     this.client = axios.create({
       baseURL: this.config.apiUrl,
-      headers,
+      headers: this.authHeaders,
       timeout: 60000,
     });
   }
@@ -68,7 +69,7 @@ export class Uploader {
         // Merge FormData headers with existing auth headers
         const response = await this.client.post('/artifacts/upload', formData, {
           headers: {
-            ...this.client.defaults.headers.common,
+            ...this.authHeaders,
             ...formData.getHeaders(),
           },
         });
