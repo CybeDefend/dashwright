@@ -52,6 +52,36 @@ check_main_branch() {
     fi
 }
 
+# Get current version from package.json
+get_current_version() {
+    cd integrations/npm-package
+    local version=$(node -p "require('./package.json').version" 2>/dev/null || echo "0.0.0")
+    cd ../..
+    echo "$version"
+}
+
+# Suggest next version
+suggest_next_version() {
+    local current=$(get_current_version)
+    local IFS='.'
+    read -ra parts <<< "$current"
+    local major=${parts[0]}
+    local minor=${parts[1]}
+    local patch=${parts[2]}
+    
+    local next_patch="$major.$minor.$((patch + 1))"
+    local next_minor="$major.$((minor + 1)).0"
+    local next_major="$((major + 1)).0.0"
+    
+    echo ""
+    print_info "Current version: $current"
+    print_info "Suggestions:"
+    echo "  - Patch (bug fixes): $next_patch"
+    echo "  - Minor (new features): $next_minor"
+    echo "  - Major (breaking changes): $next_major"
+    echo ""
+}
+
 # Validate version format
 validate_version() {
     if [[ ! $1 =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
@@ -63,11 +93,18 @@ validate_version() {
 # Update version in package.json
 update_npm_version() {
     local version=$1
-    print_info "Updating NPM package version to $version"
-    cd integrations/npm-package
-    npm version "$version" --no-git-tag-version
-    cd ../..
-    print_success "NPM package version updated"
+    local current_version=$(cd integrations/npm-package && node -p "require('./package.json').version")
+    
+    if [[ "$current_version" == "$version" ]]; then
+        print_warning "Version $version is already set in package.json"
+        print_info "Skipping version update..."
+    else
+        print_info "Updating NPM package version from $current_version to $version"
+        cd integrations/npm-package
+        npm version "$version" --no-git-tag-version
+        cd ../..
+        print_success "NPM package version updated"
+    fi
 }
 
 # Create git tag
@@ -115,7 +152,7 @@ show_menu() {
 # Release Docker images
 release_docker() {
     print_info "Releasing Docker Images"
-    echo ""
+    suggest_next_version
     
     read -p "Enter version (e.g., 1.0.0): " version
     validate_version "$version"
@@ -148,7 +185,7 @@ release_docker() {
 # Release NPM package
 release_npm() {
     print_info "Releasing NPM Package"
-    echo ""
+    suggest_next_version
     
     read -p "Enter version (e.g., 1.0.0): " version
     validate_version "$version"
@@ -189,7 +226,7 @@ release_npm() {
 # Release all
 release_all() {
     print_info "Releasing All Components"
-    echo ""
+    suggest_next_version
     
     read -p "Enter version (e.g., 1.0.0): " version
     validate_version "$version"
