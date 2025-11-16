@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dashwright.fullname" . }}-frontend
+  labels:
+    app.kubernetes.io/name: {{ include "dashwright.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: frontend
+spec:
+  type: {{ .Values.service.frontend.type }}
+  ports:
+    - port: {{ .Values.service.frontend.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "dashwright.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: frontend

@@ -1,0 +1,117 @@
+# Default values for Dashwright
+replicaCount:
+  backend: 2
+  frontend: 2
+
+image:
+  backend:
+    repository: dashwright/backend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+  frontend:
+    repository: dashwright/frontend
+    pullPolicy: IfNotPresent
+    tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+service:
+  backend:
+    type: ClusterIP
+    port: 3000
+  frontend:
+    type: ClusterIP
+    port: 80
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: dashwright.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+        - path: /socket.io
+          pathType: Prefix
+          service: backend
+  tls:
+    - secretName: dashwright-tls
+      hosts:
+        - dashwright.example.com
+
+resources:
+  backend:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+  frontend:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+postgresql:
+  enabled: true
+  auth:
+    username: dashwright
+    password: changeme
+    database: dashwright
+  primary:
+    persistence:
+      enabled: true
+      size: 10Gi
+
+minio:
+  enabled: true
+  auth:
+    rootUser: minioadmin
+    rootPassword: minioadmin
+  persistence:
+    enabled: true
+    size: 50Gi
+  defaultBuckets: "dashwright-artifacts"
+
+env:
+  backend:
+    NODE_ENV: production
+    PORT: "3000"
+    JWT_SECRET: "change-this-secret-in-production"
+    JWT_EXPIRES_IN: "1h"
+    JWT_REFRESH_SECRET: "change-this-refresh-secret-in-production"
+    JWT_REFRESH_EXPIRES_IN: "7d"
+    RATE_LIMIT_TTL: "60"
+    RATE_LIMIT_MAX: "10"
+    STORAGE_BUCKET: "dashwright-artifacts"
+  frontend:
+    VITE_API_URL: "https://dashwright.example.com/api"
+    VITE_WS_URL: "wss://dashwright.example.com"
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

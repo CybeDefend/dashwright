@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dashwright.fullname" . }}-backend
+  labels:
+    app.kubernetes.io/name: {{ include "dashwright.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: backend
+spec:
+  replicas: {{ .Values.replicaCount.backend }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "dashwright.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: backend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "dashwright.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: backend
+    spec:
+      containers:
+      - name: backend
+        image: "{{ .Values.image.backend.repository }}:{{ .Values.image.backend.tag }}"
+        imagePullPolicy: {{ .Values.image.backend.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        env:
+        {{- range $key, $value := .Values.env.backend }}
+        - name: {{ $key }}
+          value: {{ $value | quote }}
+        {{- end }}
+        - name: DB_HOST
+          value: {{ include "dashwright.fullname" . }}-postgresql
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_USERNAME
+          value: {{ .Values.postgresql.auth.username }}
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "dashwright.fullname" . }}-postgresql
+              key: password
+        - name: DB_DATABASE
+          value: {{ .Values.postgresql.auth.database }}
+        - name: STORAGE_ENDPOINT
+          value: {{ include "dashwright.fullname" . }}-minio
+        - name: STORAGE_PORT
+          value: "9000"
+        - name: STORAGE_ACCESS_KEY
+          value: {{ .Values.minio.auth.rootUser }}
+        - name: STORAGE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "dashwright.fullname" . }}-minio
+              key: root-password
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        resources:
+          {{- toYaml .Values.resources.backend | nindent 10 }}

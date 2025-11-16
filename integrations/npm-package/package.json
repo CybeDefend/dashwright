@@ -1,0 +1,41 @@
+{
+  "name": "@dashwright/playwright-reporter",
+  "version": "1.0.0",
+  "description": "Playwright Reporter for Dashwright - Upload test results, screenshots, and videos",
+  "author": "CybeDefend",
+  "license": "Apache-2.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "engines": {
+    "node": ">=22.14.0",
+    "pnpm": ">=10.0.0"
+  },
+  "packageManager": "pnpm@10.22.0",
+  "keywords": [
+    "playwright",
+    "reporter",
+    "dashboard",
+    "testing",
+    "dashwright"
+  ],
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "axios": "^1.13.2",
+    "form-data": "^4.0.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.51.1",
+    "@types/node": "^24.10.1",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@playwright/test": "^1.0.0"
+  }
+}
