@@ -45,14 +45,16 @@ export class ArtifactsController {
       size: file?.size,
     });
 
-    const uniqueKey = FileUtil.generateUniqueFilename(file.originalname);
+    // Sanitize filename from client to prevent path traversal
+    const sanitizedFilename = FileUtil.sanitizeFilename(createArtifactDto.filename);
+    const uniqueKey = FileUtil.generateUniqueFilename(sanitizedFilename);
     const storageKey = await this.storageService.uploadFile(file, uniqueKey);
 
     const artifact = await this.artifactsService.create({
       ...createArtifactDto,
+      filename: sanitizedFilename, // Use sanitized filename
       storageKey,
-      filename: file.originalname,
-      mimeType: file.mimetype,
+      // mimeType from DTO, size from actual uploaded file
       size: file.size,
     });
 

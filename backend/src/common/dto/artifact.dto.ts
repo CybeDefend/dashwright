@@ -19,8 +19,8 @@ export class CreateArtifactDto {
   size: number;
 
   @IsString()
-  @IsNotEmpty()
-  storageKey: string;
+  @IsOptional()
+  storageKey?: string;
 
   @IsString()
   @IsOptional()

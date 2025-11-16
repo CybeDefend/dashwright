@@ -79,6 +79,7 @@ export class Uploader {
 
     const formData = new FormData();
     formData.append('file', fs.createReadStream(filePath));
+    formData.append('filename', filename);
     formData.append('type', artifactData.type);
     formData.append('mimeType', artifactData.mimeType);
     formData.append('size', stats.size.toString());
