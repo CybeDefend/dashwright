@@ -15,7 +15,7 @@ _A beautiful, intuitive dashboard for visualizing Playwright test runs with real
 [![CI](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml)
 [![Docker](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml)
 [![NPM](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml)
-[![Helm](https://img.shields.io/badge/Helm-v1.0.21-0f1689.svg)](https://github.com/CybeDefend/dashwright/tree/main/helm-chart)
+[![Helm](https://img.shields.io/badge/Helm-v1.0.22-0f1689.svg)](https://github.com/CybeDefend/dashwright/tree/main/helm-chart)
 
 [Features](#✨-features) • [Quick Start](#🚀-quick-start) • [Installation](#📦-installation) • [Documentation](#📚-documentation) • [Architecture](#🏗️-architecture) • [Contributing](#🤝-contributing) • [License](#📄-license)
 
@@ -442,36 +442,7 @@ helm install dashwright ./helm-chart -f custom-values.yaml
 
 ---
 
-## 🛡️ Security Features
-
-### Authentication & Authorization
-
-- ✅ JWT access & refresh tokens
-- ✅ Argon2 password hashing
-- ✅ Role-based access control (Admin, Maintainer, Viewer)
-- ✅ Organization-based multi-tenancy
-- ✅ IP-based rate limiting
-
-### Data Protection
-
-- ✅ Input validation with class-validator
-- ✅ SQL injection prevention with TypeORM
-- ✅ Secure file uploads with MIME type validation
-- ✅ Sanitized filenames
-- ✅ Environment-based secrets
-- ✅ HTTPS/TLS support
-
-### Best Practices
-
-- ✅ Principle of least privilege
-- ✅ Secure defaults
-- ✅ Regular dependency updates
-- ✅ Comprehensive error handling
-- ✅ Audit logging
-
----
-
-## 📚 Documentation
+##  Documentation
 
 ### API Documentation
 
