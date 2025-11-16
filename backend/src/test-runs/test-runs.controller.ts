@@ -5,7 +5,7 @@ import { TestRunsGateway } from './test-runs.gateway';
 import { CreateTestRunDto, UpdateTestRunDto } from '../common/dto/test-run.dto';
 import { JwtOrApiKeyGuard } from '../common/guards/jwt-or-api-key.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
-import { User } from '../entities';
+import { User, TestRunStatus } from '../entities';
 
 @ApiTags('Test Runs')
 @ApiBearerAuth('JWT-auth')
@@ -52,6 +52,22 @@ export class TestRunsController {
   @ApiResponse({ status: 404, description: 'Test run not found' })
   async update(@Param('id') id: string, @Body() updateTestRunDto: UpdateTestRunDto) {
     const testRun = await this.testRunsService.update(id, updateTestRunDto);
+    if (testRun) {
+      this.testRunsGateway.notifyTestRunUpdated(testRun);
+    }
+    return testRun;
+  }
+
+  @Put(':id/force-fail')
+  @ApiOperation({ summary: 'Force a test run to failed status' })
+  @ApiParam({ name: 'id', description: 'Test run UUID' })
+  @ApiResponse({ status: 200, description: 'Test run marked as failed' })
+  @ApiResponse({ status: 404, description: 'Test run not found' })
+  async forceFail(@Param('id') id: string) {
+    const testRun = await this.testRunsService.update(id, {
+      status: TestRunStatus.FAILED,
+      finishedAt: new Date().toISOString(),
+    });
     if (testRun) {
       this.testRunsGateway.notifyTestRunUpdated(testRun);
     }

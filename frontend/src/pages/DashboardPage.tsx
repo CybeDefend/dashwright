@@ -66,6 +66,50 @@ export default function DashboardPage() {
     }
   };
 
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
+  const handleForceFail = async (runId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenMenuId(null);
+    
+    if (!confirm('Marquer ce test run comme échoué ?')) {
+      return;
+    }
+
+    try {
+      await apiClient.put(`/test-runs/${runId}/force-fail`);
+      // Update will be received via WebSocket
+    } catch (error) {
+      console.error('Failed to force fail test run:', error);
+      alert('Erreur lors de la mise à jour du test run');
+    }
+  };
+
+  const handleDelete = async (runId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenMenuId(null);
+    
+    if (!confirm('Supprimer ce test run ? Cette action est irréversible.')) {
+      return;
+    }
+
+    try {
+      await apiClient.delete(`/test-runs/${runId}`);
+      setTestRuns((prev) => prev.filter((run) => run.id !== runId));
+    } catch (error) {
+      console.error('Failed to delete test run:', error);
+      alert('Erreur lors de la suppression du test run');
+    }
+  };
+
+  const toggleMenu = (runId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setOpenMenuId(openMenuId === runId ? null : runId);
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'passed':
@@ -147,25 +191,74 @@ export default function DashboardPage() {
       {/* Test Runs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {testRuns.map((run, index) => (
-          <Link
+          <div
             key={run.id}
-            to={`/runs/${run.id}`}
-            className="card hover:scale-[1.02] transition-all duration-200 cursor-pointer group animate-scale-in"
+            className="card hover:scale-[1.02] transition-all duration-200 group animate-scale-in relative"
             style={{ animationDelay: `${index * 0.05}s` }}
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                {getStatusIcon(run.status)}
-                <div>
-                  <h3 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
-                    {run.name}
-                  </h3>
-                  <span className="text-xs text-gray-500">
-                    {format(new Date(run.createdAt), 'MMM d, yyyy • HH:mm')}
-                  </span>
+            <Link to={`/runs/${run.id}`} className="block">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  {getStatusIcon(run.status)}
+                  <div>
+                    <h3 className="font-bold text-gray-900 group-hover:text-indigo-600 transition-colors">
+                      {run.name}
+                    </h3>
+                    <span className="text-xs text-gray-500">
+                      {format(new Date(run.createdAt), 'MMM d, yyyy • HH:mm')}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Actions Menu */}
+                <div className="relative">
+                  <button
+                    onClick={(e) => toggleMenu(run.id, e)}
+                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                    title="Actions"
+                  >
+                    <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                    </svg>
+                  </button>
+                  
+                  {openMenuId === run.id && (
+                    <>
+                      {/* Backdrop to close menu */}
+                      <div 
+                        className="fixed inset-0 z-10" 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setOpenMenuId(null);
+                        }}
+                      />
+                      
+                      {/* Menu dropdown */}
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-200 py-1 z-20">
+                        {run.status === 'running' && (
+                          <button
+                            onClick={(e) => handleForceFail(run.id, e)}
+                            className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                          >
+                            <XCircle size={16} />
+                            Marquer comme échoué
+                          </button>
+                        )}
+                        <button
+                          onClick={(e) => handleDelete(run.id, e)}
+                          className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 flex items-center gap-2 text-red-600"
+                        >
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Supprimer
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
-            </div>
 
             {/* Progress Bar */}
             {run.totalTests > 0 && (
@@ -220,7 +313,8 @@ export default function DashboardPage() {
                 )}
               </div>
             )}
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
 
