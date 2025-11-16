@@ -7,10 +7,12 @@ import { TestRun } from "../entities/test-run.entity";
 import { SystemSetting } from "../entities/system-setting.entity";
 import { SystemSettingsService } from "../services/system-settings.service";
 import { SuperAdminGuard } from "../guards/super-admin.guard";
+import { ArtifactsModule } from "../artifacts/artifacts.module";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User, Organization, TestRun, SystemSetting]),
+    ArtifactsModule,
   ],
   controllers: [AdminController],
   providers: [SystemSettingsService, SuperAdminGuard],

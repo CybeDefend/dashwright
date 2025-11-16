@@ -62,4 +62,39 @@ export class StorageService {
   async deleteFile(key: string): Promise<void> {
     await this.minioClient.removeObject(this.bucketName, key);
   }
+
+  async getBucketStats(): Promise<{ used: number; objectCount: number }> {
+    try {
+      let totalSize = 0;
+      let objectCount = 0;
+
+      const objectsStream = this.minioClient.listObjectsV2(
+        this.bucketName,
+        "",
+        true,
+      );
+
+      await new Promise<void>((resolve, reject) => {
+        objectsStream.on("data", (obj) => {
+          if (obj.size) {
+            totalSize += obj.size;
+            objectCount++;
+          }
+        });
+        objectsStream.on("error", reject);
+        objectsStream.on("end", () => resolve());
+      });
+
+      return {
+        used: totalSize,
+        objectCount,
+      };
+    } catch (error) {
+      console.error("Error getting bucket stats:", error);
+      return {
+        used: 0,
+        objectCount: 0,
+      };
+    }
+  }
 }

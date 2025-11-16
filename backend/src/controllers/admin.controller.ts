@@ -18,6 +18,7 @@ import { User } from "../entities/user.entity";
 import { Organization } from "../entities/organization.entity";
 import { TestRun, TestRunStatus } from "../entities/test-run.entity";
 import { SystemSettingsService } from "../services/system-settings.service";
+import { StorageService } from "../artifacts/storage.service";
 import * as packageJson from "../../package.json";
 import { Request } from "express";
 
@@ -33,6 +34,7 @@ export class AdminController {
     @InjectRepository(TestRun)
     private testRunRepository: Repository<TestRun>,
     private systemSettingsService: SystemSettingsService,
+    private storageService: StorageService,
   ) {}
 
   @Get("dashboard")
@@ -96,10 +98,11 @@ export class AdminController {
     const systemVersion = packageJson.version;
     const environment = process.env.NODE_ENV || "development";
 
-    // Storage stats (placeholder)
-    const storageUsed = 2500000000; // 2.5GB placeholder
-    const storageTotal = 10000000000; // 10GB placeholder
-    const storagePercentage = (storageUsed / storageTotal) * 100;
+    // Get real storage stats from Minio
+    const bucketStats = await this.storageService.getBucketStats();
+    const storageUsed = bucketStats.used; // in bytes
+    const storageTotal = 10 * 1024 * 1024 * 1024; // 10GB default limit
+    const storagePercentage = storageTotal > 0 ? (storageUsed / storageTotal) * 100 : 0;
 
     return {
       stats: {
@@ -203,10 +206,11 @@ export class AdminController {
       where: { status: TestRunStatus.RUNNING },
     });
 
-    // Storage stats (simplified - you can enhance this)
-    const storageUsed = 2500000000; // 2.5GB placeholder
-    const storageTotal = 10000000000; // 10GB placeholder
-    const storagePercentage = (storageUsed / storageTotal) * 100;
+    // Get real storage stats from Minio
+    const bucketStats = await this.storageService.getBucketStats();
+    const storageUsed = bucketStats.used; // in bytes
+    const storageTotal = 10 * 1024 * 1024 * 1024; // 10GB default limit
+    const storagePercentage = storageTotal > 0 ? (storageUsed / storageTotal) * 100 : 0;
 
     // System info
     const startTime = process.uptime();
