@@ -80,6 +80,14 @@ const NativeTraceViewer: React.FC<NativeTraceViewerProps> = ({
               parsedTrace.console.push(entry);
             } else if (entry.type === 'context-options' || entry.platform) {
               parsedTrace.metadata = entry;
+            } else if (
+              entry.type === 'frame-snapshot' || 
+              entry.type === 'resource-snapshot' ||
+              entry.type === 'screencast-frame' ||
+              entry.type === 'log'
+            ) {
+              // Skip internal entries - not user actions
+              continue;
             } else if (entry.type || entry.callId) {
               parsedTrace.actions.push(entry);
             }
