@@ -56,6 +56,7 @@ const TestRunDetailPage: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const wsConnected = useRef(false);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     if (!id) return;
@@ -88,7 +89,10 @@ const TestRunDetailPage: React.FC = () => {
       }
     };
 
-    fetchTestRun();
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchTestRun();
+    }
 
     // Connect WebSocket for real-time updates
     if (!wsConnected.current) {

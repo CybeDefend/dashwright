@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
@@ -74,6 +74,7 @@ const AdminPage: React.FC = () => {
   const [savingRegistration, setSavingRegistration] = useState(false);
   const [apiError, setApiError] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     // Check if user is super admin
@@ -81,7 +82,11 @@ const AdminPage: React.FC = () => {
       navigate("/dashboard");
       return;
     }
-    fetchAdminData();
+    
+    if (!hasFetched.current) {
+      hasFetched.current = true;
+      fetchAdminData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
