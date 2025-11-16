@@ -14,7 +14,7 @@ on:
         type: string
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -77,22 +77,22 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Create Release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         if: github.event_name == 'push'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
-          release_name: "@dashwright/playwright-reporter v${{ steps.package-version.outputs.version }}"
+          name: "@dashwright/playwright-reporter v${{ steps.package-version.outputs.version }}"
           body: |
             ## @dashwright/playwright-reporter v${{ steps.package-version.outputs.version }}
 
-            ### Installation
+            ### 📦 Installation
             ```bash
             npm install @dashwright/playwright-reporter@${{ steps.package-version.outputs.version }}
             ```
 
-            ### Changes
+            ### 📝 Changes
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/integrations/npm-package/CHANGELOG.md)
+
+            ### 🔗 NPM Package
+            https://www.npmjs.com/package/@dashwright/playwright-reporter/v/${{ steps.package-version.outputs.version }}
           draft: false
           prerelease: false
