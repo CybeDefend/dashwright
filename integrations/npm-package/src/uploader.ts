@@ -37,7 +37,8 @@ export class Uploader {
     this.client = axios.create({
       baseURL: this.config.apiUrl,
       headers: this.authHeaders,
-      timeout: 60000,
+      timeout: 30000, // 30s timeout to avoid infinite hangs
+      validateStatus: (status) => status < 500, // Don't throw on 4xx errors
     });
   }
 
@@ -63,35 +64,57 @@ export class Uploader {
     }
 
     console.log(`📤 Uploading to: ${this.config.apiUrl}/artifacts/upload`);
+    console.log(`   Auth headers: ${JSON.stringify(this.authHeaders)}`);
+    
     try {
       await this.retryRequest(async () => {
-        console.log(`   → Attempt to upload ${filename}...`);
-        // Merge FormData headers with existing auth headers
+        console.log(`   → Attempt to upload ${filename} (size=${stats.size})...`);
+        const mergedHeaders = {
+          ...this.authHeaders,
+          ...formData.getHeaders(),
+        };
+        console.log(`   → Full headers: ${JSON.stringify(mergedHeaders)}`);
+        
         const response = await this.client.post('/artifacts/upload', formData, {
-          headers: {
-            ...this.authHeaders,
-            ...formData.getHeaders(),
-          },
+          headers: mergedHeaders,
+          maxContentLength: Infinity,
+          maxBodyLength: Infinity,
         });
-        console.log(`✅ Upload successful, artifact ID: ${response.data.id || 'unknown'}`);
+        
+        // Check response status
+        if (response.status >= 400) {
+          throw new Error(`Upload failed with status ${response.status}: ${JSON.stringify(response.data)}`);
+        }
+        
+        console.log(`✅ Upload successful (status=${response.status}), artifact ID: ${response.data.id || 'unknown'}`);
         return response;
       });
     } catch (error: any) {
-      console.error(`❌ Upload failed for ${filename}:`, error.message);
+      console.error(`\n❌ Upload failed for ${filename}`);
+      console.error('   Error type:', error.constructor.name);
+      console.error('   Error message:', error.message);
+      console.error('   Error code:', error.code);
+      
       if (error.response) {
-        console.error('   Status:', error.response.status);
-        console.error('   Data:', JSON.stringify(error.response.data, null, 2));
+        console.error('   Response received:');
+        console.error('     Status:', error.response.status);
+        console.error('     Headers:', JSON.stringify(error.response.headers, null, 2));
+        console.error('     Data:', JSON.stringify(error.response.data, null, 2));
       } else if (error.request) {
-        console.error('   No response received from server');
-        console.error('   Request config:', {
-          url: error.config?.url,
+        console.error('   No response received from server (timeout or network error)');
+        console.error('   Request summary:', {
+          url: `${error.config?.baseURL}${error.config?.url}`,
           method: error.config?.method,
-          baseURL: error.config?.baseURL,
+          timeout: error.config?.timeout,
+          headers: error.config?.headers,
         });
       } else {
-        console.error('   Error details:', error);
+        console.error('   Setup error (before request sent)');
+        console.error('   Full error:', error);
       }
-      throw error;
+      
+      // Don't throw - allow other uploads to continue
+      console.error(`   ⚠️  Continuing with remaining uploads...\n`);
     }
   }
 

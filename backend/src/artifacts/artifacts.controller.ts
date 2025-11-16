@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Body,
+  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiSecurity, ApiParam, ApiQuery, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -34,7 +35,16 @@ export class ArtifactsController {
   async upload(
     @UploadedFile() file: Express.Multer.File,
     @Body() createArtifactDto: CreateArtifactDto,
+    @Req() req: any,
   ) {
+    // Quick debug logs to help trace incoming artifact uploads
+    console.log('→ /artifacts/upload hit', {
+      headers: { ...(req?.headers || {}), host: undefined },
+      body: createArtifactDto,
+      filename: file?.originalname,
+      size: file?.size,
+    });
+
     const uniqueKey = FileUtil.generateUniqueFilename(file.originalname);
     const storageKey = await this.storageService.uploadFile(file, uniqueKey);
 
