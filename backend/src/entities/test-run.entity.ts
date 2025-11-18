@@ -11,6 +11,7 @@ import {
 import { User } from "./user.entity";
 import { Organization } from "./organization.entity";
 import { Artifact } from "./artifact.entity";
+import { Test } from "./test.entity";
 
 export enum TestRunStatus {
   RUNNING = "running",
@@ -92,6 +93,11 @@ export class TestRun {
     cascade: true,
   })
   artifacts: Artifact[];
+
+  @OneToMany(() => Test, (test) => test.testRun, {
+    cascade: true,
+  })
+  tests: Test[];
 
   @CreateDateColumn()
   createdAt: Date;

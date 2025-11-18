@@ -42,7 +42,7 @@ export class TestRunsService {
   async findOne(id: string): Promise<TestRun | null> {
     return this.testRunRepository.findOne({
       where: { id },
-      relations: ["artifacts", "createdBy", "organization"],
+      relations: ["artifacts", "tests", "createdBy", "organization"],
     });
   }
 

@@ -20,6 +20,18 @@ interface TestRun {
   commit?: string;
   createdAt: string;
   artifacts?: Artifact[];
+  tests?: Test[];
+}
+
+interface Test {
+  id: string;
+  name: string;
+  status: "passed" | "failed" | "skipped" | "flaky";
+  duration: number;
+  errorMessage?: string;
+  errorStack?: string;
+  retries: number;
+  createdAt: string;
 }
 
 interface Artifact {
@@ -389,11 +401,113 @@ const TestRunDetailPage: React.FC = () => {
           )}
         </div>
 
+        {/* Individual Tests Results */}
+        {testRun.tests && testRun.tests.length > 0 && (
+          <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
+            <h2 className="text-2xl font-bold mb-6">
+              Test Results ({testRun.tests.length})
+            </h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                      Status
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                      Test Name
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                      Duration
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                      Date
+                    </th>
+                    <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                      ID
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {testRun.tests.map((test) => (
+                    <tr
+                      key={test.id}
+                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="py-3 px-4">
+                        {test.status === "passed" && (
+                          <span className="inline-flex items-center gap-1 text-green-600">
+                            <span className="text-lg">✓</span>
+                            <span className="text-sm font-medium">
+                              Passed
+                            </span>
+                          </span>
+                        )}
+                        {test.status === "failed" && (
+                          <span className="inline-flex items-center gap-1 text-red-600">
+                            <span className="text-lg">✗</span>
+                            <span className="text-sm font-medium">
+                              Failed
+                            </span>
+                          </span>
+                        )}
+                        {test.status === "skipped" && (
+                          <span className="inline-flex items-center gap-1 text-gray-500">
+                            <span className="text-lg">○</span>
+                            <span className="text-sm font-medium">
+                              Skipped
+                            </span>
+                          </span>
+                        )}
+                        {test.status === "flaky" && (
+                          <span className="inline-flex items-center gap-1 text-yellow-600">
+                            <span className="text-lg">⚠</span>
+                            <span className="text-sm font-medium">
+                              Flaky
+                            </span>
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-medium text-gray-800">
+                            {test.name}
+                          </span>
+                          {test.errorMessage && (
+                            <span className="text-xs text-red-500 mt-1">
+                              {test.errorMessage}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm text-gray-600">
+                          {formatDuration(test.duration)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-sm text-gray-600">
+                          {formatDate(test.createdAt)}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-xs font-mono text-gray-400">
+                          {test.id.substring(0, 8)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         {/* Tests List - Accordion Style */}
         {testNames.length > 0 ? (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
             <h2 className="text-2xl font-bold mb-6">
-              Tests Executed ({testNames.length})
+              Test Artifacts ({testNames.length})
             </h2>
             <div className="space-y-2">
               {testNames.map((testName, index) => {
@@ -426,11 +540,9 @@ const TestRunDetailPage: React.FC = () => {
                     >
                       <div className="flex items-center gap-3 flex-1 min-w-0">
                         {/* Test Number */}
-                        <span className="text-xs font-mono text-gray-400 w-8 text-right">
+                        <span className="text-xs font-mono text-gray-500 w-8 text-right">
                           #{index + 1}
                         </span>
-                        {/* Status Icon */}
-                        <span className="text-base text-green-500">✓</span>
                         {/* Test Info */}
                         <div className="flex-1 min-w-0 text-left">
                           <h3 className="text-sm font-medium text-gray-800 truncate">

@@ -15,12 +15,16 @@ import {
   ApiBearerAuth,
   ApiSecurity,
 } from "@nestjs/swagger";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { TestRunsService } from "../test-runs/test-runs.service";
 import { TestRunsGateway } from "../test-runs/test-runs.gateway";
 import { ArtifactsService } from "../artifacts/artifacts.service";
 import { JwtOrApiKeyGuard } from "../common/guards/jwt-or-api-key.guard";
 import { CreateTestRunDto } from "../common/dto/test-run.dto";
 import { CreateArtifactDto } from "../common/dto/artifact.dto";
+import { CreateTestDto } from "../common/dto/test.dto";
+import { Test } from "../entities";
 
 @ApiTags("Integrations")
 @ApiBearerAuth("JWT-auth")
@@ -32,6 +36,8 @@ export class IntegrationsController {
     private testRunsService: TestRunsService,
     private testRunsGateway: TestRunsGateway,
     private artifactsService: ArtifactsService,
+    @InjectRepository(Test)
+    private testRepository: Repository<Test>,
   ) {}
 
   @Post("playwright/run")
@@ -124,5 +130,29 @@ export class IntegrationsController {
     }
 
     return testRun;
+  }
+
+  @Post("playwright/test")
+  @ApiOperation({
+    summary: "Record an individual test result",
+  })
+  @ApiResponse({
+    status: 201,
+    description: "Test result recorded successfully",
+  })
+  async recordTest(
+    @Body() createTestDto: CreateTestDto,
+    @Request() req: any,
+  ) {
+    const test = this.testRepository.create(createTestDto);
+    const savedTest = await this.testRepository.save(test);
+    
+    // Notify via WebSocket
+    const testRun = await this.testRunsService.findOne(createTestDto.testRunId);
+    if (testRun) {
+      this.testRunsGateway.notifyTestRunUpdated(testRun);
+    }
+    
+    return { testId: savedTest.id };
   }
 }

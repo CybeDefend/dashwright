@@ -94,6 +94,21 @@ export class DashwrightReporter implements Reporter {
 
     if (!this.testRunId) return;
 
+    // Record individual test result
+    try {
+      await this.client.post("/integrations/playwright/test", {
+        name: test.title,
+        status: result.status,
+        duration: result.duration,
+        errorMessage: result.error?.message || null,
+        errorStack: result.error?.stack || null,
+        retries: result.retry,
+        testRunId: this.testRunId,
+      });
+    } catch (error: any) {
+      console.error("❌ Dashwright: Failed to record test result:", error);
+    }
+
     // Send progress update to backend
     try {
       await this.client.patch(
