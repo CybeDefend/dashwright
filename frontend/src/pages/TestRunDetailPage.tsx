@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { apiClient } from "../services/apiClient";
 import NativeTraceViewer from "../components/NativeTraceViewer";
+import ConfirmModal from "../components/ConfirmModal";
 import { wsService } from "../services/websocket";
 
 interface TestRun {
@@ -66,6 +67,17 @@ const TestRunDetailPage: React.FC = () => {
   } | null>(null);
   const wsConnected = useRef(false);
   const hasFetched = useRef(false);
+  
+  // Bulk deletion states
+  const [selectedTestIds, setSelectedTestIds] = useState<Set<string>>(new Set());
+  const [testSearchQuery, setTestSearchQuery] = useState("");
+  const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
+    isOpen: boolean;
+    count: number;
+  }>({
+    isOpen: false,
+    count: 0,
+  });
 
   useEffect(() => {
     if (!id) return;
@@ -219,6 +231,63 @@ const TestRunDetailPage: React.FC = () => {
 
   const toggleTest = (testName: string) => {
     setExpandedTest(expandedTest === testName ? null : testName);
+  };
+
+  // Bulk deletion functions
+  const toggleTestSelection = (testId: string) => {
+    setSelectedTestIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(testId)) {
+        newSet.delete(testId);
+      } else {
+        newSet.add(testId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (!testRun?.tests) return;
+    
+    const filteredTests = testRun.tests.filter((test) =>
+      test.name.toLowerCase().includes(testSearchQuery.toLowerCase())
+    );
+    
+    if (selectedTestIds.size === filteredTests.length && filteredTests.length > 0) {
+      // Deselect all
+      setSelectedTestIds(new Set());
+    } else {
+      // Select all filtered tests
+      setSelectedTestIds(new Set(filteredTests.map((t) => t.id)));
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    setDeleteConfirmModal({
+      isOpen: true,
+      count: selectedTestIds.size,
+    });
+  };
+
+  const confirmDeleteTests = async () => {
+    if (!id || selectedTestIds.size === 0) return;
+
+    try {
+      await apiClient.delete(`/test-runs/${id}/tests`, {
+        data: { testIds: Array.from(selectedTestIds) },
+      });
+      
+      // Clear selection
+      setSelectedTestIds(new Set());
+      setDeleteConfirmModal({ isOpen: false, count: 0 });
+      
+      // Refetch test run to update the list
+      const response = await apiClient.get(`/test-runs/${id}`);
+      setTestRun(response.data);
+    } catch (err: any) {
+      console.error("Failed to delete tests:", err);
+      alert("Failed to delete tests. Please try again.");
+    }
   };
 
   const getArtifactIcon = (type: string) => {
@@ -404,13 +473,52 @@ const TestRunDetailPage: React.FC = () => {
         {/* Individual Tests Results */}
         {testRun.tests && testRun.tests.length > 0 && (
           <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-white/60">
-            <h2 className="text-2xl font-bold mb-6">
-              Test Results ({testRun.tests.length})
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">
+                Test Results ({testRun.tests.length})
+              </h2>
+              {selectedTestIds.size > 0 && (
+                <button
+                  onClick={handleDeleteSelected}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete Selected ({selectedTestIds.size})
+                </button>
+              )}
+            </div>
+
+            {/* Search Bar */}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search tests by name..."
+                value={testSearchQuery}
+                onChange={(e) => setTestSearchQuery(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-gray-200">
+                    <th className="py-3 px-4 w-12">
+                      <input
+                        type="checkbox"
+                        checked={
+                          selectedTestIds.size > 0 &&
+                          selectedTestIds.size ===
+                            testRun.tests.filter((test) =>
+                              test.name.toLowerCase().includes(testSearchQuery.toLowerCase())
+                            ).length
+                        }
+                        onChange={toggleSelectAll}
+                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                    </th>
                     <th className="text-left py-3 px-4 font-semibold text-gray-700">
                       Status
                     </th>
@@ -429,11 +537,23 @@ const TestRunDetailPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {testRun.tests.map((test) => (
+                  {testRun.tests
+                    .filter((test) =>
+                      test.name.toLowerCase().includes(testSearchQuery.toLowerCase())
+                    )
+                    .map((test) => (
                     <tr
                       key={test.id}
                       className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
                     >
+                      <td className="py-3 px-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedTestIds.has(test.id)}
+                          onChange={() => toggleTestSelection(test.id)}
+                          className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                        />
+                      </td>
                       <td className="py-3 px-4">
                         {test.status === "passed" && (
                           <span className="inline-flex items-center gap-1 text-green-600">
@@ -847,6 +967,18 @@ const TestRunDetailPage: React.FC = () => {
           onClose={closeTraceViewer}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteConfirmModal.isOpen}
+        onClose={() => setDeleteConfirmModal({ isOpen: false, count: 0 })}
+        onConfirm={confirmDeleteTests}
+        title="Delete Tests"
+        message={`Are you sure you want to delete ${deleteConfirmModal.count} test${deleteConfirmModal.count > 1 ? "s" : ""}? This will also delete all associated artifacts from storage. This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

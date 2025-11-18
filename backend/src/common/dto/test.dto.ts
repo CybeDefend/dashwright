@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsUUID,
   IsInt,
+  IsArray,
 } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { TestStatus } from "../../entities";
@@ -71,4 +72,20 @@ export class CreateTestDto {
   @IsUUID()
   @IsNotEmpty()
   testRunId: string;
+}
+
+export class DeleteTestsDto {
+  @ApiProperty({
+    description: "Array of test UUIDs to delete",
+    example: [
+      "123e4567-e89b-12d3-a456-426614174000",
+      "987fcdeb-51a2-43b7-9876-543210fedcba",
+    ],
+    type: [String],
+    isArray: true,
+  })
+  @IsArray()
+  @IsUUID("4", { each: true })
+  @IsNotEmpty()
+  testIds: string[];
 }

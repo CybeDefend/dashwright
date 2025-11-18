@@ -8,6 +8,8 @@ import {
   Param,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from "@nestjs/common";
 import {
   ApiTags,
@@ -20,7 +22,12 @@ import {
 } from "@nestjs/swagger";
 import { TestRunsService } from "./test-runs.service";
 import { TestRunsGateway } from "./test-runs.gateway";
-import { CreateTestRunDto, UpdateTestRunDto } from "../common/dto/test-run.dto";
+import {
+  CreateTestRunDto,
+  UpdateTestRunDto,
+  DeleteTestRunsDto,
+} from "../common/dto/test-run.dto";
+import { DeleteTestsDto } from "../common/dto/test.dto";
 import { JwtOrApiKeyGuard } from "../common/guards/jwt-or-api-key.guard";
 import { CurrentUser } from "../common/decorators/current-user.decorator";
 import { User, TestRunStatus } from "../entities";
@@ -108,7 +115,57 @@ export class TestRunsController {
     return testRun;
   }
 
+  @Delete("bulk")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: "Delete multiple test runs",
+    description:
+      "Deletes the specified test runs and all their associated tests and artifacts from both database and S3 storage",
+  })
+  @ApiResponse({
+    status: 204,
+    description: "Test runs and their artifacts successfully deleted",
+  })
+  @ApiResponse({ status: 400, description: "Invalid request" })
+  async removeBulk(@Body() deleteTestRunsDto: DeleteTestRunsDto) {
+    await this.testRunsService.removeMultipleWithArtifacts(
+      deleteTestRunsDto.testRunIds,
+    );
+  }
+
+  @Delete(":id/tests")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: "Delete multiple tests from a test run",
+    description:
+      "Deletes the specified tests and their associated artifacts from both database and S3 storage",
+  })
+  @ApiParam({ name: "id", description: "Test run UUID" })
+  @ApiResponse({
+    status: 204,
+    description: "Tests and their artifacts successfully deleted",
+  })
+  @ApiResponse({ status: 404, description: "Test run not found" })
+  async removeTests(
+    @Param("id") id: string,
+    @Body() deleteTestsDto: DeleteTestsDto,
+  ) {
+    await this.testRunsService.removeTestsWithArtifacts(
+      id,
+      deleteTestsDto.testIds,
+    );
+    // Notify WebSocket clients about the update
+    const testRun = await this.testRunsService.findOne(id);
+    if (testRun) {
+      this.testRunsGateway.notifyTestRunUpdated(testRun);
+    }
+  }
+
   @Delete(":id")
+  @ApiOperation({ summary: "Delete a test run" })
+  @ApiParam({ name: "id", description: "Test run UUID" })
+  @ApiResponse({ status: 204, description: "Test run successfully deleted" })
+  @ApiResponse({ status: 404, description: "Test run not found" })
   remove(@Param("id") id: string) {
     return this.testRunsService.remove(id);
   }

@@ -41,6 +41,16 @@ export default function DashboardPage() {
     runId: null,
     runName: "",
   });
+  
+  // Bulk deletion states
+  const [selectedRunIds, setSelectedRunIds] = useState<Set<string>>(new Set());
+  const [bulkDeleteModal, setBulkDeleteModal] = useState<{
+    isOpen: boolean;
+    count: number;
+  }>({
+    isOpen: false,
+    count: 0,
+  });
 
   useEffect(() => {
     if (!hasFetched.current) {
@@ -130,6 +140,58 @@ export default function DashboardPage() {
       runId,
       runName: run?.name || "this test run",
     });
+  };
+
+  // Bulk deletion functions
+  const toggleRunSelection = (runId: string) => {
+    setSelectedRunIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(runId)) {
+        newSet.delete(runId);
+      } else {
+        newSet.add(runId);
+      }
+      return newSet;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedRunIds.size === filteredAndSortedRuns.length && filteredAndSortedRuns.length > 0) {
+      // Deselect all
+      setSelectedRunIds(new Set());
+    } else {
+      // Select all filtered runs
+      setSelectedRunIds(new Set(filteredAndSortedRuns.map((r) => r.id)));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setBulkDeleteModal({
+      isOpen: true,
+      count: selectedRunIds.size,
+    });
+  };
+
+  const confirmBulkDelete = async () => {
+    if (selectedRunIds.size === 0) return;
+
+    try {
+      await apiClient.delete("/test-runs/bulk", {
+        data: { testRunIds: Array.from(selectedRunIds) },
+      });
+      
+      // Remove deleted runs from state
+      setTestRuns((prev) =>
+        prev.filter((run) => !selectedRunIds.has(run.id))
+      );
+      
+      // Clear selection
+      setSelectedRunIds(new Set());
+      setBulkDeleteModal({ isOpen: false, count: 0 });
+    } catch (err: any) {
+      console.error("Failed to delete test runs:", err);
+      alert("Failed to delete test runs. Please try again.");
+    }
   };
 
   const toggleMenu = (runId: string, e: React.MouseEvent) => {
@@ -338,14 +400,73 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Bulk Actions */}
+      {filteredAndSortedRuns.length > 0 && (
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={
+                  selectedRunIds.size > 0 &&
+                  selectedRunIds.size === filteredAndSortedRuns.length
+                }
+                onChange={toggleSelectAll}
+                className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+              />
+              <span className="text-sm text-gray-700 font-medium">
+                Select All ({filteredAndSortedRuns.length})
+              </span>
+            </label>
+            {selectedRunIds.size > 0 && (
+              <span className="text-sm text-gray-500">
+                {selectedRunIds.size} selected
+              </span>
+            )}
+          </div>
+          {selectedRunIds.size > 0 && (
+            <button
+              onClick={handleBulkDelete}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Delete Selected ({selectedRunIds.size})
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Test Runs Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredAndSortedRuns.map((run, index) => (
           <div
             key={run.id}
-            className="card hover:scale-[1.02] transition-all duration-200 group animate-scale-in relative"
+            className={`card hover:scale-[1.02] transition-all duration-200 group animate-scale-in relative ${
+              selectedRunIds.has(run.id) ? "ring-2 ring-indigo-500" : ""
+            }`}
             style={{ animationDelay: `${index * 0.05}s` }}
           >
+            {/* Checkbox overlay */}
+            <div
+              className="absolute top-3 left-3 z-10"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={selectedRunIds.has(run.id)}
+                onChange={(e) => {
+                  e.stopPropagation();
+                  toggleRunSelection(run.id);
+                }}
+                onClick={(e) => e.stopPropagation()}
+                className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500 cursor-pointer"
+              />
+            </div>
             <Link to={`/runs/${run.id}`} className="block">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -590,6 +711,18 @@ export default function DashboardPage() {
           confirmModal.type === "delete" ? "Delete" : "Mark as Failed"
         }
         type={confirmModal.type === "delete" ? "danger" : "warning"}
+      />
+
+      {/* Bulk Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={bulkDeleteModal.isOpen}
+        onClose={() => setBulkDeleteModal({ isOpen: false, count: 0 })}
+        onConfirm={confirmBulkDelete}
+        title="Delete Test Runs"
+        message={`Are you sure you want to delete ${bulkDeleteModal.count} test run${bulkDeleteModal.count > 1 ? "s" : ""}? This will permanently delete all associated tests and artifacts from both database and S3 storage. This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
   );
