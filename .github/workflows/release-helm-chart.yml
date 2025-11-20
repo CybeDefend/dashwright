@@ -100,17 +100,17 @@ jobs:
       - name: Update version in index.html
         run: |
           # Extract version from Chart.yaml in the release
-          CHART_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name' | sed 's/dashwright-//')
+          CHART_VERSION=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest | jq -r '.tag_name' | sed 's/dashwright-//' | sed 's/^v//')
 
           if [ -z "$CHART_VERSION" ] || [ "$CHART_VERSION" == "null" ]; then
             echo "Could not extract version from latest release, using version from index.yaml"
-            CHART_VERSION=$(grep -A 5 "name: dashwright" index.yaml | grep "version:" | head -1 | awk '{print $2}')
+            CHART_VERSION=$(grep -A 5 "name: dashwright" index.yaml | grep "version:" | head -1 | awk '{print $2}' | sed 's/^v//')
           fi
 
           echo "Updating index.html to version $CHART_VERSION"
 
-          # Update the badge version in index.html (without 'v' prefix as it's in the badge class)
-          sed -i "s/[0-9]\+\.[0-9]\+\.[0-9]\+/$CHART_VERSION/g" index.html
+          # Update the badge version in index.html - replace any version pattern (with or without v prefix)
+          sed -i "s/v*[0-9]\+\.[0-9]\+\.[0-9]\+/$CHART_VERSION/g" index.html
 
           # Check if there are changes
           if git diff --quiet index.html; then
