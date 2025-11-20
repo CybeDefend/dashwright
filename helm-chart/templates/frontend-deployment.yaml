@@ -28,6 +28,11 @@ spec:
         - name: http
           containerPort: 80
           protocol: TCP
+        env:
+        - name: VITE_API_URL
+          value: {{ .Values.frontend.apiUrl | default (printf "http://%s-backend:3000" (include "dashwright.fullname" .)) | quote }}
+        - name: VITE_WS_URL
+          value: {{ .Values.frontend.wsUrl | default (printf "ws://%s-backend:3000" (include "dashwright.fullname" .)) | quote }}
         livenessProbe:
           httpGet:
             path: /

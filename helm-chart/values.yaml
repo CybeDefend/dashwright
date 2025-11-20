@@ -52,6 +52,14 @@ ingress:
     #   hosts:
     #     - dashwright.local
 
+# Frontend configuration
+frontend:
+  # API URL - defaults to internal backend service if not specified
+  # For external access, set this to your ingress URL (e.g., https://dashwright.example.com)
+  apiUrl: ""
+  # WebSocket URL - defaults to internal backend service if not specified
+  wsUrl: ""
+
 resources:
   backend:
     limits:

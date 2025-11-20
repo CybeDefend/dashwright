@@ -130,6 +130,21 @@ The following table lists the configurable parameters of the Dashwright chart an
 | `resources.frontend.limits.cpu`     | Frontend CPU limit     | `500m`  |
 | `resources.frontend.limits.memory`  | Frontend memory limit  | `512Mi` |
 
+### Frontend Configuration
+
+| Parameter          | Description                                       | Default                                  |
+| ------------------ | ------------------------------------------------- | ---------------------------------------- |
+| `frontend.apiUrl`  | API URL for frontend (leave empty for internal)  | `""` (uses internal backend service)     |
+| `frontend.wsUrl`   | WebSocket URL (leave empty for internal)         | `""` (uses internal backend service)     |
+
+When using an ingress or external load balancer, set these to your public URLs:
+
+```yaml
+frontend:
+  apiUrl: "https://dashwright.example.com/api"
+  wsUrl: "wss://dashwright.example.com/api"
+```
+
 ### Autoscaling
 
 | Parameter                                    | Description            | Default |
