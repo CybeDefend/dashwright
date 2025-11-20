@@ -1,6 +1,6 @@
 {
   "name": "@dashwright/backend",
-  "version": "1.2.16",
+  "version": "1.2.17",
   "description": "Dashwright Backend - Modern Playwright Dashboard API",
   "author": "CybeDefend",
   "license": "Apache-2.0",
