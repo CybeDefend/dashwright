@@ -19,10 +19,10 @@ license: Apache-2.0
 
 dependencies:
   - name: postgresql
-    version: "16.2.1"
+    version: "15.5.20"
     repository: https://charts.bitnami.com/bitnami
     condition: postgresql.enabled
   - name: minio
-    version: "14.8.6"
+    version: "14.7.7"
     repository: https://charts.bitnami.com/bitnami
     condition: minio.enabled
