@@ -1,0 +1,77 @@
+# Example configuration for using external PostgreSQL and S3/MinIO
+# This is useful for production environments where you want to use managed services
+
+# Disable internal PostgreSQL and use external database
+postgresql:
+  enabled: false
+  external:
+    host: "your-postgres-host.example.com"
+    port: 5432
+    username: "dashwright"
+    password: "your-secure-password"
+    database: "dashwright"
+
+# Disable internal MinIO and use external S3-compatible storage
+minio:
+  enabled: false
+  external:
+    endpoint: "s3.amazonaws.com" # or your MinIO endpoint
+    port: 443
+    useSSL: true
+    accessKey: "your-access-key"
+    secretKey: "your-secret-key"
+    bucket: "dashwright-artifacts"
+
+# Enable ingress for external access
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: dashwright.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+  tls:
+    - secretName: dashwright-tls
+      hosts:
+        - dashwright.yourdomain.com
+
+# Update environment variables to match your domain
+env:
+  backend:
+    NODE_ENV: production
+    JWT_SECRET: "change-this-to-a-very-long-random-string"
+    JWT_REFRESH_SECRET: "change-this-to-another-very-long-random-string"
+  frontend:
+    VITE_API_URL: "https://dashwright.yourdomain.com/api"
+    VITE_WS_URL: "wss://dashwright.yourdomain.com"
+
+# Resource configuration for production
+resources:
+  backend:
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+    requests:
+      cpu: 500m
+      memory: 1Gi
+  frontend:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# Enable autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70

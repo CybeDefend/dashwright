@@ -442,7 +442,7 @@ helm install dashwright ./helm-chart -f custom-values.yaml
 
 ---
 
-##  Documentation
+## Documentation
 
 ### API Documentation
 

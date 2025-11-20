@@ -30,31 +30,27 @@ service:
     type: ClusterIP
     port: 80
 
-# Ingress is not included - use your own ingress configuration
-# Example ingress configuration:
-# apiVersion: networking.k8s.io/v1
-# kind: Ingress
-# metadata:
-#   name: dashwright-ingress
-# spec:
-#   rules:
-#   - host: your-domain.com
-#     http:
-#       paths:
-#       - path: /
-#         pathType: Prefix
-#         backend:
-#           service:
-#             name: dashwright-frontend
-#             port:
-#               number: 80
-#       - path: /api
-#         pathType: Prefix
-#         backend:
-#           service:
-#             name: dashwright-backend
-#             port:
-#               number: 3000
+ingress:
+  enabled: false
+  className: ""
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: dashwright.local
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+  tls:
+    []
+    # - secretName: dashwright-tls
+    #   hosts:
+    #     - dashwright.local
 
 resources:
   backend:
@@ -88,6 +84,13 @@ postgresql:
     persistence:
       enabled: true
       size: 10Gi
+  # External PostgreSQL configuration (when enabled: false)
+  external:
+    host: "external-postgres.example.com"
+    port: 5432
+    username: dashwright
+    password: changeme
+    database: dashwright
 
 minio:
   enabled: true
@@ -98,6 +101,14 @@ minio:
     enabled: true
     size: 50Gi
   defaultBuckets: "dashwright-artifacts"
+  # External S3/MinIO configuration (when enabled: false)
+  external:
+    endpoint: "s3.amazonaws.com"
+    port: 443
+    useSSL: true
+    accessKey: "your-access-key"
+    secretKey: "your-secret-key"
+    bucket: "dashwright-artifacts"
 
 env:
   backend:

@@ -67,9 +67,11 @@ const TestRunDetailPage: React.FC = () => {
   } | null>(null);
   const wsConnected = useRef(false);
   const hasFetched = useRef(false);
-  
+
   // Bulk deletion states
-  const [selectedTestIds, setSelectedTestIds] = useState<Set<string>>(new Set());
+  const [selectedTestIds, setSelectedTestIds] = useState<Set<string>>(
+    new Set()
+  );
   const [testSearchQuery, setTestSearchQuery] = useState("");
   const [deleteConfirmModal, setDeleteConfirmModal] = useState<{
     isOpen: boolean;
@@ -248,12 +250,15 @@ const TestRunDetailPage: React.FC = () => {
 
   const toggleSelectAll = () => {
     if (!testRun?.tests) return;
-    
+
     const filteredTests = testRun.tests.filter((test) =>
       test.name.toLowerCase().includes(testSearchQuery.toLowerCase())
     );
-    
-    if (selectedTestIds.size === filteredTests.length && filteredTests.length > 0) {
+
+    if (
+      selectedTestIds.size === filteredTests.length &&
+      filteredTests.length > 0
+    ) {
       // Deselect all
       setSelectedTestIds(new Set());
     } else {
@@ -276,11 +281,11 @@ const TestRunDetailPage: React.FC = () => {
       await apiClient.delete(`/test-runs/${id}/tests`, {
         data: { testIds: Array.from(selectedTestIds) },
       });
-      
+
       // Clear selection
       setSelectedTestIds(new Set());
       setDeleteConfirmModal({ isOpen: false, count: 0 });
-      
+
       // Refetch test run to update the list
       const response = await apiClient.get(`/test-runs/${id}`);
       setTestRun(response.data);
@@ -482,8 +487,18 @@ const TestRunDetailPage: React.FC = () => {
                   onClick={handleDeleteSelected}
                   className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                   Delete Selected ({selectedTestIds.size})
                 </button>
@@ -512,7 +527,9 @@ const TestRunDetailPage: React.FC = () => {
                           selectedTestIds.size > 0 &&
                           selectedTestIds.size ===
                             testRun.tests.filter((test) =>
-                              test.name.toLowerCase().includes(testSearchQuery.toLowerCase())
+                              test.name
+                                .toLowerCase()
+                                .includes(testSearchQuery.toLowerCase())
                             ).length
                         }
                         onChange={toggleSelectAll}
@@ -539,84 +556,84 @@ const TestRunDetailPage: React.FC = () => {
                 <tbody>
                   {testRun.tests
                     .filter((test) =>
-                      test.name.toLowerCase().includes(testSearchQuery.toLowerCase())
+                      test.name
+                        .toLowerCase()
+                        .includes(testSearchQuery.toLowerCase())
                     )
                     .map((test) => (
-                    <tr
-                      key={test.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="py-3 px-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedTestIds.has(test.id)}
-                          onChange={() => toggleTestSelection(test.id)}
-                          className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                        />
-                      </td>
-                      <td className="py-3 px-4">
-                        {test.status === "passed" && (
-                          <span className="inline-flex items-center gap-1 text-green-600">
-                            <span className="text-lg">✓</span>
-                            <span className="text-sm font-medium">
-                              Passed
-                            </span>
-                          </span>
-                        )}
-                        {test.status === "failed" && (
-                          <span className="inline-flex items-center gap-1 text-red-600">
-                            <span className="text-lg">✗</span>
-                            <span className="text-sm font-medium">
-                              Failed
-                            </span>
-                          </span>
-                        )}
-                        {test.status === "skipped" && (
-                          <span className="inline-flex items-center gap-1 text-gray-500">
-                            <span className="text-lg">○</span>
-                            <span className="text-sm font-medium">
-                              Skipped
-                            </span>
-                          </span>
-                        )}
-                        {test.status === "flaky" && (
-                          <span className="inline-flex items-center gap-1 text-yellow-600">
-                            <span className="text-lg">⚠</span>
-                            <span className="text-sm font-medium">
-                              Flaky
-                            </span>
-                          </span>
-                        )}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex flex-col">
-                          <span className="text-sm font-medium text-gray-800">
-                            {test.name}
-                          </span>
-                          {test.errorMessage && (
-                            <span className="text-xs text-red-500 mt-1">
-                              {test.errorMessage}
+                      <tr
+                        key={test.id}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="py-3 px-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedTestIds.has(test.id)}
+                            onChange={() => toggleTestSelection(test.id)}
+                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                          />
+                        </td>
+                        <td className="py-3 px-4">
+                          {test.status === "passed" && (
+                            <span className="inline-flex items-center gap-1 text-green-600">
+                              <span className="text-lg">✓</span>
+                              <span className="text-sm font-medium">
+                                Passed
+                              </span>
                             </span>
                           )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-600">
-                          {formatDuration(test.duration)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-sm text-gray-600">
-                          {formatDate(test.createdAt)}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className="text-xs font-mono text-gray-400">
-                          {test.id.substring(0, 8)}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                          {test.status === "failed" && (
+                            <span className="inline-flex items-center gap-1 text-red-600">
+                              <span className="text-lg">✗</span>
+                              <span className="text-sm font-medium">
+                                Failed
+                              </span>
+                            </span>
+                          )}
+                          {test.status === "skipped" && (
+                            <span className="inline-flex items-center gap-1 text-gray-500">
+                              <span className="text-lg">○</span>
+                              <span className="text-sm font-medium">
+                                Skipped
+                              </span>
+                            </span>
+                          )}
+                          {test.status === "flaky" && (
+                            <span className="inline-flex items-center gap-1 text-yellow-600">
+                              <span className="text-lg">⚠</span>
+                              <span className="text-sm font-medium">Flaky</span>
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium text-gray-800">
+                              {test.name}
+                            </span>
+                            {test.errorMessage && (
+                              <span className="text-xs text-red-500 mt-1">
+                                {test.errorMessage}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-gray-600">
+                            {formatDuration(test.duration)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-sm text-gray-600">
+                            {formatDate(test.createdAt)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="text-xs font-mono text-gray-400">
+                            {test.id.substring(0, 8)}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
@@ -974,7 +991,11 @@ const TestRunDetailPage: React.FC = () => {
         onClose={() => setDeleteConfirmModal({ isOpen: false, count: 0 })}
         onConfirm={confirmDeleteTests}
         title="Delete Tests"
-        message={`Are you sure you want to delete ${deleteConfirmModal.count} test${deleteConfirmModal.count > 1 ? "s" : ""}? This will also delete all associated artifacts from storage. This action cannot be undone.`}
+        message={`Are you sure you want to delete ${
+          deleteConfirmModal.count
+        } test${
+          deleteConfirmModal.count > 1 ? "s" : ""
+        }? This will also delete all associated artifacts from storage. This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         type="danger"

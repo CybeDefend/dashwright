@@ -41,7 +41,7 @@ export default function DashboardPage() {
     runId: null,
     runName: "",
   });
-  
+
   // Bulk deletion states
   const [selectedRunIds, setSelectedRunIds] = useState<Set<string>>(new Set());
   const [bulkDeleteModal, setBulkDeleteModal] = useState<{
@@ -156,7 +156,10 @@ export default function DashboardPage() {
   };
 
   const toggleSelectAll = () => {
-    if (selectedRunIds.size === filteredAndSortedRuns.length && filteredAndSortedRuns.length > 0) {
+    if (
+      selectedRunIds.size === filteredAndSortedRuns.length &&
+      filteredAndSortedRuns.length > 0
+    ) {
       // Deselect all
       setSelectedRunIds(new Set());
     } else {
@@ -179,12 +182,10 @@ export default function DashboardPage() {
       await apiClient.delete("/test-runs/bulk", {
         data: { testRunIds: Array.from(selectedRunIds) },
       });
-      
+
       // Remove deleted runs from state
-      setTestRuns((prev) =>
-        prev.filter((run) => !selectedRunIds.has(run.id))
-      );
-      
+      setTestRuns((prev) => prev.filter((run) => !selectedRunIds.has(run.id)));
+
       // Clear selection
       setSelectedRunIds(new Set());
       setBulkDeleteModal({ isOpen: false, count: 0 });
@@ -429,8 +430,18 @@ export default function DashboardPage() {
               onClick={handleBulkDelete}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
               </svg>
               Delete Selected ({selectedRunIds.size})
             </button>
@@ -719,7 +730,11 @@ export default function DashboardPage() {
         onClose={() => setBulkDeleteModal({ isOpen: false, count: 0 })}
         onConfirm={confirmBulkDelete}
         title="Delete Test Runs"
-        message={`Are you sure you want to delete ${bulkDeleteModal.count} test run${bulkDeleteModal.count > 1 ? "s" : ""}? This will permanently delete all associated tests and artifacts from both database and S3 storage. This action cannot be undone.`}
+        message={`Are you sure you want to delete ${
+          bulkDeleteModal.count
+        } test run${
+          bulkDeleteModal.count > 1 ? "s" : ""
+        }? This will permanently delete all associated tests and artifacts from both database and S3 storage. This action cannot be undone.`}
         confirmText="Delete"
         cancelText="Cancel"
         type="danger"

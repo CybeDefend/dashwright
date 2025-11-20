@@ -17,7 +17,12 @@ import { StorageService } from "../artifacts/storage.service";
     }),
   ],
   controllers: [TestRunsController],
-  providers: [TestRunsService, TestRunsGateway, JwtOrApiKeyGuard, StorageService],
+  providers: [
+    TestRunsService,
+    TestRunsGateway,
+    JwtOrApiKeyGuard,
+    StorageService,
+  ],
   exports: [TestRunsService, TestRunsGateway],
 })
 export class TestRunsModule {}

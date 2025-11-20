@@ -46,7 +46,10 @@ export class CreateTeamDto {
 
   @ApiPropertyOptional({
     description: "Array of user UUIDs to add as team members",
-    example: ["123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002"],
+    example: [
+      "123e4567-e89b-12d3-a456-426614174001",
+      "123e4567-e89b-12d3-a456-426614174002",
+    ],
     type: [String],
   })
   @IsArray()
@@ -83,7 +86,10 @@ export class UpdateTeamDto {
 
   @ApiPropertyOptional({
     description: "Array of user UUIDs to update team members",
-    example: ["123e4567-e89b-12d3-a456-426614174001", "123e4567-e89b-12d3-a456-426614174002"],
+    example: [
+      "123e4567-e89b-12d3-a456-426614174001",
+      "123e4567-e89b-12d3-a456-426614174002",
+    ],
     type: [String],
   })
   @IsArray()

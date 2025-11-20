@@ -33,6 +33,7 @@ spec:
         - name: {{ $key }}
           value: {{ $value | quote }}
         {{- end }}
+        {{- if .Values.postgresql.enabled }}
         - name: DB_HOST
           value: {{ include "dashwright.fullname" . }}-postgresql
         - name: DB_PORT
@@ -46,10 +47,25 @@ spec:
               key: password
         - name: DB_DATABASE
           value: {{ .Values.postgresql.auth.database }}
+        {{- else }}
+        - name: DB_HOST
+          value: {{ .Values.postgresql.external.host | quote }}
+        - name: DB_PORT
+          value: {{ .Values.postgresql.external.port | quote }}
+        - name: DB_USERNAME
+          value: {{ .Values.postgresql.external.username | quote }}
+        - name: DB_PASSWORD
+          value: {{ .Values.postgresql.external.password | quote }}
+        - name: DB_DATABASE
+          value: {{ .Values.postgresql.external.database | quote }}
+        {{- end }}
+        {{- if .Values.minio.enabled }}
         - name: STORAGE_ENDPOINT
           value: {{ include "dashwright.fullname" . }}-minio
         - name: STORAGE_PORT
           value: "9000"
+        - name: STORAGE_USE_SSL
+          value: "false"
         - name: STORAGE_ACCESS_KEY
           value: {{ .Values.minio.auth.rootUser }}
         - name: STORAGE_SECRET_KEY
@@ -57,6 +73,22 @@ spec:
             secretKeyRef:
               name: {{ include "dashwright.fullname" . }}-minio
               key: root-password
+        - name: STORAGE_BUCKET
+          value: {{ .Values.minio.defaultBuckets | quote }}
+        {{- else }}
+        - name: STORAGE_ENDPOINT
+          value: {{ .Values.minio.external.endpoint | quote }}
+        - name: STORAGE_PORT
+          value: {{ .Values.minio.external.port | quote }}
+        - name: STORAGE_USE_SSL
+          value: {{ .Values.minio.external.useSSL | quote }}
+        - name: STORAGE_ACCESS_KEY
+          value: {{ .Values.minio.external.accessKey | quote }}
+        - name: STORAGE_SECRET_KEY
+          value: {{ .Values.minio.external.secretKey | quote }}
+        - name: STORAGE_BUCKET
+          value: {{ .Values.minio.external.bucket | quote }}
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /health

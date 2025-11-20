@@ -140,19 +140,16 @@ export class IntegrationsController {
     status: 201,
     description: "Test result recorded successfully",
   })
-  async recordTest(
-    @Body() createTestDto: CreateTestDto,
-    @Request() req: any,
-  ) {
+  async recordTest(@Body() createTestDto: CreateTestDto, @Request() req: any) {
     const test = this.testRepository.create(createTestDto);
     const savedTest = await this.testRepository.save(test);
-    
+
     // Notify via WebSocket
     const testRun = await this.testRunsService.findOne(createTestDto.testRunId);
     if (testRun) {
       this.testRunsGateway.notifyTestRunUpdated(testRun);
     }
-    
+
     return { testId: savedTest.id };
   }
 }
