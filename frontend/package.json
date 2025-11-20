@@ -1,6 +1,6 @@
 {
   "name": "@dashwright/frontend",
-  "version": "1.2.14",
+  "version": "1.2.15",
   "description": "Dashwright Frontend - Modern Playwright Dashboard UI",
   "author": "CybeDefend",
   "license": "Apache-2.0",
