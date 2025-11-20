@@ -1,26 +1,43 @@
 # Example configuration for using external PostgreSQL and S3/MinIO
 # This is useful for production environments where you want to use managed services
+# This example shows using existing Kubernetes secrets for enhanced security
 
-# Disable internal PostgreSQL and use external database
+# Backend configuration with existing JWT secret
+backend:
+  corsOrigin: "https://dashwright.yourdomain.com"
+  jwtExistingSecret: "dashwright-jwt-secrets"  # kubectl create secret generic dashwright-jwt-secrets --from-literal=jwt-secret='...' --from-literal=jwt-refresh-secret='...'
+
+# Disable internal PostgreSQL and use external database with existing secret
 postgresql:
   enabled: false
+  auth:
+    existingSecret: "dashwright-postgresql-password"  # kubectl create secret generic dashwright-postgresql-password --from-literal=password='...'
   external:
     host: "your-postgres-host.example.com"
     port: 5432
     username: "dashwright"
-    password: "your-secure-password"
+    password: ""  # Not used when existingSecret is set
     database: "dashwright"
 
-# Disable internal MinIO and use external S3-compatible storage
+# Disable internal MinIO and use external S3-compatible storage with existing secret
 minio:
   enabled: false
   external:
     endpoint: "s3.amazonaws.com" # or your MinIO endpoint
     port: 443
     useSSL: true
-    accessKey: "your-access-key"
-    secretKey: "your-secret-key"
+    accessKey: ""  # Not used when existingSecret is set
+    secretKey: ""  # Not used when existingSecret is set
     bucket: "dashwright-artifacts"
+
+# Storage configuration with existing secret
+storage:
+  endpoint: "https://s3.amazonaws.com"
+  region: "us-east-1"
+  bucket: "dashwright-artifacts"
+  existingSecret: "dashwright-s3-credentials"  # kubectl create secret generic dashwright-s3-credentials --from-literal=access-key='...' --from-literal=secret-key='...'
+  accessKey: ""  # Not used when existingSecret is set
+  secretKey: ""  # Not used when existingSecret is set
 
 # Enable ingress for external access
 ingress:
@@ -42,12 +59,16 @@ ingress:
       hosts:
         - dashwright.yourdomain.com
 
+# Frontend configuration
+frontend:
+  apiUrl: "https://dashwright.yourdomain.com"
+  wsUrl: "wss://dashwright.yourdomain.com"
+
 # Update environment variables to match your domain
 env:
   backend:
     NODE_ENV: production
-    JWT_SECRET: "change-this-to-a-very-long-random-string"
-    JWT_REFRESH_SECRET: "change-this-to-another-very-long-random-string"
+    # JWT_SECRET and JWT_REFRESH_SECRET are not defined here because we use jwtExistingSecret above
   frontend:
     VITE_API_URL: "https://dashwright.yourdomain.com/api"
     VITE_WS_URL: "wss://dashwright.yourdomain.com"

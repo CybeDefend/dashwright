@@ -29,9 +29,27 @@ spec:
           containerPort: 3000
           protocol: TCP
         env:
+        # CORS configuration
+        - name: CORS_ORIGIN
+          value: {{ .Values.backend.corsOrigin | default "*" | quote }}
+        # JWT secrets
+        {{- if .Values.backend.jwtExistingSecret }}
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.backend.jwtExistingSecret }}
+              key: jwt-secret
+        - name: JWT_REFRESH_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.backend.jwtExistingSecret }}
+              key: jwt-refresh-secret
+        {{- end }}
         {{- range $key, $value := .Values.env.backend }}
+        {{- if and (ne $key "JWT_SECRET") (ne $key "JWT_REFRESH_SECRET") }}
         - name: {{ $key }}
           value: {{ $value | quote }}
+        {{- end }}
         {{- end }}
         {{- if .Values.postgresql.enabled }}
         - name: DB_HOST
@@ -43,7 +61,7 @@ spec:
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ include "dashwright.fullname" . }}-postgresql
+              name: {{ .Values.postgresql.auth.existingSecret | default (printf "%s-postgresql" (include "dashwright.fullname" .)) }}
               key: password
         - name: DB_DATABASE
           value: {{ .Values.postgresql.auth.database }}
@@ -81,10 +99,23 @@ spec:
         - name: STORAGE_ENDPOINT
           value: {{ .Values.storage.endpoint | quote }}
         {{- end }}
+        {{- if .Values.storage.existingSecret }}
+        - name: STORAGE_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.storage.existingSecret }}
+              key: access-key
+        - name: STORAGE_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.storage.existingSecret }}
+              key: secret-key
+        {{- else }}
         - name: STORAGE_ACCESS_KEY
           value: {{ .Values.storage.accessKey | quote }}
         - name: STORAGE_SECRET_KEY
           value: {{ .Values.storage.secretKey | quote }}
+        {{- end }}
         {{- end }}
         livenessProbe:
           httpGet:

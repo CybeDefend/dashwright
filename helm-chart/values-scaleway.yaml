@@ -31,10 +31,14 @@ postgresql:
     password: "your-secure-password"
     database: "dashwright"
 
+# Configure CORS for backend
+backend:
+  corsOrigin: "https://dashwright.example.com"  # Your frontend domain
+
 # Configure frontend URLs for external access
 frontend:
-  apiUrl: "https://dashwright.example.com"  # Your public domain
-  wsUrl: "wss://dashwright.example.com"     # WebSocket URL
+  apiUrl: "https://api-dashwright.example.com"  # Your API domain
+  wsUrl: "wss://api-dashwright.example.com"     # WebSocket URL
 
 # Configure ingress for production
 ingress:

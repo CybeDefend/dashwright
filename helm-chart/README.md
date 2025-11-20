@@ -10,6 +10,10 @@ A modern Playwright dashboard for visualizing test runs, artifacts, and CI/CD in
 - Helm 3.2.0+
 - PV provisioner support in the underlying infrastructure (for PostgreSQL and MinIO persistence)
 
+## Documentation
+
+- [Secrets Management](SECRETS.md) - Guide for using Kubernetes secrets with Dashwright
+
 ## Installing the Chart
 
 ### Add the Helm repository
@@ -56,10 +60,10 @@ The following table lists the configurable parameters of the Dashwright chart an
 | Parameter                   | Description                | Default                                  |
 | --------------------------- | -------------------------- | ---------------------------------------- |
 | `image.backend.repository`  | Backend image repository   | `ghcr.io/cybedefend/dashwright/backend`  |
-| `image.backend.tag`         | Backend image tag          | `1.2.2`                                 |
+| `image.backend.tag`         | Backend image tag          | `1.2.2`                                  |
 | `image.backend.pullPolicy`  | Backend image pull policy  | `Always`                                 |
 | `image.frontend.repository` | Frontend image repository  | `ghcr.io/cybedefend/dashwright/frontend` |
-| `image.frontend.tag`        | Frontend image tag         | `1.2.2`                                 |
+| `image.frontend.tag`        | Frontend image tag         | `1.2.2`                                  |
 | `image.frontend.pullPolicy` | Frontend image pull policy | `Always`                                 |
 
 ### Service Parameters
@@ -90,6 +94,7 @@ The following table lists the configurable parameters of the Dashwright chart an
 | `postgresql.auth.username`               | Database username                              | `dashwright`                    |
 | `postgresql.auth.password`               | Database password                              | `changeme`                      |
 | `postgresql.auth.database`               | Database name                                  | `dashwright`                    |
+| `postgresql.auth.existingSecret`         | Existing secret for password (key: `password`) | `""`                            |
 | `postgresql.primary.persistence.enabled` | Enable persistence                             | `true`                          |
 | `postgresql.primary.persistence.size`    | Persistent volume size                         | `10Gi`                          |
 | `postgresql.external.host`               | External PostgreSQL host (when enabled: false) | `external-postgres.example.com` |
@@ -100,13 +105,14 @@ The following table lists the configurable parameters of the Dashwright chart an
 
 ### Storage Parameters (S3-compatible)
 
-| Parameter           | Description                                                               | Default                |
-| ------------------- | ------------------------------------------------------------------------- | ---------------------- |
-| `storage.endpoint`  | S3 endpoint URL (leave empty for AWS S3, set for S3-compatible providers) | `""`                   |
-| `storage.region`    | AWS region (only used for AWS S3, ignored for custom endpoints)           | `us-east-1`            |
-| `storage.accessKey` | S3 access key (used when `minio.enabled=false`)                           | `""`                   |
-| `storage.secretKey` | S3 secret key (used when `minio.enabled=false`)                           | `""`                   |
-| `storage.bucket`    | S3 bucket name                                                            | `dashwright-artifacts` |
+| Parameter                | Description                                                               | Default                |
+| ------------------------ | ------------------------------------------------------------------------- | ---------------------- |
+| `storage.endpoint`       | S3 endpoint URL (leave empty for AWS S3, set for S3-compatible providers) | `""`                   |
+| `storage.region`         | AWS region (only used for AWS S3, ignored for custom endpoints)           | `us-east-1`            |
+| `storage.accessKey`      | S3 access key (used when `minio.enabled=false`)                           | `""`                   |
+| `storage.secretKey`      | S3 secret key (used when `minio.enabled=false`)                           | `""`                   |
+| `storage.existingSecret` | Existing secret for S3 credentials (keys: `access-key`, `secret-key`)     | `""`                   |
+| `storage.bucket`         | S3 bucket name                                                            | `dashwright-artifacts` |
 
 ### MinIO Parameters
 
@@ -130,19 +136,29 @@ The following table lists the configurable parameters of the Dashwright chart an
 | `resources.frontend.limits.cpu`     | Frontend CPU limit     | `500m`  |
 | `resources.frontend.limits.memory`  | Frontend memory limit  | `512Mi` |
 
+### Backend Configuration
+
+| Parameter                   | Description                                                        | Default |
+| --------------------------- | ------------------------------------------------------------------ | ------- |
+| `backend.corsOrigin`        | CORS origin for API (use `*` or specific URL for production)       | `"*"`   |
+| `backend.jwtExistingSecret` | Existing secret for JWT (keys: `jwt-secret`, `jwt-refresh-secret`) | `""`    |
+
 ### Frontend Configuration
 
-| Parameter          | Description                                       | Default                                  |
-| ------------------ | ------------------------------------------------- | ---------------------------------------- |
-| `frontend.apiUrl`  | API URL for frontend (leave empty for internal)  | `""` (uses internal backend service)     |
-| `frontend.wsUrl`   | WebSocket URL (leave empty for internal)         | `""` (uses internal backend service)     |
+| Parameter         | Description                                     | Default                              |
+| ----------------- | ----------------------------------------------- | ------------------------------------ |
+| `frontend.apiUrl` | API URL for frontend (leave empty for internal) | `""` (uses internal backend service) |
+| `frontend.wsUrl`  | WebSocket URL (leave empty for internal)        | `""` (uses internal backend service) |
 
-When using an ingress or external load balancer, set these to your public URLs:
+When using an ingress or external load balancer, configure both frontend URLs and CORS:
 
 ```yaml
+backend:
+  corsOrigin: "https://dashwright.example.com"
+
 frontend:
-  apiUrl: "https://dashwright.example.com/api"
-  wsUrl: "wss://dashwright.example.com/api"
+  apiUrl: "https://api-dashwright.example.com"
+  wsUrl: "wss://api-dashwright.example.com"
 ```
 
 ### Autoscaling
@@ -157,6 +173,68 @@ frontend:
 ### Environment Variables
 
 Backend environment variables can be configured under `env.backend`, and frontend variables under `env.frontend`.
+
+### Using Existing Secrets
+
+For enhanced security, you can reference existing Kubernetes secrets instead of storing sensitive values in `values.yaml`:
+
+#### PostgreSQL Password
+
+```yaml
+postgresql:
+  enabled: true
+  auth:
+    username: dashwright
+    database: dashwright
+    existingSecret: "my-postgresql-secret" # Secret must contain 'password' key
+```
+
+Create the secret:
+
+```bash
+kubectl create secret generic my-postgresql-secret \
+  --from-literal=password='your-secure-password'
+```
+
+#### S3/Storage Credentials
+
+```yaml
+minio:
+  enabled: false
+
+storage:
+  endpoint: "https://s3.fr-par.scw.cloud"
+  bucket: "dashwright-artifacts"
+  existingSecret: "my-s3-credentials" # Secret must contain 'access-key' and 'secret-key' keys
+```
+
+Create the secret:
+
+```bash
+kubectl create secret generic my-s3-credentials \
+  --from-literal=access-key='YOUR_ACCESS_KEY' \
+  --from-literal=secret-key='YOUR_SECRET_KEY'
+```
+
+#### JWT Secrets
+
+```yaml
+backend:
+  jwtExistingSecret: "my-jwt-secrets" # Secret must contain 'jwt-secret' and 'jwt-refresh-secret' keys
+
+env:
+  backend:
+    # Do not define JWT_SECRET and JWT_REFRESH_SECRET when using existingSecret
+    NODE_ENV: production
+```
+
+Create the secret:
+
+```bash
+kubectl create secret generic my-jwt-secrets \
+  --from-literal=jwt-secret='your-jwt-secret-key' \
+  --from-literal=jwt-refresh-secret='your-jwt-refresh-secret-key'
+```
 
 ## Examples
 
@@ -422,7 +500,7 @@ postgresql:
     host: "my-postgres.example.com"
     port: 5432
     username: "dashwright"
-    password: "secure-password"  # This will be stored in a Kubernetes secret
+    password: "secure-password" # This will be stored in a Kubernetes secret
     database: "dashwright"
 ```
 
@@ -442,7 +520,7 @@ storage:
   endpoint: "https://s3.amazonaws.com"
   region: "us-east-1"
   accessKey: "AKIAIOSFODNN7EXAMPLE"
-  secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  # Stored in secret
+  secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY" # Stored in secret
   bucket: "dashwright-artifacts"
 ```
 
