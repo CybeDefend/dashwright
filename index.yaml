@@ -2,6 +2,36 @@ apiVersion: v1
 entries:
   dashwright:
   - apiVersion: v2
+    appVersion: 1.2.6
+    created: "2025-11-20T13:37:01.560148863Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 15.5.20
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.bitnami.com/bitnami
+      version: 14.7.7
+    description: A modern Playwright dashboard for visualizing test runs
+    digest: 9ae44cbe38360ec021d1ef7aece777b28f37516e7161b2f164c24d3d2c93c041
+    home: https://github.com/CybeDefend/Dashwright
+    keywords:
+    - playwright
+    - testing
+    - dashboard
+    - test-automation
+    maintainers:
+    - email: florentin.ledy@cybedefend.com
+      name: CybeDefend
+    name: dashwright
+    sources:
+    - https://github.com/CybeDefend/Dashwright
+    type: application
+    urls:
+    - https://github.com/CybeDefend/dashwright/releases/download/dashwright-1.2.6/dashwright-1.2.6.tgz
+    version: 1.2.6
+  - apiVersion: v2
     appVersion: 1.2.5
     created: "2025-11-20T13:30:03.087537575Z"
     dependencies:
@@ -238,4 +268,4 @@ entries:
     urls:
     - https://github.com/CybeDefend/dashwright/releases/download/dashwright-1.0.20/dashwright-1.0.20.tgz
     version: 1.0.20
-generated: "2025-11-20T13:30:03.087580425Z"
+generated: "2025-11-20T13:37:01.560177583Z"
