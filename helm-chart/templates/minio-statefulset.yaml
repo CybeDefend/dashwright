@@ -1,0 +1,100 @@
+{{- if .Values.minio.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dashwright.fullname" . }}-minio
+  labels:
+    app.kubernetes.io/name: {{ include "dashwright.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: minio
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
+      name: api
+    - port: 9001
+      targetPort: 9001
+      protocol: TCP
+      name: console
+  selector:
+    app.kubernetes.io/name: {{ include "dashwright.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: minio
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "dashwright.fullname" . }}-minio
+  labels:
+    app.kubernetes.io/name: {{ include "dashwright.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: minio
+spec:
+  serviceName: {{ include "dashwright.fullname" . }}-minio
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "dashwright.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: minio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "dashwright.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: minio
+    spec:
+      containers:
+      - name: minio
+        image: "{{ .Values.minio.image.repository }}:{{ .Values.minio.image.tag }}"
+        imagePullPolicy: {{ .Values.minio.image.pullPolicy }}
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mkdir -p /data/{{ .Values.minio.defaultBuckets }}
+          minio server /data --console-address ":9001"
+        ports:
+        - name: api
+          containerPort: 9000
+          protocol: TCP
+        - name: console
+          containerPort: 9001
+          protocol: TCP
+        env:
+        - name: MINIO_ROOT_USER
+          value: {{ .Values.minio.auth.rootUser | quote }}
+        - name: MINIO_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "dashwright.fullname" . }}-minio
+              key: root-password
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        livenessProbe:
+          httpGet:
+            path: /minio/health/live
+            port: 9000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /minio/health/ready
+            port: 9000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      {{- if .Values.minio.persistence.storageClass }}
+      storageClassName: {{ .Values.minio.persistence.storageClass | quote }}
+      {{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.minio.persistence.size }}
+{{- end }}

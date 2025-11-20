@@ -16,13 +16,3 @@ maintainers:
   - name: CybeDefend
     email: florentin.ledy@cybedefend.com
 license: Apache-2.0
-
-dependencies:
-  - name: postgresql
-    version: "15.5.38"
-    repository: https://charts.bitnami.com/bitnami
-    condition: postgresql.enabled
-  - name: minio
-    version: "17.0.21"
-    repository: https://charts.bitnami.com/bitnami
-    condition: minio.enabled
