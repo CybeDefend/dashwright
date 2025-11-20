@@ -11,6 +11,7 @@ import { IntegrationsModule } from "./integrations/integrations.module";
 import { ApiKeysModule } from "./api-keys/api-keys.module";
 import { InvitationsModule } from "./invitations/invitations.module";
 import { AdminModule } from "./admin/admin.module";
+import { HealthModule } from "./health/health.module";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AdminModule } from "./admin/admin.module";
     ApiKeysModule,
     InvitationsModule,
     AdminModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
