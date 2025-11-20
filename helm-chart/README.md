@@ -56,10 +56,10 @@ The following table lists the configurable parameters of the Dashwright chart an
 | Parameter                   | Description                | Default                                  |
 | --------------------------- | -------------------------- | ---------------------------------------- |
 | `image.backend.repository`  | Backend image repository   | `ghcr.io/cybedefend/dashwright/backend`  |
-| `image.backend.tag`         | Backend image tag          | `1.0.19`                                 |
+| `image.backend.tag`         | Backend image tag          | `1.2.2`                                 |
 | `image.backend.pullPolicy`  | Backend image pull policy  | `Always`                                 |
 | `image.frontend.repository` | Frontend image repository  | `ghcr.io/cybedefend/dashwright/frontend` |
-| `image.frontend.tag`        | Frontend image tag         | `1.0.19`                                 |
+| `image.frontend.tag`        | Frontend image tag         | `1.2.2`                                 |
 | `image.frontend.pullPolicy` | Frontend image pull policy | `Always`                                 |
 
 ### Service Parameters
