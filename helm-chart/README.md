@@ -388,6 +388,76 @@ env:
     JWT_REFRESH_SECRET: "your-very-long-and-secure-refresh-secret"
 ```
 
+## Secrets Management
+
+The chart automatically manages Kubernetes secrets for database and storage credentials:
+
+### Internal PostgreSQL (default)
+
+When `postgresql.enabled: true`, the chart uses the Bitnami PostgreSQL subchart which automatically creates a secret named `<release-name>-postgresql` containing the database password.
+
+### External PostgreSQL
+
+When `postgresql.enabled: false`, the chart creates a secret named `<release-name>-postgresql` with the password from `postgresql.external.password`:
+
+```yaml
+postgresql:
+  enabled: false
+  external:
+    host: "my-postgres.example.com"
+    port: 5432
+    username: "dashwright"
+    password: "secure-password"  # This will be stored in a Kubernetes secret
+    database: "dashwright"
+```
+
+### Internal MinIO (default)
+
+When `minio.enabled: true`, the Bitnami MinIO subchart creates a secret named `<release-name>-minio` with the root password.
+
+### External S3/MinIO
+
+When `minio.enabled: false`, the chart creates a secret named `<release-name>-minio` with the storage secret key from `storage.secretKey`:
+
+```yaml
+minio:
+  enabled: false
+
+storage:
+  endpoint: "https://s3.amazonaws.com"
+  region: "us-east-1"
+  accessKey: "AKIAIOSFODNN7EXAMPLE"
+  secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  # Stored in secret
+  bucket: "dashwright-artifacts"
+```
+
+### Using Existing Secrets
+
+If you prefer to manage secrets externally (e.g., with External Secrets Operator, Sealed Secrets, or Vault), you can create secrets with the expected names and keys:
+
+```yaml
+# For PostgreSQL
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <release-name>-postgresql
+type: Opaque
+stringData:
+  password: "your-database-password"
+
+---
+# For MinIO/S3
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <release-name>-minio
+type: Opaque
+stringData:
+  root-password: "your-storage-secret-key"
+```
+
+Then deploy the chart, and it will use your pre-existing secrets instead of creating new ones.
+
 ## Troubleshooting
 
 ### Check pod status

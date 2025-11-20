@@ -2,8 +2,8 @@ apiVersion: v2
 name: dashwright
 description: A modern Playwright dashboard for visualizing test runs
 type: application
-version: 1.2.2
-appVersion: "1.2.2"
+version: 1.2.3
+appVersion: "1.2.3"
 keywords:
   - playwright
   - testing
@@ -16,3 +16,13 @@ maintainers:
   - name: CybeDefend
     email: florentin.ledy@cybedefend.com
 license: Apache-2.0
+
+dependencies:
+  - name: postgresql
+    version: "15.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
+  - name: minio
+    version: "14.x.x"
+    repository: https://charts.bitnami.com/bitnami
+    condition: minio.enabled
