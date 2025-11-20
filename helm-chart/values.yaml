@@ -7,11 +7,11 @@ image:
   backend:
     repository: ghcr.io/cybedefend/dashwright/backend
     pullPolicy: Always
-    tag: "1.2.15"
+    tag: "1.2.16"
   frontend:
     repository: ghcr.io/cybedefend/dashwright/frontend
     pullPolicy: Always
-    tag: "1.2.15"
+    tag: "1.2.16"
 
 imagePullSecrets: []
 nameOverride: ""
