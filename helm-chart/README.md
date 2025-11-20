@@ -240,8 +240,11 @@ storage:
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
   bucket: "dashwright-artifacts"
   limitGB: 100
-    STORAGE_SECRET_KEY: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-    STORAGE_BUCKET: "my-dashwright-bucket"
+
+env:
+  backend:
+    JWT_SECRET: "your-jwt-secret"
+    JWT_REFRESH_SECRET: "your-refresh-secret"
 ```
 
 ### Enable Autoscaling
@@ -282,6 +285,91 @@ env:
     VITE_WS_URL: "wss://dashwright.yourdomain.com"
 ```
 
+## Quick Start with Custom Values
+
+Create a `custom-values.yaml` file to customize your deployment:
+
+```yaml
+# Enable ingress with your domain
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: dashwright.yourcompany.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+
+# Use internal PostgreSQL (enabled by default)
+postgresql:
+  enabled: true
+  auth:
+    password: your-secure-database-password
+
+# Use internal MinIO (enabled by default)
+minio:
+  enabled: true
+  auth:
+    rootPassword: your-secure-minio-password
+
+# Configure JWT secrets
+env:
+  backend:
+    JWT_SECRET: your-very-long-and-secure-jwt-secret
+    JWT_REFRESH_SECRET: your-very-long-and-secure-refresh-secret
+```
+
+Deploy with your custom values:
+
+```bash
+helm install dashwright dashwright/dashwright -f custom-values.yaml
+```
+
+### With External S3 Storage
+
+For production deployments, use external S3-compatible storage:
+
+```yaml
+# Disable internal MinIO
+minio:
+  enabled: false
+
+# Configure external S3 storage
+storage:
+  endpoint: "https://s3.fr-par.scw.cloud"  # Or your S3 endpoint
+  region: "us-east-1"
+  accessKey: "your-s3-access-key"
+  secretKey: "your-s3-secret-key"
+  bucket: "dashwright-artifacts"
+  limitGB: 500
+
+# Other configuration...
+ingress:
+  enabled: true
+  hosts:
+    - host: dashwright.yourcompany.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+
+postgresql:
+  auth:
+    password: your-secure-database-password
+
+env:
+  backend:
+    JWT_SECRET: your-very-long-and-secure-jwt-secret
+    JWT_REFRESH_SECRET: your-very-long-and-secure-refresh-secret
+```
+
 ## Security Considerations
 
 ⚠️ **Important**: The default values include insecure passwords and secrets. Always override these in production:
@@ -295,6 +383,10 @@ minio:
   auth:
     rootUser: "admin"
     rootPassword: "your-secure-minio-password"
+
+storage:
+  accessKey: "your-s3-access-key"
+  secretKey: "your-s3-secret-key"
 
 env:
   backend:
