@@ -30,8 +30,14 @@ export class StorageService {
 
   private initializeS3() {
     const endpoint = this.configService.get<string>("STORAGE_ENDPOINT");
-    const accessKeyId = this.configService.get("STORAGE_ACCESS_KEY", "minioadmin");
-    const secretAccessKey = this.configService.get("STORAGE_SECRET_KEY", "minioadmin");
+    const accessKeyId = this.configService.get(
+      "STORAGE_ACCESS_KEY",
+      "minioadmin",
+    );
+    const secretAccessKey = this.configService.get(
+      "STORAGE_SECRET_KEY",
+      "minioadmin",
+    );
     // AWS SDK requires a region, but it's ignored for custom endpoints
     const region = this.configService.get("STORAGE_REGION", "us-east-1");
 

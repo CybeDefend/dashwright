@@ -100,24 +100,24 @@ The following table lists the configurable parameters of the Dashwright chart an
 
 ### Storage Parameters (S3-compatible)
 
-| Parameter           | Description                                                                | Default                |
-| ------------------- | -------------------------------------------------------------------------- | ---------------------- |
+| Parameter           | Description                                                               | Default                |
+| ------------------- | ------------------------------------------------------------------------- | ---------------------- |
 | `storage.endpoint`  | S3 endpoint URL (leave empty for AWS S3, set for S3-compatible providers) | `""`                   |
-| `storage.region`    | AWS region (only used for AWS S3, ignored for custom endpoints)            | `us-east-1`            |
-| `storage.accessKey` | S3 access key (used when `minio.enabled=false`)                            | `""`                   |
-| `storage.secretKey` | S3 secret key (used when `minio.enabled=false`)                            | `""`                   |
-| `storage.bucket`    | S3 bucket name                                                             | `dashwright-artifacts` |
+| `storage.region`    | AWS region (only used for AWS S3, ignored for custom endpoints)           | `us-east-1`            |
+| `storage.accessKey` | S3 access key (used when `minio.enabled=false`)                           | `""`                   |
+| `storage.secretKey` | S3 secret key (used when `minio.enabled=false`)                           | `""`                   |
+| `storage.bucket`    | S3 bucket name                                                            | `dashwright-artifacts` |
 
 ### MinIO Parameters
 
-| Parameter                   | Description                   | Default                |
-| --------------------------- | ----------------------------- | ---------------------- |
-| `minio.enabled`             | Enable internal MinIO         | `true`                 |
-| `minio.auth.rootUser`       | MinIO root user               | `minioadmin`           |
-| `minio.auth.rootPassword`   | MinIO root password           | `minioadmin`           |
-| `minio.persistence.enabled` | Enable persistence            | `true`                 |
-| `minio.persistence.size`    | Persistent volume size        | `50Gi`                 |
-| `minio.defaultBuckets`      | Default buckets to create     | `dashwright-artifacts` |
+| Parameter                   | Description               | Default                |
+| --------------------------- | ------------------------- | ---------------------- |
+| `minio.enabled`             | Enable internal MinIO     | `true`                 |
+| `minio.auth.rootUser`       | MinIO root user           | `minioadmin`           |
+| `minio.auth.rootPassword`   | MinIO root password       | `minioadmin`           |
+| `minio.persistence.enabled` | Enable persistence        | `true`                 |
+| `minio.persistence.size`    | Persistent volume size    | `50Gi`                 |
+| `minio.defaultBuckets`      | Default buckets to create | `dashwright-artifacts` |
 
 ### Resource Limits
 
@@ -167,7 +167,7 @@ minio:
 
 # Configure AWS S3
 storage:
-  endpoint: ""  # Empty for AWS S3 (uses default AWS endpoints)
+  endpoint: "" # Empty for AWS S3 (uses default AWS endpoints)
   region: "us-east-1"
   accessKey: "AKIAIOSFODNN7EXAMPLE"
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
@@ -186,11 +186,11 @@ minio:
 # Configure Scaleway S3-compatible storage
 # The region is already in the endpoint URL
 storage:
-  endpoint: "https://s3.fr-par.scw.cloud"  # Paris region
+  endpoint: "https://s3.fr-par.scw.cloud" # Paris region
   # Other regions:
   #   Amsterdam: https://s3.nl-ams.scw.cloud
   #   Warsaw: https://s3.pl-waw.scw.cloud
-  region: "us-east-1"  # Default value (ignored for custom endpoints)
+  region: "us-east-1" # Default value (ignored for custom endpoints)
   accessKey: "SCWXXXXXXXXXXXXXXXXX"
   secretKey: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   bucket: "dashwright-artifacts"
@@ -207,8 +207,8 @@ minio:
 
 # Configure external S3-compatible storage
 storage:
-  endpoint: "https://minio.example.com:9000"  # Full endpoint URL
-  region: "us-east-1"  # Default value (ignored for custom endpoints)
+  endpoint: "https://minio.example.com:9000" # Full endpoint URL
+  region: "us-east-1" # Default value (ignored for custom endpoints)
   accessKey: "your-access-key"
   secretKey: "your-secret-key"
   bucket: "dashwright-artifacts"
@@ -230,7 +230,7 @@ minio:
   enabled: false
 
 storage:
-  endpoint: ""  # Empty for AWS S3
+  endpoint: "" # Empty for AWS S3
   region: "us-east-1"
   accessKey: "AKIAIOSFODNN7EXAMPLE"
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
@@ -335,7 +335,7 @@ minio:
 
 # Configure external S3 storage
 storage:
-  endpoint: "https://s3.fr-par.scw.cloud"  # Or your S3 endpoint
+  endpoint: "https://s3.fr-par.scw.cloud" # Or your S3 endpoint
   region: "us-east-1"
   accessKey: "your-s3-access-key"
   secretKey: "your-s3-secret-key"

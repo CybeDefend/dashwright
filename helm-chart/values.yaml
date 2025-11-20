@@ -112,15 +112,15 @@ storage:
   #   Scaleway: "https://s3.fr-par.scw.cloud"
   #   DigitalOcean: "https://nyc3.digitaloceanspaces.com"
   endpoint: ""
-  
+
   # Region identifier
   region: "us-east-1"
-  
+
   # S3 credentials (used when minio.enabled=false)
   # When minio.enabled=true, these are ignored and MinIO credentials are used
   accessKey: ""
   secretKey: ""
-  
+
   # Bucket name
   bucket: "dashwright-artifacts"
 
