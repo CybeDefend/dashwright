@@ -121,12 +121,16 @@ update_all_versions() {
         # macOS
         sed -i '' "s/^version: .*/version: $version/" helm-chart/Chart.yaml
         sed -i '' "s/^appVersion: .*/appVersion: \"$version\"/" helm-chart/Chart.yaml
-        sed -i '' "s/tag: \".*\"/tag: \"$version\"/g" helm-chart/values.yaml
+        # Update only backend and frontend tags (lines 10 and 14 in values.yaml)
+        sed -i '' '10s/tag: ".*"/tag: "'$version'"/' helm-chart/values.yaml
+        sed -i '' '14s/tag: ".*"/tag: "'$version'"/' helm-chart/values.yaml
     else
         # Linux
         sed -i "s/^version: .*/version: $version/" helm-chart/Chart.yaml
         sed -i "s/^appVersion: .*/appVersion: \"$version\"/" helm-chart/Chart.yaml
-        sed -i "s/tag: \".*\"/tag: \"$version\"/g" helm-chart/values.yaml
+        # Update only backend and frontend tags (lines 10 and 14 in values.yaml)
+        sed -i '10s/tag: ".*"/tag: "'$version'"/' helm-chart/values.yaml
+        sed -i '14s/tag: ".*"/tag: "'$version'"/' helm-chart/values.yaml
     fi
     print_success "Helm Chart version updated"
     

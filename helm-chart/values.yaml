@@ -78,7 +78,7 @@ postgresql:
   enabled: true
   image:
     repository: postgres
-    tag: "1.2.11"
+    tag: "16-alpine"
     pullPolicy: Always
   auth:
     username: dashwright
@@ -101,7 +101,7 @@ minio:
   enabled: true
   image:
     repository: minio/minio
-    tag: "1.2.11"
+    tag: "RELEASE.2025-09-07T16-13-09Z"
     pullPolicy: Always
   auth:
     rootUser: minioadmin
