@@ -28,12 +28,14 @@ export default function SetupProvider({
       if (response.data.needsSetup && location.pathname !== "/setup") {
         navigate("/setup", { replace: true });
       }
-      // If setup is complete and on setup page, redirect to login
+      // If setup is complete and trying to access setup page, redirect to login
       else if (!response.data.needsSetup && location.pathname === "/setup") {
         navigate("/login", { replace: true });
       }
     } catch (error) {
       console.error("Failed to check setup status:", error);
+      // On error, allow access to avoid blocking users
+      setIsChecking(false);
     } finally {
       setIsChecking(false);
     }
