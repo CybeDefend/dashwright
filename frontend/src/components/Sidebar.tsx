@@ -52,13 +52,13 @@ export default function Sidebar() {
 
   const links = [
     { to: "/", icon: Home, label: "Dashboard" },
-    // Organization (invitations) - Admin only
-    ...(isAdmin(user)
-      ? [{ to: "/organization", icon: Users, label: "Organization" }]
-      : []),
     // API Keys - Admin and Maintainer only
     ...(canManage(user)
       ? [{ to: "/api-keys", icon: Key, label: "API Keys" }]
+      : []),
+    // Organization (invitations) - Admin and Maintainer only
+    ...(canManage(user)
+      ? [{ to: "/organization", icon: Users, label: "Organization" }]
       : []),
     // Admin page - Super admin only
     ...(user?.isSuperAdmin
