@@ -1,6 +1,6 @@
 {
   "name": "@dashwright/playwright-reporter",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Playwright Reporter for Dashwright - Upload test results, screenshots, and videos",
   "author": "CybeDefend",
   "license": "Apache-2.0",
