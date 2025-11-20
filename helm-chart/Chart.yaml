@@ -2,8 +2,8 @@ apiVersion: v2
 name: dashwright
 description: A modern Playwright dashboard for visualizing test runs
 type: application
-version: 1.2.6
-appVersion: "1.2.6"
+version: 1.2.7
+appVersion: "1.2.7"
 keywords:
   - playwright
   - testing
