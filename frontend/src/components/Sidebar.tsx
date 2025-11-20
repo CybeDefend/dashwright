@@ -9,7 +9,7 @@ import {
   Copy,
   Check,
 } from "lucide-react";
-import { useAuthStore, isAdmin, canManage } from "../store/auth.store";
+import { useAuthStore, canManage } from "../store/auth.store";
 import clsx from "clsx";
 import { useEffect, useState, useRef } from "react";
 import apiClient from "../services/api";
