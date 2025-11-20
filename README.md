@@ -15,7 +15,7 @@ _A beautiful, intuitive dashboard for visualizing Playwright test runs with real
 [![CI](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/ci.yml)
 [![Docker](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/docker.yml)
 [![NPM](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml/badge.svg)](https://github.com/CybeDefend/dashwright/actions/workflows/publish-npm.yml)
-[![Helm](https://img.shields.io/badge/Helm-v1.2.19-0f1689.svg)](https://github.com/CybeDefend/dashwright/tree/main/helm-chart)
+[![Helm](https://img.shields.io/badge/Helm-v1.2.20-0f1689.svg)](https://github.com/CybeDefend/dashwright/tree/main/helm-chart)
 
 [Features](#✨-features) • [Quick Start](#🚀-quick-start) • [Installation](#📦-installation) • [Documentation](#📚-documentation) • [Architecture](#🏗️-architecture) • [Contributing](#🤝-contributing) • [License](#📄-license)
 
