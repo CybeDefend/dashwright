@@ -1,9 +1,10 @@
 name: Deploy Helm Chart to GitHub Pages
 
 on:
-  push:
-    branches:
-      - gh-pages
+  # Disabled - now handled by release-helm-chart.yml
+  # push:
+  #   branches:
+  #     - gh-pages
   workflow_dispatch:
 
 permissions:

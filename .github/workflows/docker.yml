@@ -2,15 +2,8 @@ name: Build and Publish Docker Images
 
 on:
   push:
-    branches:
-      - main
     tags:
       - "v*.*.*"
-    paths:
-      - "backend/**"
-      - "frontend/**"
-      - "docker-compose.yaml"
-      - ".github/workflows/docker.yml"
   pull_request:
     branches:
       - main
@@ -18,6 +11,7 @@ on:
       - "backend/**"
       - "frontend/**"
       - "docker-compose.yaml"
+      - ".github/workflows/docker.yml"
   workflow_dispatch:
 
 permissions:

@@ -162,11 +162,22 @@ create_git_tag() {
     local version=$1
     local tag_name="v$version"
     
-    print_info "Creating git tag: $tag_name"
+    print_info "Creating git tags"
     git add .
     git commit -m "chore: release version $version" || true
+    
+    # Create main version tag for Docker images
     git tag -a "$tag_name" -m "Release $version"
     print_success "Git tag created: $tag_name"
+    
+    # Create Helm chart tag (used by chart-releaser-action)
+    local chart_tag="dashwright-$version"
+    if git rev-parse "$chart_tag" >/dev/null 2>&1; then
+        print_warning "Helm chart tag $chart_tag already exists, skipping"
+    else
+        git tag -a "$chart_tag" -m "Helm Chart Release $version"
+        print_success "Helm chart tag created: $chart_tag"
+    fi
 }
 
 # Push to remote
@@ -194,8 +205,9 @@ show_menu() {
     echo ""
     echo "1) Release Docker Images (Backend + Frontend)"
     echo "2) Release NPM Package"
-    echo "3) Release All (Docker + NPM)"
-    echo "4) Exit"
+    echo "3) Release Helm Chart Only"
+    echo "4) Release All (Docker + NPM + Helm)"
+    echo "5) Exit"
     echo ""
 }
 
@@ -274,6 +286,60 @@ release_npm() {
     print_info "https://github.com/CybeDefend/dashwright/actions"
 }
 
+# Release Helm Chart only
+release_helm() {
+    print_info "Releasing Helm Chart Only"
+    
+    # Get current chart version
+    local current_chart=$(grep "^version:" helm-chart/Chart.yaml | awk '{print $2}')
+    print_info "Current Helm Chart version: $current_chart"
+    
+    read -p "Enter new version (e.g., 1.2.7): " version
+    validate_version "$version"
+    
+    check_git_clean
+    check_main_branch
+    
+    print_info "This will:"
+    echo "  - Update Helm Chart version to $version"
+    echo "  - Update image tags in values.yaml to $version"
+    echo "  - Commit changes"
+    echo "  - Push to main branch"
+    echo "  - Trigger Helm Chart release workflow"
+    echo ""
+    
+    read -p "Continue? (y/N): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        print_warning "Cancelled"
+        return
+    fi
+    
+    # Update only Helm Chart files
+    print_info "Updating Helm Chart to $version"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        sed -i '' "s/^version: .*/version: $version/" helm-chart/Chart.yaml
+        sed -i '' "s/^appVersion: .*/appVersion: \"$version\"/" helm-chart/Chart.yaml
+        sed -i '' "s/tag: \".*\"/tag: \"$version\"/g" helm-chart/values.yaml
+    else
+        # Linux
+        sed -i "s/^version: .*/version: $version/" helm-chart/Chart.yaml
+        sed -i "s/^appVersion: .*/appVersion: \"$version\"/" helm-chart/Chart.yaml
+        sed -i "s/tag: \".*\"/tag: \"$version\"/g" helm-chart/values.yaml
+    fi
+    print_success "Helm Chart version updated"
+    
+    # Commit and push
+    git add helm-chart/
+    git commit -m "chore: release Helm chart version $version"
+    git push origin main
+    
+    print_success "Helm Chart release initiated!"
+    print_info "The chart-releaser workflow will automatically create the release"
+    print_info "Check GitHub Actions: https://github.com/CybeDefend/dashwright/actions"
+}
+
 # Release all
 release_all() {
     print_info "Releasing All Components"
@@ -324,8 +390,9 @@ while true; do
     case $choice in
         1) release_docker ;;
         2) release_npm ;;
-        3) release_all ;;
-        4) print_info "Goodbye!"; exit 0 ;;
+        3) release_helm ;;
+        4) release_all ;;
+        5) print_info "Goodbye!"; exit 0 ;;
         *) print_error "Invalid option" ;;
     esac
 done
