@@ -36,7 +36,6 @@ interface AdminStats {
   };
   storage: {
     used: number;
-    total: number;
     artifacts: number;
   };
   system: {
@@ -139,7 +138,7 @@ const AdminPage: React.FC = () => {
       failed: 234,
       running: 3,
     },
-    storage: { used: 2.4, total: 10, artifacts: 3456 },
+    storage: { used: 2.4, artifacts: 3456 },
     system: { uptime: 1234567, version: "1.0.0", environment: "production" },
   });
 
@@ -287,19 +286,6 @@ const AdminPage: React.FC = () => {
           <p className="text-3xl font-bold text-gray-900">
             {formatBytes(stats.storage.used)}
           </p>
-          <div className="mt-3">
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-orange-500 h-2 rounded-full transition-all"
-                style={{
-                  width: `${(stats.storage.used / stats.storage.total) * 100}%`,
-                }}
-              />
-            </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {formatBytes(stats.storage.total)} total
-            </p>
-          </div>
         </div>
       </div>
 
