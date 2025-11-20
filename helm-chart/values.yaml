@@ -7,11 +7,11 @@ image:
   backend:
     repository: ghcr.io/cybedefend/dashwright/backend
     pullPolicy: Always
-    tag: "1.2.10"
+    tag: "1.2.11"
   frontend:
     repository: ghcr.io/cybedefend/dashwright/frontend
     pullPolicy: Always
-    tag: "1.2.10"
+    tag: "1.2.11"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -78,7 +78,7 @@ postgresql:
   enabled: true
   image:
     repository: postgres
-    tag: "16-alpine"
+    tag: "1.2.11"
     pullPolicy: Always
   auth:
     username: dashwright
@@ -101,7 +101,7 @@ minio:
   enabled: true
   image:
     repository: minio/minio
-    tag: "RELEASE.2025-09-07T16-13-09Z"
+    tag: "1.2.11"
     pullPolicy: Always
   auth:
     rootUser: minioadmin
