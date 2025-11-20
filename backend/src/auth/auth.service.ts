@@ -71,6 +71,10 @@ export class AuthService {
         fullName: user.fullName,
         organizationId: user.organizationId,
         isSuperAdmin: user.isSuperAdmin,
+        roles: user.roles?.map(role => ({
+          id: role.id,
+          role: role.role,
+        })),
       },
     };
   }

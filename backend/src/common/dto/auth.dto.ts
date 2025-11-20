@@ -105,6 +105,12 @@ export class AuthResponseDto {
       fullName: "John Doe",
       organizationId: "123e4567-e89b-12d3-a456-426614174001",
       isSuperAdmin: false,
+      roles: [
+        {
+          id: "123e4567-e89b-12d3-a456-426614174002",
+          role: "admin",
+        },
+      ],
     },
   })
   user: {
@@ -113,5 +119,9 @@ export class AuthResponseDto {
     fullName: string;
     organizationId: string;
     isSuperAdmin?: boolean;
+    roles?: Array<{
+      id: string;
+      role: string;
+    }>;
   };
 }
