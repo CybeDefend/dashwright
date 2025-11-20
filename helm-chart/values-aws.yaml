@@ -16,7 +16,6 @@ storage:
   accessKey: "AKIAIOSFODNN7EXAMPLE"  # Replace with your AWS access key
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  # Replace with your AWS secret key
   bucket: "dashwright-artifacts"
-  limitGB: 500
 
 # Use external PostgreSQL (recommended for production)
 postgresql:

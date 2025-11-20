@@ -59,7 +59,6 @@ services:
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-minioadmin}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-minioadmin}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-dashwright-artifacts}
-      STORAGE_LIMIT_GB: ${STORAGE_LIMIT_GB:-100}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3007}
       RATE_LIMIT_TTL: ${RATE_LIMIT_TTL:-60}
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-10}

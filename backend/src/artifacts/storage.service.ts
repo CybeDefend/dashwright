@@ -134,27 +134,16 @@ export class StorageService {
         continuationToken = response.NextContinuationToken;
       } while (continuationToken);
 
-      // Get storage capacity from config or use default
-      const storageLimit = this.configService.get<number>(
-        "STORAGE_LIMIT_GB",
-        100,
-      );
-      const totalCapacity = storageLimit * 1024 * 1024 * 1024; // Convert GB to bytes
-
       return {
         used: totalSize,
-        total: totalCapacity,
+        total: 0, // No limit - unlimited storage
         objectCount,
       };
     } catch (error) {
       this.logger.error("Error getting bucket stats:", error);
-      const storageLimit = this.configService.get<number>(
-        "STORAGE_LIMIT_GB",
-        100,
-      );
       return {
         used: 0,
-        total: storageLimit * 1024 * 1024 * 1024,
+        total: 0, // No limit
         objectCount: 0,
       };
     }

@@ -107,7 +107,6 @@ The following table lists the configurable parameters of the Dashwright chart an
 | `storage.accessKey` | S3 access key (used when `minio.enabled=false`)                            | `""`                   |
 | `storage.secretKey` | S3 secret key (used when `minio.enabled=false`)                            | `""`                   |
 | `storage.bucket`    | S3 bucket name                                                             | `dashwright-artifacts` |
-| `storage.limitGB`   | Storage quota in GB (for display only)                                     | `100`                  |
 
 ### MinIO Parameters
 
@@ -173,7 +172,6 @@ storage:
   accessKey: "AKIAIOSFODNN7EXAMPLE"
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
   bucket: "dashwright-artifacts"
-  limitGB: 100
 ```
 
 See `values-aws.yaml` for a complete example.
@@ -196,7 +194,6 @@ storage:
   accessKey: "SCWXXXXXXXXXXXXXXXXX"
   secretKey: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   bucket: "dashwright-artifacts"
-  limitGB: 100
 ```
 
 See `values-scaleway.yaml` for a complete example.
@@ -215,7 +212,6 @@ storage:
   accessKey: "your-access-key"
   secretKey: "your-secret-key"
   bucket: "dashwright-artifacts"
-  limitGB: 100
 ```
 
 ### Using AWS RDS and S3
@@ -239,7 +235,6 @@ storage:
   accessKey: "AKIAIOSFODNN7EXAMPLE"
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
   bucket: "dashwright-artifacts"
-  limitGB: 100
 
 env:
   backend:
@@ -345,7 +340,6 @@ storage:
   accessKey: "your-s3-access-key"
   secretKey: "your-s3-secret-key"
   bucket: "dashwright-artifacts"
-  limitGB: 500
 
 # Other configuration...
 ingress:

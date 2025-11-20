@@ -123,9 +123,6 @@ storage:
   
   # Bucket name
   bucket: "dashwright-artifacts"
-  
-  # Storage quota (GB) - for display purposes
-  limitGB: 100
 
 env:
   backend:

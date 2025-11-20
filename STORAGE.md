@@ -43,7 +43,6 @@ STORAGE_SECRET_KEY=minioadmin
 
 # Bucket Configuration
 STORAGE_BUCKET=dashwright-artifacts
-STORAGE_LIMIT_GB=100
 ```
 
 ---
@@ -147,7 +146,6 @@ STORAGE_REGION=us-east-1
 STORAGE_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE
 STORAGE_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 STORAGE_BUCKET=dashwright-artifacts
-STORAGE_LIMIT_GB=100
 ```
 
 #### Docker Compose (No MinIO needed)
@@ -188,7 +186,6 @@ STORAGE_ENDPOINT=https://s3.fr-par.scw.cloud
 STORAGE_ACCESS_KEY=your-scaleway-access-key
 STORAGE_SECRET_KEY=your-scaleway-secret-key
 STORAGE_BUCKET=dashwright-artifacts
-STORAGE_LIMIT_GB=100
 
 # STORAGE_REGION is optional (ignored when using custom endpoint)
 ```
@@ -281,7 +278,6 @@ STORAGE_BUCKET=dashwright-artifacts
 | `STORAGE_ACCESS_KEY` | Yes | `minioadmin` | S3 access key ID |
 | `STORAGE_SECRET_KEY` | Yes | `minioadmin` | S3 secret access key |
 | `STORAGE_BUCKET` | Yes | `dashwright-artifacts` | S3 bucket name (will be created if doesn't exist) |
-| `STORAGE_LIMIT_GB` | No | `100` | Storage quota in GB (used for dashboard display) |
 
 ---
 
@@ -300,7 +296,6 @@ storage:
   accessKey: "minioadmin"
   secretKey: "minioadmin"
   bucket: "dashwright-artifacts"
-  limitGB: 100
 ```
 
 ### Using External S3 (AWS)
@@ -316,7 +311,6 @@ storage:
   accessKey: "AKIAIOSFODNN7EXAMPLE"
   secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
   bucket: "dashwright-artifacts"
-  limitGB: 500
 ```
 
 ### Using Scaleway
@@ -332,7 +326,6 @@ storage:
   accessKey: "your-scaleway-access-key"
   secretKey: "your-scaleway-secret-key"
   bucket: "dashwright-artifacts"
-  limitGB: 250
 ```
 
 ---

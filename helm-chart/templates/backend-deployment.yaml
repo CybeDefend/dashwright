@@ -64,8 +64,6 @@ spec:
           value: {{ .Values.storage.region | quote }}
         - name: STORAGE_BUCKET
           value: {{ .Values.storage.bucket | quote }}
-        - name: STORAGE_LIMIT_GB
-          value: {{ .Values.storage.limitGB | quote }}
         {{- if .Values.minio.enabled }}
         # Using internal MinIO
         - name: STORAGE_ENDPOINT

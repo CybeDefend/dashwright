@@ -20,7 +20,6 @@ storage:
   accessKey: "your-scaleway-access-key"  # Replace with your Scaleway access key
   secretKey: "your-scaleway-secret-key"  # Replace with your Scaleway secret key
   bucket: "dashwright-artifacts"
-  limitGB: 250
 
 # Use external PostgreSQL (recommended for production)
 postgresql:
