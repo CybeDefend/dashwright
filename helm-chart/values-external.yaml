@@ -4,6 +4,7 @@
 
 # Backend configuration with existing JWT secret
 backend:
+  frontendUrl: "https://dashwright.yourdomain.com"  # Used in invitation emails
   corsOrigin: "https://dashwright.yourdomain.com"
   jwtExistingSecret: "dashwright-jwt-secrets"  # kubectl create secret generic dashwright-jwt-secrets --from-literal=jwt-secret='...' --from-literal=jwt-refresh-secret='...'
 

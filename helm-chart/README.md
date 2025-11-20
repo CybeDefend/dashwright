@@ -140,20 +140,22 @@ The following table lists the configurable parameters of the Dashwright chart an
 
 | Parameter                   | Description                                                        | Default |
 | --------------------------- | ------------------------------------------------------------------ | ------- |
+| `backend.frontendUrl`       | Public frontend URL (used for invitation links)                    | `""`    |
 | `backend.corsOrigin`        | CORS origin for API (use `*` or specific URL for production)       | `"*"`   |
 | `backend.jwtExistingSecret` | Existing secret for JWT (keys: `jwt-secret`, `jwt-refresh-secret`) | `""`    |
 
 ### Frontend Configuration
 
-| Parameter         | Description                                     | Default                              |
-| ----------------- | ----------------------------------------------- | ------------------------------------ |
-| `frontend.apiUrl` | API URL for frontend (leave empty for internal) | `""` (uses internal backend service) |
-| `frontend.wsUrl`  | WebSocket URL (leave empty for internal)        | `""` (uses internal backend service) |
+| Parameter       | Description                                             | Default                              |
+| --------------- | ------------------------------------------------------- | ------------------------------------ |
+| `frontend.apiUrl` | API URL for frontend (leave empty for internal)       | `""` (uses internal backend service) |
+| `frontend.wsUrl`  | WebSocket URL (leave empty for internal)              | `""` (uses internal backend service) |
 
-When using an ingress or external load balancer, configure both frontend URLs and CORS:
+When using an ingress or external load balancer, configure frontend URLs and CORS:
 
 ```yaml
 backend:
+  frontendUrl: "https://dashwright.example.com"  # Used in invitation emails
   corsOrigin: "https://dashwright.example.com"
 
 frontend:

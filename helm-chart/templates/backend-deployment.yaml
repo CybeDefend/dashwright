@@ -32,6 +32,9 @@ spec:
         # CORS configuration
         - name: CORS_ORIGIN
           value: {{ .Values.backend.corsOrigin | default "*" | quote }}
+        # Frontend URL for invitation links
+        - name: FRONTEND_URL
+          value: {{ .Values.backend.frontendUrl | default (printf "http://%s-frontend" (include "dashwright.fullname" .)) | quote }}
         # JWT secrets
         {{- if .Values.backend.jwtExistingSecret }}
         - name: JWT_SECRET

@@ -5,6 +5,11 @@ replicaCount:
   backend: 2
   frontend: 2
 
+# Backend configuration
+backend:
+  frontendUrl: "https://dashwright.example.com"  # Used in invitation emails
+  corsOrigin: "https://dashwright.example.com"    # Your frontend domain
+
 # Disable internal MinIO when using external S3
 minio:
   enabled: false
@@ -47,6 +52,11 @@ ingress:
     - secretName: dashwright-tls
       hosts:
         - dashwright.example.com
+
+# Frontend configuration
+frontend:
+  apiUrl: "https://dashwright.example.com/api"
+  wsUrl: "wss://dashwright.example.com"
 
 # Production environment variables
 env:

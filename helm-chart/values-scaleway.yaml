@@ -31,9 +31,10 @@ postgresql:
     password: "your-secure-password"
     database: "dashwright"
 
-# Configure CORS for backend
+# Configure backend settings
 backend:
-  corsOrigin: "https://dashwright.example.com"  # Your frontend domain
+  frontendUrl: "https://dashwright.example.com"  # Public frontend URL (for invitation links)
+  corsOrigin: "https://dashwright.example.com"   # Your frontend domain
 
 # Configure frontend URLs for external access
 frontend:
