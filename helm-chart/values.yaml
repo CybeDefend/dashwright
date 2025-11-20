@@ -101,14 +101,31 @@ minio:
     enabled: true
     size: 50Gi
   defaultBuckets: "dashwright-artifacts"
-  # External S3/MinIO configuration (when enabled: false)
-  external:
-    endpoint: "s3.amazonaws.com"
-    port: 443
-    useSSL: true
-    accessKey: "your-access-key"
-    secretKey: "your-secret-key"
-    bucket: "dashwright-artifacts"
+
+# Storage configuration (S3-compatible)
+# Works with MinIO, AWS S3, Scaleway, DigitalOcean Spaces, Backblaze B2, etc.
+storage:
+  # S3 endpoint URL (leave empty for AWS S3, or set to custom endpoint)
+  # Examples:
+  #   MinIO (internal): "" (uses internal MinIO service)
+  #   AWS S3: ""
+  #   Scaleway: "https://s3.fr-par.scw.cloud"
+  #   DigitalOcean: "https://nyc3.digitaloceanspaces.com"
+  endpoint: ""
+  
+  # Region identifier
+  region: "us-east-1"
+  
+  # S3 credentials (used when minio.enabled=false)
+  # When minio.enabled=true, these are ignored and MinIO credentials are used
+  accessKey: ""
+  secretKey: ""
+  
+  # Bucket name
+  bucket: "dashwright-artifacts"
+  
+  # Storage quota (GB) - for display purposes
+  limitGB: 100
 
 env:
   backend:
@@ -120,7 +137,6 @@ env:
     JWT_REFRESH_EXPIRES_IN: "7d"
     RATE_LIMIT_TTL: "60"
     RATE_LIMIT_MAX: "10"
-    STORAGE_BUCKET: "dashwright-artifacts"
   frontend:
     VITE_API_URL: "http://dashwright.local/api"
     VITE_WS_URL: "ws://dashwright.local"

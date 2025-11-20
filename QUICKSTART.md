@@ -10,6 +10,7 @@ Get up and running with Dashwright in 5 minutes!
 - [Option 3: Development Setup](#option-3-development-setup)
 - [First Login](#first-login)
 - [Integrate with Playwright](#integrate-with-playwright)
+- [Storage Configuration](#storage-configuration)
 - [Next Steps](#next-steps)
 
 ## Prerequisites
@@ -296,6 +297,34 @@ npx playwright test
 1. Go to your Dashwright dashboard: http://localhost:5173
 2. Navigate to **Test Runs**
 3. See your test results in real-time!
+
+## Storage Configuration
+
+By default, Dashwright uses MinIO for artifact storage. You can also use AWS S3 or Scaleway S3.
+
+### Using AWS S3
+
+```bash
+# In your .env file
+STORAGE_PROVIDER=aws
+STORAGE_ACCESS_KEY=your-aws-access-key
+STORAGE_SECRET_KEY=your-aws-secret-key
+STORAGE_BUCKET=dashwright-artifacts
+STORAGE_REGION=us-east-1
+```
+
+### Using Scaleway S3
+
+```bash
+# In your .env file
+STORAGE_PROVIDER=scaleway
+STORAGE_ACCESS_KEY=your-scaleway-access-key
+STORAGE_SECRET_KEY=your-scaleway-secret-key
+STORAGE_BUCKET=dashwright-artifacts
+STORAGE_REGION=fr-par
+```
+
+📖 **For detailed storage configuration, see [STORAGE.md](./STORAGE.md)**
 
 ## Next Steps
 

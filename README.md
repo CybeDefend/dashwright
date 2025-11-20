@@ -241,7 +241,7 @@ npx playwright test
 - **Framework:** NestJS 11.1
 - **Language:** TypeScript 5.9
 - **Database:** PostgreSQL 16 with TypeORM
-- **Storage:** MinIO (S3-compatible)
+- **Storage:** MinIO / AWS S3 / Scaleway S3 (S3-compatible)
 - **Authentication:** JWT with Argon2 password hashing
 - **Real-time:** WebSocket with Socket.IO
 - **Validation:** class-validator & class-transformer
@@ -566,6 +566,9 @@ limitations under the License.
 
 ## 📚 Additional Resources
 
+- **[Quick Start Guide](./QUICKSTART.md)** - Get started in 5 minutes
+- **[Storage Configuration](./STORAGE.md)** - Configure MinIO, AWS S3, or Scaleway S3
+- **[Helm Chart](./helm-chart/README.md)** - Kubernetes deployment with Helm
 - **[Contributing Guide](./CONTRIBUTING.md)** - Learn how to contribute to the project
 - **[CI/CD Documentation](./.github/CI-CD.md)** - Automated deployment workflows
 - **[Scripts Documentation](./scripts/README.md)** - Helper scripts for development

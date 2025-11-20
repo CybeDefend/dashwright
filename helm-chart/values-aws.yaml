@@ -1,0 +1,93 @@
+# Example configuration for using AWS S3
+# Deploy with: helm install dashwright . -f values-aws.yaml
+
+replicaCount:
+  backend: 2
+  frontend: 2
+
+# Disable internal MinIO when using external S3
+minio:
+  enabled: false
+
+# Configure AWS S3
+storage:
+  endpoint: ""  # Empty for AWS S3 (uses default AWS endpoints)
+  region: "us-east-1"
+  accessKey: "AKIAIOSFODNN7EXAMPLE"  # Replace with your AWS access key
+  secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"  # Replace with your AWS secret key
+  bucket: "dashwright-artifacts"
+  limitGB: 500
+
+# Use external PostgreSQL (recommended for production)
+postgresql:
+  enabled: false
+  external:
+    host: "your-rds-endpoint.rds.amazonaws.com"
+    port: 5432
+    username: "dashwright"
+    password: "your-secure-password"
+    database: "dashwright"
+
+# Configure ingress for production
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: dashwright.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+  tls:
+    - secretName: dashwright-tls
+      hosts:
+        - dashwright.example.com
+
+# Production environment variables
+env:
+  backend:
+    NODE_ENV: production
+    PORT: "3000"
+    JWT_SECRET: "your-production-jwt-secret"
+    JWT_EXPIRES_IN: "1h"
+    JWT_REFRESH_SECRET: "your-production-refresh-secret"
+    JWT_REFRESH_EXPIRES_IN: "7d"
+  frontend:
+    VITE_API_URL: "https://dashwright.example.com/api"
+    VITE_WS_URL: "wss://dashwright.example.com"
+
+# Resource limits for production
+resources:
+  backend:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  frontend:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Enable autoscaling
+autoscaling:
+  backend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  frontend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70

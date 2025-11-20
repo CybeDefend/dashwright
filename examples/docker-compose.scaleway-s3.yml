@@ -1,5 +1,9 @@
 version: "3.8"
 
+# Dashwright with Scaleway S3
+# For European deployments using Scaleway Object Storage
+# Cost-effective S3-compatible storage with European data centers
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -18,29 +22,8 @@ services:
       timeout: 5s
       retries: 5
 
-  minio:
-    image: minio/minio:latest
-    container_name: dashwright-minio
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${STORAGE_ACCESS_KEY:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${STORAGE_SECRET_KEY:-minioadmin}
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     image: ghcr.io/cybedefend/dashwright/backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     container_name: dashwright-backend
     environment:
       NODE_ENV: ${NODE_ENV:-production}
@@ -54,11 +37,11 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
-      # Storage configuration (S3-compatible)
-      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
-      STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
-      STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-minioadmin}
-      STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-minioadmin}
+      # Storage configuration - Scaleway S3-compatible
+      # The region is already in the endpoint URL (fr-par, nl-ams, pl-waw)
+      STORAGE_ENDPOINT: ${SCALEWAY_ENDPOINT:-https://s3.fr-par.scw.cloud}
+      STORAGE_ACCESS_KEY: ${SCALEWAY_ACCESS_KEY}
+      STORAGE_SECRET_KEY: ${SCALEWAY_SECRET_KEY}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-dashwright-artifacts}
       STORAGE_LIMIT_GB: ${STORAGE_LIMIT_GB:-100}
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3007}
@@ -69,18 +52,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_healthy
     restart: unless-stopped
 
   frontend:
     image: ghcr.io/cybedefend/dashwright/frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3006}
-        VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3006}
     container_name: dashwright-frontend
     ports:
       - "3007:80"
@@ -90,7 +65,6 @@ services:
 
 volumes:
   postgres_data:
-  minio_data:
 
 networks:
   default:

@@ -1,5 +1,8 @@
 version: "3.8"
 
+# Dashwright with MinIO (Self-hosted S3-compatible storage)
+# Perfect for local development and self-hosted deployments
+
 services:
   postgres:
     image: postgres:16-alpine
@@ -38,9 +41,6 @@ services:
 
   backend:
     image: ghcr.io/cybedefend/dashwright/backend:latest
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
     container_name: dashwright-backend
     environment:
       NODE_ENV: ${NODE_ENV:-production}
@@ -54,9 +54,8 @@ services:
       JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1h}
       JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
       JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
-      # Storage configuration (S3-compatible)
-      STORAGE_ENDPOINT: ${STORAGE_ENDPOINT:-http://minio:9000}
-      STORAGE_REGION: ${STORAGE_REGION:-us-east-1}
+      # Storage configuration - MinIO (S3-compatible)
+      STORAGE_ENDPOINT: http://minio:9000
       STORAGE_ACCESS_KEY: ${STORAGE_ACCESS_KEY:-minioadmin}
       STORAGE_SECRET_KEY: ${STORAGE_SECRET_KEY:-minioadmin}
       STORAGE_BUCKET: ${STORAGE_BUCKET:-dashwright-artifacts}
@@ -75,12 +74,6 @@ services:
 
   frontend:
     image: ghcr.io/cybedefend/dashwright/frontend:latest
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        VITE_API_URL: ${VITE_API_URL:-http://localhost:3006}
-        VITE_WS_URL: ${VITE_WS_URL:-ws://localhost:3006}
     container_name: dashwright-frontend
     ports:
       - "3007:80"

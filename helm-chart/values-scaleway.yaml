@@ -1,0 +1,97 @@
+# Example configuration for using Scaleway Object Storage
+# Deploy with: helm install dashwright . -f values-scaleway.yaml
+
+replicaCount:
+  backend: 2
+  frontend: 2
+
+# Disable internal MinIO when using external S3
+minio:
+  enabled: false
+
+# Configure Scaleway Object Storage (S3-compatible)
+# The region is already in the endpoint URL (fr-par, nl-ams, pl-waw)
+storage:
+  endpoint: "https://s3.fr-par.scw.cloud"  # Paris region
+  # Other available endpoints:
+  #   Amsterdam: https://s3.nl-ams.scw.cloud
+  #   Warsaw: https://s3.pl-waw.scw.cloud
+  region: "us-east-1"  # Default value (ignored, region is in endpoint)
+  accessKey: "your-scaleway-access-key"  # Replace with your Scaleway access key
+  secretKey: "your-scaleway-secret-key"  # Replace with your Scaleway secret key
+  bucket: "dashwright-artifacts"
+  limitGB: 250
+
+# Use external PostgreSQL (recommended for production)
+postgresql:
+  enabled: false
+  external:
+    host: "your-postgres-instance.fr-par.scw.cloud"
+    port: 5432
+    username: "dashwright"
+    password: "your-secure-password"
+    database: "dashwright"
+
+# Configure ingress for production
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: dashwright.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: frontend
+        - path: /api
+          pathType: Prefix
+          service: backend
+  tls:
+    - secretName: dashwright-tls
+      hosts:
+        - dashwright.example.com
+
+# Production environment variables
+env:
+  backend:
+    NODE_ENV: production
+    PORT: "3000"
+    JWT_SECRET: "your-production-jwt-secret"
+    JWT_EXPIRES_IN: "1h"
+    JWT_REFRESH_SECRET: "your-production-refresh-secret"
+    JWT_REFRESH_EXPIRES_IN: "7d"
+  frontend:
+    VITE_API_URL: "https://dashwright.example.com/api"
+    VITE_WS_URL: "wss://dashwright.example.com"
+
+# Resource limits for production
+resources:
+  backend:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 500m
+      memory: 512Mi
+  frontend:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+# Enable autoscaling
+autoscaling:
+  backend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  frontend:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 70

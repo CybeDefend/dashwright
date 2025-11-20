@@ -59,13 +59,17 @@ spec:
         - name: DB_DATABASE
           value: {{ .Values.postgresql.external.database | quote }}
         {{- end }}
+        # Storage configuration (S3-compatible)
+        - name: STORAGE_REGION
+          value: {{ .Values.storage.region | quote }}
+        - name: STORAGE_BUCKET
+          value: {{ .Values.storage.bucket | quote }}
+        - name: STORAGE_LIMIT_GB
+          value: {{ .Values.storage.limitGB | quote }}
         {{- if .Values.minio.enabled }}
+        # Using internal MinIO
         - name: STORAGE_ENDPOINT
-          value: {{ include "dashwright.fullname" . }}-minio
-        - name: STORAGE_PORT
-          value: "9000"
-        - name: STORAGE_USE_SSL
-          value: "false"
+          value: "http://{{ include "dashwright.fullname" . }}-minio:9000"
         - name: STORAGE_ACCESS_KEY
           value: {{ .Values.minio.auth.rootUser }}
         - name: STORAGE_SECRET_KEY
@@ -73,21 +77,16 @@ spec:
             secretKeyRef:
               name: {{ include "dashwright.fullname" . }}-minio
               key: root-password
-        - name: STORAGE_BUCKET
-          value: {{ .Values.minio.defaultBuckets | quote }}
         {{- else }}
+        # Using external S3-compatible storage
+        {{- if .Values.storage.endpoint }}
         - name: STORAGE_ENDPOINT
-          value: {{ .Values.minio.external.endpoint | quote }}
-        - name: STORAGE_PORT
-          value: {{ .Values.minio.external.port | quote }}
-        - name: STORAGE_USE_SSL
-          value: {{ .Values.minio.external.useSSL | quote }}
+          value: {{ .Values.storage.endpoint | quote }}
+        {{- end }}
         - name: STORAGE_ACCESS_KEY
-          value: {{ .Values.minio.external.accessKey | quote }}
+          value: {{ .Values.storage.accessKey | quote }}
         - name: STORAGE_SECRET_KEY
-          value: {{ .Values.minio.external.secretKey | quote }}
-        - name: STORAGE_BUCKET
-          value: {{ .Values.minio.external.bucket | quote }}
+          value: {{ .Values.storage.secretKey | quote }}
         {{- end }}
         livenessProbe:
           httpGet:

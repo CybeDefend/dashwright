@@ -98,6 +98,14 @@ The following table lists the configurable parameters of the Dashwright chart an
 | `postgresql.external.password`           | External database password                     | `changeme`                      |
 | `postgresql.external.database`           | External database name                         | `dashwright`                    |
 
+### Storage Parameters
+
+| Parameter            | Description                                          | Default      |
+| -------------------- | ---------------------------------------------------- | ------------ |
+| `storage.provider`   | Storage provider: `minio`, `aws`, or `scaleway`      | `minio`      |
+| `storage.region`     | AWS/Scaleway region (not used for MinIO)            | `us-east-1`  |
+| `storage.limitGB`    | Storage quota in GB (for display only)              | `100`        |
+
 ### MinIO Parameters
 
 | Parameter                   | Description                                | Default                |
@@ -154,18 +162,67 @@ postgresql:
     database: "dashwright"
 ```
 
-### Using External S3-compatible Storage (AWS S3, MinIO, etc.)
+### Using AWS S3 Storage
+
+```yaml
+# Disable MinIO (using AWS S3 instead)
+minio:
+  enabled: false
+
+# Configure AWS S3
+storage:
+  provider: "aws"
+  region: "us-east-1"
+  limitGB: 100
+
+env:
+  backend:
+    STORAGE_ACCESS_KEY: "AKIAIOSFODNN7EXAMPLE"
+    STORAGE_SECRET_KEY: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    STORAGE_BUCKET: "dashwright-artifacts"
+```
+
+See `values-aws-s3.yaml` for a complete example.
+
+### Using Scaleway S3 Storage
+
+```yaml
+# Disable MinIO (using Scaleway S3 instead)
+minio:
+  enabled: false
+
+# Configure Scaleway S3
+storage:
+  provider: "scaleway"
+  region: "fr-par"  # or nl-ams, pl-waw
+  limitGB: 100
+
+env:
+  backend:
+    STORAGE_ACCESS_KEY: "SCWXXXXXXXXXXXXXXXXX"
+    STORAGE_SECRET_KEY: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    STORAGE_BUCKET: "dashwright-artifacts"
+```
+
+See `values-scaleway.yaml` for a complete example.
+
+### Using External MinIO
 
 ```yaml
 minio:
   enabled: false
   external:
-    endpoint: "s3.amazonaws.com"
-    port: 443
+    endpoint: "minio.example.com"
+    port: 9000
     useSSL: true
     accessKey: "your-access-key"
     secretKey: "your-secret-key"
     bucket: "dashwright-artifacts"
+
+storage:
+  provider: "minio"
+  region: "us-east-1"
+  limitGB: 100
 ```
 
 ### Using AWS RDS and S3
@@ -182,13 +239,17 @@ postgresql:
 
 minio:
   enabled: false
-  external:
-    endpoint: "s3.us-east-1.amazonaws.com"
-    port: 443
-    useSSL: true
-    accessKey: "AKIAIOSFODNN7EXAMPLE"
-    secretKey: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
-    bucket: "my-dashwright-bucket"
+
+storage:
+  provider: "aws"
+  region: "us-east-1"
+  limitGB: 100
+
+env:
+  backend:
+    STORAGE_ACCESS_KEY: "AKIAIOSFODNN7EXAMPLE"
+    STORAGE_SECRET_KEY: "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY"
+    STORAGE_BUCKET: "my-dashwright-bucket"
 ```
 
 ### Enable Autoscaling
