@@ -73,7 +73,7 @@ export default function ApiKeysPage() {
       }
       await loadApiKeys();
     } catch (error) {
-      console.error(`Failed to ${confirmModal.type} API key:`, error);
+      console.error(`Failed to ${confirmModal.type} API key:`, error)
     }
   };
 

@@ -72,7 +72,7 @@ export default function OrganizationPage() {
       }
       await loadInvitations();
     } catch (error) {
-      console.error(`Failed to ${confirmModal.type} invitation:`, error);
+      console.error(`Failed to ${confirmModal.type} invitation:`, error)
     }
   };
 

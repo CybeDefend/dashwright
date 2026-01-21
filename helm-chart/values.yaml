@@ -174,7 +174,7 @@ env:
     RATE_LIMIT_MAX: "10"
   frontend:
     VITE_API_URL: "http://dashwright.local/api"
-    VITE_WS_URL: "ws://dashwright.local"
+    VITE_WS_URL: "wss://dashwright.local"
 
 nodeSelector: {}
 
