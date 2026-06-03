@@ -176,6 +176,7 @@ env:
     VITE_API_URL: "http://dashwright.local/api"
     VITE_WS_URL: "ws://dashwright.local"
 
+# Pod scheduling — applied to all components (backend, frontend, postgresql, minio).
 nodeSelector: {}
 
 tolerations: []
