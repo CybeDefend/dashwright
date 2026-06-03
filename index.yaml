@@ -3,6 +3,27 @@ entries:
   dashwright:
   - apiVersion: v2
     appVersion: 1.2.20
+    created: "2026-06-03T15:32:45.288171969Z"
+    description: A modern Playwright dashboard for visualizing test runs
+    digest: f95f8247ab214c0359ae3c5d434bbfaca6fbe65c16ed0c16c7e8182f52f276f2
+    home: https://github.com/CybeDefend/Dashwright
+    keywords:
+    - playwright
+    - testing
+    - dashboard
+    - test-automation
+    maintainers:
+    - email: florentin.ledy@cybedefend.com
+      name: CybeDefend
+    name: dashwright
+    sources:
+    - https://github.com/CybeDefend/Dashwright
+    type: application
+    urls:
+    - https://github.com/CybeDefend/dashwright/releases/download/dashwright-1.2.21/dashwright-1.2.21.tgz
+    version: 1.2.21
+  - apiVersion: v2
+    appVersion: 1.2.20
     created: "2025-11-20T22:58:29.021953275Z"
     description: A modern Playwright dashboard for visualizing test runs
     digest: 09ab0ed79c114c67e0ba4294e06a7b1974c61a48a8a984ef60bcdbe7c3e7d1c3
@@ -568,4 +589,4 @@ entries:
     urls:
     - https://github.com/CybeDefend/dashwright/releases/download/dashwright-1.0.20/dashwright-1.0.20.tgz
     version: 1.0.20
-generated: "2025-11-20T22:58:29.022160543Z"
+generated: "2026-06-03T15:32:45.288275687Z"
