@@ -165,23 +165,17 @@ update_npm_version() {
 create_git_tag() {
     local version=$1
     local tag_name="v$version"
-    
-    print_info "Creating git tags"
+
+    print_info "Creating git tag"
     git add .
     git commit -m "chore: release version $version" || true
-    
-    # Create main version tag for Docker images
+
+    # Create main version tag for Docker images.
+    # Do NOT create a dashwright-$version tag here: chart-releaser-action owns
+    # those tags and creates them itself when publishing the Helm chart.
+    # Creating it manually collides with the workflow (see CLAUDE.md).
     git tag -a "$tag_name" -m "Release $version"
     print_success "Git tag created: $tag_name"
-    
-    # Create Helm chart tag (used by chart-releaser-action)
-    local chart_tag="dashwright-$version"
-    if git rev-parse "$chart_tag" >/dev/null 2>&1; then
-        print_warning "Helm chart tag $chart_tag already exists, skipping"
-    else
-        git tag -a "$chart_tag" -m "Helm Chart Release $version"
-        print_success "Helm chart tag created: $chart_tag"
-    fi
 }
 
 # Push to remote
